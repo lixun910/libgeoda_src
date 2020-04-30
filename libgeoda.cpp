@@ -3,13 +3,13 @@
 #include <string.h>
 
 
-#include "../src/gda_interface.h"
-#include "../src/weights/GeodaWeight.h"
-#include "../src/GenUtils.h"
-#include "../src/geofeature.h"
-#include "../postgeoda/src/geoms.h"
-#include "../postgeoda/src/utils.h"
-#include "../src/shape/centroid.h"
+#include "../gda_interface.h"
+#include "../weights/GeodaWeight.h"
+#include "../GenUtils.h"
+#include "../geofeature.h"
+#include "../pg/geoms.h"
+#include "../pg/utils.h"
+#include "../shape/centroid.h"
 
 #include "libgeoda.h"
 
