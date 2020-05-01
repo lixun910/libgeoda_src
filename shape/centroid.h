@@ -132,7 +132,7 @@ class Orientation {
         const gda::Point* hiPt = &pts[start];
         size_t hiIndex = start;
 
-        for(std::size_t i = start+1; i <= end; ++i) {
+        for(size_t i = start+1; i <= end; ++i) {
             const gda::Point* p = &pts[i];
             if(p->y > hiPt->y) {
                 hiPt = p;
@@ -140,7 +140,7 @@ class Orientation {
             }
         }
         // find distinct point before highest point
-        auto iPrev = hiIndex;
+        size_t iPrev = hiIndex;
         do {
             if(iPrev == start) {
                 iPrev = end + 1;
@@ -150,7 +150,7 @@ class Orientation {
         while(pts[iPrev].equals(hiPt) && iPrev != hiIndex);
 
         // find distinct point after highest point
-        auto iNext = hiIndex;
+        size_t iNext = hiIndex;
         do {
             iNext = (iNext + 1 - start) % nPts;
             iNext = iNext + start;

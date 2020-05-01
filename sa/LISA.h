@@ -5,7 +5,8 @@
 #ifndef GEODA_LISA_H
 #define GEODA_LISA_H
 
-#include <stdint.h>
+#include "../pg/geoms.h"
+
 #include <list>
 #include <string>
 

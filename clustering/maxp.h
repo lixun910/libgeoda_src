@@ -29,7 +29,7 @@
 #include "../weights/GalWeight.h"
 
 using namespace std;
-using namespace boost;
+//using namespace boost;
 
 class qvector
 {
@@ -43,9 +43,9 @@ public:
     
 protected:
     vector<int> vdata;
-    unordered_map<int, int> mdict;
+    boost::unordered_map<int, int> mdict;
     vector<int>::iterator v_iter;
-    unordered_map<int, int>::iterator m_iter;
+    boost::unordered_map<int, int>::iterator m_iter;
 };
 
 struct TabuMove
@@ -155,11 +155,11 @@ protected:
     /*!
      Details. key is area id, value is region id.
      */
-    unordered_map<int, int> area2region;
+    boost::unordered_map<int, int> area2region;
     
-    vector<unordered_map<int, int> > area2region_group;
+    vector<boost::unordered_map<int, int> > area2region_group;
     
-    unordered_map<vector<int>, double> objval_dict;
+    boost::unordered_map<vector<int>, double> objval_dict;
     
     //! A vector of vector<int> list of lists of regions.
     /*!
@@ -233,7 +233,7 @@ protected:
     /*!
      Details.
      */
-    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region, uint64_t seed_local);
+    void swap(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& area2region, uint64_t seed_local);
    
     //! xxx
     /* !
@@ -241,7 +241,7 @@ protected:
      \param neighbor
      \return boolean
      */
-    void tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
+    void tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
   
     //! xxx
     /* !
@@ -249,7 +249,7 @@ protected:
      \param neighbor
      \return boolean
      */
-    void simulated_annealing(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local);
+    void simulated_annealing(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local);
     
     //! xxx
     /* !
@@ -257,9 +257,9 @@ protected:
      \param neighbor
      \return boolean
      */
-    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region);
+    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, boost::unordered_map<int, int>& area2region);
     
-    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region, vector<TabuMove>& tabu_list, int max_tabu_length);
+    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, boost::unordered_map<int, int>& area2region, vector<TabuMove>& tabu_list, int max_tabu_length);
     
     //! A protected member function: init_solution(void). return
     /*!

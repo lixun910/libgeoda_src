@@ -20,7 +20,7 @@
 #ifndef __GEODA_CENTER_GEN_UTILS_H__
 #define __GEODA_CENTER_GEN_UTILS_H__
 
-#include <stdint.h>
+#include "../pg/geoms.h"
 #include <string>
 #include <vector>
 #include <map>

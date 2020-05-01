@@ -656,7 +656,7 @@ void Skater::Clustering()
     
     //https://github.com/vinecopulib/vinecopulib/issues/22
     std::vector<int> p(num_vertices(g));
-    boost::prim_minimum_spanning_tree(g, p.data());
+    boost::prim_minimum_spanning_tree(g, &p[0]);
   
     double sum_length=0;
     

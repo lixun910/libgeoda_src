@@ -1,7 +1,11 @@
 
 #include <iostream>
 #include <string.h>
+#include <float.h>
 
+#ifdef _MSC_VER
+#include <cstddef>
+#endif
 
 #include "../gda_interface.h"
 #include "../weights/GeodaWeight.h"
@@ -56,7 +60,7 @@ GeoDa::GeoDa(GeoDaTable* table,
 : numObs(wkb_bytes_len.size()), numCols(table->GetNumCols()), table(table)
 {
     main_map = new gda::MainMap();
-	Init(layer_name, map_type, wkb_bytes_len.size(), (unsigned char*)wkbs.data(), wkb_bytes_len, pszProj4);
+	Init(layer_name, map_type, wkb_bytes_len.size(), (unsigned char*)(&wkbs[0]), wkb_bytes_len, pszProj4);
 }
 
 // this constructor is for reading from ESRI shapefile
@@ -183,10 +187,10 @@ void GeoDa::AddPolygon(LWPOLY *lw_poly) {
     poly->num_parts = 0;
     poly->num_points = 0;
 
-    double minx = std::numeric_limits<double>::max();
-    double miny = std::numeric_limits<double>::max();
-    double maxx = std::numeric_limits<double>::lowest();
-    double maxy = std::numeric_limits<double>::lowest();
+    double minx = DBL_MAX;
+    double miny = DBL_MAX;
+    double maxx = DBL_MIN;
+    double maxy = DBL_MIN;
     double x, y;
 
     /* Iterate through each ring setting up shpparts to point to the beginning of each ring */
@@ -253,10 +257,10 @@ void GeoDa::AddMultiPolygon(LWMPOLY *lw_mpoly) {
     poly->num_parts = 0;
     poly->num_points = 0;
 
-    double minx = std::numeric_limits<double>::max();
-    double miny = std::numeric_limits<double>::max();
-    double maxx = std::numeric_limits<double>::lowest();
-    double maxy = std::numeric_limits<double>::lowest();
+    double minx = DBL_MAX;
+    double miny = DBL_MAX;
+    double maxx = DBL_MIN;
+    double maxy = DBL_MIN;
     double x, y;
 
     /* Iterate through each ring of each polygon in turn */
