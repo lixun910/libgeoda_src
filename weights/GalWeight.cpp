@@ -5,6 +5,13 @@
 #include <fstream>
 #include <string.h>
 #include <iomanip> 
+
+#ifdef _WIN32
+#if (_MSC_VER > 1900)
+#include <functional>
+#endif
+#endif
+
 #include "GalWeight.h"
 #include "GwtWeight.h"
 
