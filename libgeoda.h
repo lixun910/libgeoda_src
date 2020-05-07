@@ -25,6 +25,7 @@ public:
     FieldType field_type;
     int field_length;
     int field_decimals;
+    std::vector<bool> undefs;
 
     GeoDaColumn(const std::string& nm, FieldType ft, int flen, int fdec)
     : name(nm), field_type(ft), field_length(flen), field_decimals(fdec) {}
