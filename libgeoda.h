@@ -121,6 +121,7 @@ public:
             const std::vector<int>& wkb_bytes_len,
             const std::string& pszProj4);
 
+    // this constructor is for ESRI Shapefile
     GeoDa(const char* pDsPath, const char* layer_name=NULL);
 
     virtual ~GeoDa();
@@ -131,8 +132,6 @@ public:
     virtual int GetMapType();
     virtual gda::MainMap& GetMainMap();
 
-
-
     // Layer functions
     int GetNumCols() const;
     std::vector<std::string> GetFieldTypes();
@@ -142,7 +141,7 @@ public:
     std::vector<double> GetNumericCol(std::string col_name);
     std::vector<long long> GetIntegerCol(std::string col_name);
     std::vector<std::string> GetStringCol(std::string col_name);
-    std::vector<bool> GetUndefinesCol(std::string col_name);
+    std::vector<bool> GetNullValues(std::string col_name);
 
 
 protected:
@@ -152,6 +151,10 @@ protected:
     void AddMultiPolygon( LWMPOLY* lw_mpoly);
     void AddNullGeometry();
 
+    void ReadShapefile(const char* fpath);
+    void ReadDbffile(const char* fpath);
+
+    // reserved for working with GDAL
     void ReadAllFeatures();
 
 	void Init(const std::string& layer_name,

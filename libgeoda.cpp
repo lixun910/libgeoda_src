@@ -7,13 +7,13 @@
 #include <cstddef>
 #endif
 
-#include "gda_interface.h"
+#include "./shapelib/shapefil.h"
 #include "./weights/GeodaWeight.h"
-#include "GenUtils.h"
-#include "geofeature.h"
 #include "./pg/geoms.h"
 #include "./pg/utils.h"
 #include "./shape/centroid.h"
+#include "geofeature.h"
+#include "gda_interface.h"
 
 #include "libgeoda.h"
 
@@ -68,6 +68,7 @@ GeoDa::GeoDa(const char* poDsPath, const char* layer_name)
 : numLayers(0), numObs(0)
 {
     main_map = new gda::MainMap();
+    table = new GeoDaTable();
 }
 
 GeoDa::~GeoDa() {
@@ -346,7 +347,7 @@ const std::vector<gda::PointContents*>& GeoDa::GetCentroids()
     return centroids;
 }
 
-std::vector<bool> GeoDa::GetUndefinesCol(std::string col_name) {
+std::vector<bool> GeoDa::GetNullValues(std::string col_name) {
     std::vector<bool> rst;
     /*
     if (fieldNameIdx.find(col_name) != fieldNameIdx.end()) {
@@ -440,6 +441,144 @@ int GeoDa::GetMapType()
     return main_map->shape_type;
 }
 
+void GeoDa::ReadDbffile(const char* fpath)
+{
+    DBFHandle hDBF = DBFOpen(fpath, "rb");
+    if (hDBF == NULL) {
+        // unable to open throw error
+        return;
+    }
+    int		nWidth, nDecimals;
+    char	szTitle[12];
+    for( int iRecord = 0; iRecord < DBFGetRecordCount(hDBF); iRecord++ ) {
+        for( int i = 0; i < DBFGetFieldCount(hDBF); i++ ) {
+            DBFFieldType eType = DBFGetFieldInfo( hDBF, i, szTitle, &nWidth, &nDecimals );
+            if (DBFIsAttributeNULL( hDBF, iRecord, i ) ) {
+                continue;
+            }
+            switch( eType ) {
+                case FTString:
+                    const char* val = DBFReadStringAttribute( hDBF, iRecord, i );
+
+                case FTInteger:
+                    int val = DBFReadIntegerAttribute( hDBF, iRecord, i );
+
+                case FTDouble:
+                    double val = DBFReadDoubleAttribute( hDBF, iRecord, i );
+
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+void GeoDa::ReadShapefile(const char* fpath)
+{
+    char dbfpath[512];
+    strcpy(dbfpath, fpath);
+    strncpy(dbfpath + strlen(fpath)-3, "dbf", 3);
+
+    SHPHandle hSHP = SHPOpen(fpath, "rb" );
+    if( hSHP == NULL ) {
+        // unable to open, throw error
+        return;
+    }
+    int	nShapeType, nEntities, i, j, iPart, bValidate = 0,nInvalidCount=0;
+    double 	adfMinBound[4], adfMaxBound[4];
+    // get bounds
+    SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
+    main_map->bbox_x_min = std::numeric_limits<double>::max();
+    main_map->bbox_y_min = std::numeric_limits<double>::max();
+    main_map->bbox_x_max = std::numeric_limits<double>::lowest();
+    main_map->bbox_y_max = std::numeric_limits<double>::lowest();
+    main_map->num_obs = nEntities;
+
+    // read all shapes
+    for( i = 0; i < nEntities; i++ ) {
+        j = 0;
+        SHPObject *psShape = SHPReadObject( hSHP, i );
+        if( psShape == NULL ) {
+            // can't read shape
+            this->main_map->records.push_back(new gda::NullShapeContents());
+            continue;
+        }
+        // bounds
+        switch ( nShapeType ) {
+            case SHPT_POINT: {
+                gda::PointContents* pc = new gda::PointContents();
+                pc->x = *psShape->padfX;
+                pc->y = *psShape->padfY;
+                main_map->set_bbox(pc->x, pc->y);
+                main_map->records.push_back(pc);
+            }
+
+            case SHPT_MULTIPOINT: {
+                gda::PointContents* pc = new gda::PointContents();
+                for( j=0; j<psShape->nVertices; ++j ) {
+                    pc->x = psShape->padfX[j];
+                    pc->y = psShape->padfY[j];
+                    main_map->set_bbox(pc->x, pc->y);
+                    main_map->records.push_back(pc);
+                    break;// only first point is used
+                }
+            }
+
+            case SHPT_ARC: {
+                if ( psShape->nParts != 1 ) {
+                    for (j = 0; j < psShape->nParts; ++j) {
+                        int itEnd = (j + 1 < psShape->nParts) ? psShape->panPartStart[j + 1] : psShape->nVertices;
+                        for (int k = psShape->panPartStart[j]; k < itEnd; ++k) {
+                            // line append
+                            psShape->padfX[k], psShape->padfY[k];
+                        }
+                    }
+                } else {
+                    for( j=0; j<psShape->nVertices; ++j ) {
+                        // line append
+                        psShape->padfX[j];
+                        psShape->padfY[j];
+                    }
+                }
+            }
+
+            case SHPT_POLYGON: {
+                gda::PolygonContents* pc = new gda::PolygonContents();
+                pc->num_parts = psShape->nParts;
+                pc->num_points = psShape->nVertices;
+                double x,y;
+                for (j = 0; j < psShape->nParts; ++j) {
+                    int itStart = psShape->panPartStart[j];
+                    int itEnd = (j + 1 < psShape->nParts) ? psShape->panPartStart[j + 1] : psShape->nVertices;
+                    for (int k = itStart; k < itEnd; ++k) {
+                        // ring append
+                        x = psShape->padfX[k];
+                        y = psShape->padfY[k];
+                        pc->points.push_back(gda::Point(x,y));
+                        main_map->set_bbox(x, y);
+                        if (pc->box[0] > x) pc->box[0] = x;
+                        if (pc->box[1] > y) pc->box[1] = y;
+                        if (pc->box[2] < x) pc->box[2] = x;
+                        if (pc->box[3] < y) pc->box[3] = y;
+                    }
+                    if (j==0) {
+                        // add outer boundA
+                        pc->holes.push_back(false);
+                    } else {
+                        // add inner part
+                        pc->holes.push_back(true);
+                    }
+                    pc->parts.push_back(itEnd-itStart);
+                }
+                main_map->records.push_back(pc);
+            }
+            break;
+        }
+    }
+    SHPClose( hSHP );
+}
+
+// The following function will be reserved for working with GDAL
 void GeoDa::ReadAllFeatures()
 {
     /*

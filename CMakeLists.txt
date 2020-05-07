@@ -29,6 +29,9 @@ set(GEODA_SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/pca.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/pg/geoms.c
         ${CMAKE_CURRENT_SOURCE_DIR}/pg/utils.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/shapelib/dbfopen.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/shapelib/shpopen.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/shapelib/safileio.c
         PARENT_SCOPE)
 
 set (GEODA_INCLUDE_FILES
