@@ -375,8 +375,18 @@ std::vector<double> GeoDa::GetNumericCol(std::string col_name)
     std::vector<double> rst;
     if (table) {
         GeoDaColumn* col = table->GetColumn(col_name);
-        GeoDaRealColumn* r_col = dynamic_cast<GeoDaRealColumn*>(col);
-        rst = r_col->data;
+        if (col)  {
+            if (col->field_type == GeoDaColumn::integer_type) {
+                GeoDaIntColumn* r_col = dynamic_cast<GeoDaIntColumn*>(col);
+                for (size_t i=0; i<r_col->data.size(); ++i) {
+                    rst.push_back(r_col->data[i]);
+                }
+
+            } else if (col->field_type == GeoDaColumn::real_type) {
+                GeoDaRealColumn* r_col = dynamic_cast<GeoDaRealColumn*>(col);
+                rst = r_col->data;
+            }
+        }
     }
     return rst;
 }
@@ -385,8 +395,18 @@ std::vector<long long> GeoDa::GetIntegerCol(std::string col_name) {
     std::vector<long long> rst;
     if (table) {
         GeoDaColumn* col = table->GetColumn(col_name);
-        GeoDaIntColumn* r_col = dynamic_cast<GeoDaIntColumn*>(col);
-        rst = r_col->data;
+        if (col)  {
+            if (col->field_type == GeoDaColumn::integer_type) {
+                GeoDaIntColumn* r_col = dynamic_cast<GeoDaIntColumn*>(col);
+                rst = r_col->data;
+
+            } else if (col->field_type == GeoDaColumn::real_type) {
+                GeoDaRealColumn* r_col = dynamic_cast<GeoDaRealColumn*>(col);
+                for (size_t i=0; i<r_col->data.size(); ++i) {
+                    rst.push_back(r_col->data[i]);
+                }
+            }
+        }
     }
     return rst;
 }
@@ -395,8 +415,27 @@ std::vector<std::string> GeoDa::GetStringCol(std::string col_name) {
     std::vector<std::string> rst;
     if (table) {
         GeoDaColumn* col = table->GetColumn(col_name);
-        GeoDaStringColumn* r_col = dynamic_cast<GeoDaStringColumn*>(col);
-        rst = r_col->data;
+        if (col)  {
+            if (col->field_type == GeoDaColumn::integer_type) {
+                GeoDaIntColumn* r_col = dynamic_cast<GeoDaIntColumn*>(col);
+                for (size_t i=0; i<r_col->data.size(); ++i) {
+                    std::stringstream ss;
+                    ss << r_col->data[i];
+                    rst.push_back(ss.str());
+                }
+
+            } else if (col->field_type == GeoDaColumn::real_type) {
+                GeoDaRealColumn* r_col = dynamic_cast<GeoDaRealColumn*>(col);
+                for (size_t i=0; i<r_col->data.size(); ++i) {
+                    std::stringstream ss;
+                    ss << r_col->data[i];
+                    rst.push_back(ss.str());
+                }
+            } else {
+                GeoDaStringColumn* r_col = dynamic_cast<GeoDaStringColumn*>(col);
+                rst = r_col->data;
+            }
+        }
     }
     return rst;
 }
