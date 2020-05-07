@@ -71,16 +71,25 @@ public:
     GeoDaTable(){};
     virtual ~GeoDaTable(){};
 
-    void AddIntColumn(const std::string& nm, const std::vector<long long>& vals) {
+    void AddIntColumn(const std::string& nm,
+            const std::vector<long long>& vals,
+            const std::vector<bool>& undefs=std::vector<bool>()) {
         GeoDaColumn* col = new GeoDaIntColumn(nm, vals);
+        col->undefs = undefs;
         columns.push_back(col);
     }
-    void AddStringColumn(const std::string& nm, const std::vector<std::string>& vals) {
+    void AddStringColumn(const std::string& nm,
+            const std::vector<std::string>& vals,
+            const std::vector<bool>& undefs=std::vector<bool>()) {
         GeoDaColumn* col = new GeoDaStringColumn(nm, vals);
+        col->undefs = undefs;
         columns.push_back(col);
     }
-    void AddRealColumn(const std::string& nm, const std::vector<double>& vals) {
+    void AddRealColumn(const std::string& nm,
+            const std::vector<double>& vals,
+            const std::vector<bool>& undefs=std::vector<bool>()) {
         GeoDaColumn* col = new GeoDaRealColumn(nm, vals);
+        col->undefs = undefs;
         columns.push_back(col);
     }
 

@@ -1,5 +1,5 @@
+#include <iostream>
 
-//#include <boost/system/config.hpp>
 #include "weights/GeodaWeight.h"
 #include "sa/UniGeary.h"
 #include "sa/UniG.h"
@@ -148,6 +148,9 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
     if (quantile < 0 || quantile >= k) return 0;
 
     std::vector<bool> copy_undefs = undefs; //copy
+    if (copy_undefs.empty()) {
+        copy_undefs.resize(num_obs, false);
+    }
 
     std::vector<double> breaks = GenUtils::QuantileBreaks(k, data, copy_undefs);
 
@@ -162,9 +165,6 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
     }
 
     // apply local join count on binary data
-    if (copy_undefs.empty()) {
-        copy_undefs.resize(num_obs, false);
-    }
     UniJoinCount* jc= new UniJoinCount(num_obs, w, bin_data, copy_undefs, nCPUs, perm, last_seed);
 
     return jc;

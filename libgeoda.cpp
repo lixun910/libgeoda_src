@@ -487,12 +487,11 @@ void GeoDa::ReadDbffile(const char* fpath)
 
         GeoDaColumn *column;
         if (eType == FTInteger)
-            column = new GeoDaIntColumn(szTitle, val_i);
+            table->AddIntColumn(szTitle, val_i, undefs);
         else if (eType == FTDouble)
-            column = new GeoDaRealColumn(szTitle, val_d);
+            table->AddRealColumn(szTitle, val_d, undefs);
         else
-            column = new GeoDaStringColumn(szTitle, val_s);
-        column->undefs = undefs;
+            table->AddStringColumn(szTitle, val_s, undefs);
     }
     DBFClose(hDBF);
 }
@@ -510,10 +509,10 @@ void GeoDa::ReadShapefile(const char* fpath)
     double 	adfMinBound[4], adfMaxBound[4];
     // get bounds
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );
-    main_map->bbox_x_min = std::numeric_limits<double>::max();
-    main_map->bbox_y_min = std::numeric_limits<double>::max();
-    main_map->bbox_x_max = std::numeric_limits<double>::lowest();
-    main_map->bbox_y_max = std::numeric_limits<double>::lowest();
+    main_map->bbox_x_min = adfMinBound[0];
+    main_map->bbox_y_min = adfMinBound[1];
+    main_map->bbox_x_max = adfMaxBound[0];
+    main_map->bbox_y_max = adfMaxBound[1];
     main_map->num_obs = nEntities;
 
     // read all shapes
@@ -528,20 +527,20 @@ void GeoDa::ReadShapefile(const char* fpath)
         // bounds
         switch ( nShapeType ) {
             case SHPT_POINT: {
+                main_map->shape_type = gda::POINT_TYP;
                 gda::PointContents* pc = new gda::PointContents();
                 pc->x = *psShape->padfX;
                 pc->y = *psShape->padfY;
-                main_map->set_bbox(pc->x, pc->y);
                 main_map->records.push_back(pc);
                 break;
             }
 
             case SHPT_MULTIPOINT: {
+                main_map->shape_type = gda::POINT_TYP;
                 gda::PointContents* pc = new gda::PointContents();
                 //for( j=0; j<psShape->nVertices; ++j ) {
                     pc->x = psShape->padfX[0];
                     pc->y = psShape->padfY[0];
-                    main_map->set_bbox(pc->x, pc->y);
                     main_map->records.push_back(pc);
                     // only first point is used
                 //}
@@ -549,9 +548,14 @@ void GeoDa::ReadShapefile(const char* fpath)
             }
 
             case SHPT_ARC: {
+                main_map->shape_type = gda::POLY_LINE;
                 gda::PolyLineContents* pc = new gda::PolyLineContents();
                 pc->num_parts = psShape->nParts;
                 pc->num_points = psShape->nVertices;
+                pc->box[0] = psShape->dfXMin;
+                pc->box[1] = psShape->dfYMin;
+                pc->box[2] = psShape->dfXMax;
+                pc->box[3] = psShape->dfYMax;
                 double x,y;
                 for (j = 0; j < psShape->nParts; ++j) {
                     int itEnd = (j + 1 < psShape->nParts) ? psShape->panPartStart[j + 1] : psShape->nVertices;
@@ -562,11 +566,6 @@ void GeoDa::ReadShapefile(const char* fpath)
                         x = psShape->padfX[k];
                         y = psShape->padfY[k];
                         pc->points.push_back(gda::Point(x,y));
-                        main_map->set_bbox(x, y);
-                        if (pc->box[0] > x) pc->box[0] = x;
-                        if (pc->box[1] > y) pc->box[1] = y;
-                        if (pc->box[2] < x) pc->box[2] = x;
-                        if (pc->box[3] < y) pc->box[3] = y;
                     }
                 }
                 main_map->records.push_back(pc);
@@ -574,9 +573,14 @@ void GeoDa::ReadShapefile(const char* fpath)
             }
 
             case SHPT_POLYGON: {
+                main_map->shape_type = gda::POLYGON;
                 gda::PolygonContents* pc = new gda::PolygonContents();
                 pc->num_parts = psShape->nParts;
                 pc->num_points = psShape->nVertices;
+                pc->box[0] = psShape->dfXMin;
+                pc->box[1] = psShape->dfYMin;
+                pc->box[2] = psShape->dfXMax;
+                pc->box[3] = psShape->dfYMax;
                 double x,y;
                 for (j = 0; j < psShape->nParts; ++j) {
                     int itStart = psShape->panPartStart[j];
@@ -588,11 +592,6 @@ void GeoDa::ReadShapefile(const char* fpath)
                         x = psShape->padfX[k];
                         y = psShape->padfY[k];
                         pc->points.push_back(gda::Point(x,y));
-                        main_map->set_bbox(x, y);
-                        if (pc->box[0] > x) pc->box[0] = x;
-                        if (pc->box[1] > y) pc->box[1] = y;
-                        if (pc->box[2] < x) pc->box[2] = x;
-                        if (pc->box[3] < y) pc->box[3] = y;
                     }
                 }
                 main_map->records.push_back(pc);

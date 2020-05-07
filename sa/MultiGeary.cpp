@@ -29,6 +29,19 @@ MultiGeary::MultiGeary(int num_obs, GeoDaWeight *w,
     colors.push_back("#464646");
     colors.push_back("#999999");
 
+    std::vector<bool> undef_merge(num_obs, false);
+    if (_undefs.size() > 0) {
+        for (size_t i=0; i<num_obs; ++i) {
+            for (size_t j = 0; j < _undefs.size(); ++j) {
+                if (_undefs[j].size() >= num_obs) {
+                    break;
+                }
+                undef_merge[i] = undef_merge[i] || _undefs[j][i];
+            }
+        }
+    }
+    undefs = undef_merge;
+
     num_vars = data.size();
     for (size_t i=0; i < num_vars; ++i) {
         GenUtils::StandardizeData(data[i], undefs);

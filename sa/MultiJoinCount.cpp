@@ -32,6 +32,19 @@ MultiJoinCount::MultiJoinCount(int num_obs, GeoDaWeight *w,
 
     num_vars = data.size();
 
+    std::vector<bool> undef_merge(num_obs, false);
+    if (_undefs.size() > 0) {
+        for (size_t i=0; i<num_obs; ++i) {
+            for (size_t j = 0; j < _undefs.size(); ++j) {
+                if (_undefs[j].size() >= num_obs) {
+                    break;
+                }
+                undef_merge[i] = undef_merge[i] || _undefs[j][i];
+            }
+        }
+    }
+    undefs = undef_merge;
+
     zz.resize(num_obs, 1);
     for (size_t i=0; i<num_obs; i++) {
         for (int v = 0; v < num_vars; v++) {
