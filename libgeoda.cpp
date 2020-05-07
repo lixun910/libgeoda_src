@@ -7,13 +7,13 @@
 #include <cstddef>
 #endif
 
-#include "../gda_interface.h"
-#include "../weights/GeodaWeight.h"
-#include "../GenUtils.h"
-#include "../geofeature.h"
-#include "../pg/geoms.h"
-#include "../pg/utils.h"
-#include "../shape/centroid.h"
+#include "gda_interface.h"
+#include "./weights/GeodaWeight.h"
+#include "GenUtils.h"
+#include "geofeature.h"
+#include "./pg/geoms.h"
+#include "./pg/utils.h"
+#include "./shape/centroid.h"
 
 #include "libgeoda.h"
 

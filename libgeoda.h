@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <map>
 
-#include "geoms.h"
+#include "./pg/geoms.h"
 #include "gda_interface.h"
 
 // forward declaration
