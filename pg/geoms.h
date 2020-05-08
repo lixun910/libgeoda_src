@@ -12,7 +12,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 
 #if (_MSC_VER == 1500)
-typedef unsigned __int32 size_t;
+//typedef unsigned __int32 size_t;
 #define inline __inline
 #define isnan _isnan
 #endif
