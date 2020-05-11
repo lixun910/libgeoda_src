@@ -233,10 +233,10 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
             nbr_dict[d_id].push_back(o_id);
         }
         if (size < 1000) {
-            std::cout << "Tree()a" << std::endl;
+            //std::cout << "Tree()a" << std::endl;
             Partition(0, od_array.size()-1, ordered_ids, od_array, nbr_dict);
         } else {
-            std::cout << "Tree()b" << std::endl;
+            //std::cout << "Tree()b" << std::endl;
             run_threads(ordered_ids, od_array, nbr_dict);
         }
         if (!split_cands.empty()) {

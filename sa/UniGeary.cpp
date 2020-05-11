@@ -59,28 +59,20 @@ void UniGeary::ComputeLoalSA() {
                 cluster_vec[i] = CLUSTER_NEIGHBORLESS;
             } else {
                 // computer spatial lag
-                double sp_lag = 0;
+                double sp_lag = 0, sp_lag_square = 0;
                 const std::vector<long>& nbrs = weights->GetNeighbors(i);
                 unsigned int nn = 0;
                 for (size_t j=0; j<nbrs.size(); ++j) {
                     if (nbrs[j] != i &&  !undefs[nbrs[j]]) { // not including the value at the location
                         sp_lag += data[ nbrs[j] ];
+                        sp_lag_square += data_square[ nbrs[j] ];
                         nn += 1;
                     }
                 }
                 sp_lag = sp_lag / nn;
-                lag_vec[i] = sp_lag;
-
-                // computer spatial lag squared
-                double sp_lag_square = 0;
-                for (size_t j=0; j<nbrs.size(); ++j) {
-                    if (nbrs[j] != i &&  !undefs[nbrs[j]]) { // not including the value at the location
-                        sp_lag_square += data_square[ nbrs[j] ];
-                    }
-                }
-                sp_lag_square = sp_lag / nn;
-
+                sp_lag_square = sp_lag_square / nn;
                 // compute geary's i
+                lag_vec[i] = sp_lag;
                 lisa_vec[i] = data_square[i] - 2.0 * data[i] * sp_lag + sp_lag_square;
                 
                 // assign the cluster

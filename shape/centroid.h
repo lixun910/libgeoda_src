@@ -14,7 +14,11 @@
 #include "ttmath/ttmath.h"
 #include "../geofeature.h"
 
+/// Usage: `ttmath::Big<exponent, mantissa>`
 typedef ttmath::Big<TTMATH_BITS(32), TTMATH_BITS(128)> DD;
+//typedef ttmath::Big<TTMATH_BITS(64), TTMATH_BITS(128)> DD;
+//typedef ttmath::Big<TTMATH_BITS(32), TTMATH_BITS(256)> DD;
+//typedef ttmath::Big<TTMATH_BITS(64), TTMATH_BITS(256)> DD;
 
 double DP_SAFE_EPSILON =  1e-15;
 
@@ -121,10 +125,11 @@ class Orientation {
         return OrientationDD(d);
     }
 
+    // detect orientation of a ring
     static bool isCCW(const std::vector<gda::Point>& pts, int start, int end)
     {
         // # of points without closing endpoint
-        const std::size_t nPts = end - start + 1;
+        const std::size_t nPts = end - start;
 
         if (nPts < 3) return false;
 
@@ -143,7 +148,7 @@ class Orientation {
         size_t iPrev = hiIndex;
         do {
             if(iPrev == start) {
-                iPrev = end + 1;
+                iPrev = end;
             }
             iPrev = iPrev - 1;
         }
@@ -288,8 +293,12 @@ private:
 
     void addHole(const gda::PolygonContents* poly, int start, int end)
     {
-        bool isPositiveArea = Orientation::isCCW(poly->points, start, end);
-        for(size_t i = start, e = end - 1; i < e; ++i) {
+        // NOTE: shapefiles like ESRI Shapefile record the shells and holes in the same orientation
+        // if read by some libraries e.g. gdal the orientation of holes will be different than shells
+        // so the following line should be changed according to different orientattion style of input
+        // datasource
+        bool isPositiveArea = !Orientation::isCCW(poly->points, start, end);
+        for(size_t i = start, e = end; i < e; ++i) {
             addTriangle(areaBasePt, poly->points[i], poly->points[i + 1], isPositiveArea);
         }
         addLineSegments(poly->points, start, end);
@@ -309,7 +318,7 @@ private:
     {
         size_t npts = end - start + 1;
         double lineLen = 0.0;
-        for(size_t i = start; i < end - 1; i++) {
+        for(size_t i = start; i < end; i++) {
             double segmentLen = pts[i].distance(pts[i + 1]);
             if(segmentLen == 0.0) {
                 continue;

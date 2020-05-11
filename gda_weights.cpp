@@ -133,7 +133,7 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
         x[i] = centroids[i]->x;
         y[i] = centroids[i]->y;
     }
-    dist_thres = dist_thres * 1.00001; //m_thres_delta_factor
+    dist_thres = dist_thres * 1.00000; //m_thres_delta_factor
     GwtWeight* poW = SpatialIndAlgs::thresh_build(x, y, dist_thres, power, is_arc, is_mile,
                                                   kernel, use_kernel_diagnals);
 
