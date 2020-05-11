@@ -13,11 +13,13 @@ set(GEODA_SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/weights/PolysToContigWeights.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/weights/VoronoiUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/LISA.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/sa/BatchLISA.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/UniG.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/UniGstar.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/UniGeary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/UniJoinCount.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/UniLocalMoran.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/sa/BatchLocalMoran.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/MultiGeary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/MultiJoinCount.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/cluster.cpp
@@ -39,6 +41,7 @@ set (GEODA_INCLUDE_FILES
         pg/utils.h
         weights/GeodaWeight.h
         sa/LISA.h
+        sa/BatchLISA.h
         gda_clustering.h
         gda_weights.h
         gda_data.h

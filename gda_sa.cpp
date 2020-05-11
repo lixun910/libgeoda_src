@@ -8,6 +8,7 @@
 #include "sa/UniLocalMoran.h"
 #include "sa/MultiGeary.h"
 #include "sa/MultiJoinCount.h"
+#include "sa/BatchLocalMoran.h"
 #include "GenUtils.h"
 #include "gda_sa.h"
 
@@ -61,6 +62,25 @@ LISA* gda_localmoran(GeoDaWeight *w,
     }
     UniLocalMoran* lisa = new UniLocalMoran(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
     return lisa;
+}
+
+BatchLISA* gda_batchlocalmoran(GeoDaWeight *w,
+                     const std::vector<std::vector<double> > &data,
+                     const std::vector<std::vector<bool> > &undefs,
+                     int nCPUs, int perm, int last_seed)
+{
+    if (w == 0) return 0;
+
+    int num_obs = w->num_obs;
+
+    std::vector<std::vector<bool> > copy_undefs = undefs;
+    if (undefs.empty()) {
+        copy_undefs.resize(data.size());
+        for (size_t i=0; i<data.size(); ++i) copy_undefs[i].resize(num_obs, false);
+    }
+
+    BatchLISA* bm = new BatchLocalMoran(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    return bm;
 }
 
 LISA* gda_geary(GeoDaWeight *w,

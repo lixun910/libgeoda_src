@@ -6,6 +6,7 @@
 
 class GeoDaWeight;
 class LISA;
+class BatchLISA;
 
 // APIs of local spatial autocorrelation
 /**
@@ -18,6 +19,17 @@ class LISA;
 LISA* gda_localmoran(GeoDaWeight *w,
                         const std::vector<double> &data,
                         const std::vector<bool> &undefs = std::vector<bool>(),
+                     int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+
+/**
+ *
+ * @param w
+ * @param data
+ * @param undefs
+ * @return
+ */
+BatchLISA* gda_batchlocalmoran(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
+                     const std::vector<std::vector<bool> > &undefs = std::vector<std::vector<bool> >(),
                      int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
 
 /**
