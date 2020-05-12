@@ -1,4 +1,5 @@
 #include <iostream>
+#include <float.h>
 
 #include "weights/GeodaWeight.h"
 #include "sa/UniGeary.h"
@@ -165,7 +166,7 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
 
     if (k< 1 || k>= num_obs) return 0;
 
-    if (quantile < 0 || quantile >= k) return 0;
+    if (quantile < 0 || quantile > k) return 0;
 
     std::vector<bool> copy_undefs = undefs; //copy
     if (copy_undefs.empty()) {
@@ -174,12 +175,23 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
 
     std::vector<double> breaks = GenUtils::QuantileBreaks(k, data, copy_undefs);
 
-    double top_break = breaks[quantile];
+    quantile = quantile - 1;
+    double break_left = DBL_MIN;
+    double break_right = DBL_MAX;
+
+    if (quantile == 0) {
+        break_right = breaks[quantile];
+    } else if (quantile == breaks.size()) {
+        break_left = breaks[quantile - 1];
+    } else {
+        break_left = breaks[quantile - 1];
+        break_right = breaks[quantile];
+    }
 
     std::vector<double> bin_data(num_obs, 0);
 
     for (size_t i=0; i< num_obs; ++i) {
-        if (data[i] >= top_break) {
+        if (data[i] >= break_left && data[i] < break_right) {
             bin_data[i] = 1;
         }
     }
