@@ -270,7 +270,7 @@ void Tree::run_threads(vector<int>& ids,
     int n_jobs = od_array.size();
 
 #ifdef _WIN32
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = 8;//boost::thread::hardware_concurrency();;
     boost::thread_group threadPool;
 #else
     int nCPUs = 8;

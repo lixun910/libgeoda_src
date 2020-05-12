@@ -176,7 +176,7 @@ void Maxp::run(int a, int b)
 void Maxp::run_threaded()
 {
 #ifdef _WIN32
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = 8;//boost::thread::hardware_concurrency();;
     boost::thread_group threadPool;
 #else
     int nCPUs = 8;
