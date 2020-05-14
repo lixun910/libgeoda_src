@@ -32,7 +32,7 @@
 
 using namespace std;
 
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #else
@@ -56,11 +56,24 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         double* _floor_variable, int _initial, vector<uint64_t> _seeds,
         int _method, int _tabu_length, double _cool_rate,int _rnd_seed,
         char _dist,  bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),
-LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test),
-initial_wss(_initial), regions_group(_initial), area2region_group(_initial),
-p_group(_initial), dist(_dist), best_ss(DBL_MAX), method(_method),
-tabu_length(_tabu_length), cooling_rate(_cool_rate)
+: w(_w), 
+method(_method),
+tabu_length(_tabu_length), 
+cooling_rate(_cool_rate),
+dist(_dist), 
+rnd_seed(_rnd_seed), 
+floor_variable(_floor_variable), 
+z(_z), 
+area2region_group(_initial),
+regions_group(_initial), 
+best_ss(DBL_MAX), 
+p_group(_initial), 
+initial(_initial),
+floor(_floor), 
+LARGE(1000000), 
+MAX_ATTEMPTS(100), 
+initial_wss(_initial), 
+test(_test)
 {
     num_obs = z.size();
     num_vars = z[0].size();
@@ -73,11 +86,11 @@ tabu_length(_tabu_length), cooling_rate(_cool_rate)
     // setup random number
     if (rnd_seed<0) {
         unsigned int initseed = (unsigned int) time(0);
-        srand(initseed);
+        std::srand(initseed);
     } else {
-        srand(rnd_seed);
+        std::srand(rnd_seed);
     }
-    seed_start = rand();
+    seed_start = std::rand();
     seed_increment = MAX_ATTEMPTS * num_obs * 10000;
     
     // init solution
@@ -175,7 +188,7 @@ void Maxp::run(int a, int b)
 
 void Maxp::run_threaded()
 {
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
     int nCPUs = 8;//boost::thread::hardware_concurrency();;
     boost::thread_group threadPool;
 #else
@@ -198,7 +211,7 @@ void Maxp::run_threaded()
             b = a+quotient-1;
         }
 
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
         boost::thread* worker = new boost::thread(boost::bind(&Maxp::run,this,a,b));
         threadPool.add_thread(worker);
 #else
@@ -211,7 +224,7 @@ void Maxp::run_threaded()
 #endif
     }
 
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
     threadPool.join_all();
 #else
     for (int j = 0; j < nCPUs; j++) {
@@ -496,8 +509,8 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                             neighbors_dict[cand] = true;
                     }
                 }
-                int m_size = member_dict.size();
-                int n_size = neighbors_dict.size();
+                //int m_size = member_dict.size();
+                //int n_size = neighbors_dict.size();
                 
                 vector<int> candidates;
                 for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
@@ -872,8 +885,8 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
                         neighbors_dict[cand] = true;
                 }
             }
-            int m_size = member_dict.size();
-            int n_size = neighbors_dict.size();
+            //int m_size = member_dict.size();
+            //int n_size = neighbors_dict.size();
             
             vector<int> candidates;
             for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {

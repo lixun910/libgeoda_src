@@ -227,11 +227,11 @@ std::string Gda::CreateUUID(int nSize)
 
     std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
     
-    srand (time(NULL));
+    std::srand (time(NULL));
     
     std::string uid;
     while (uid.length() < nSize) {
-        int iSecret = rand() % letters.size();
+        int iSecret = std::rand() % letters.size();
         uid += letters[iSecret];
     }
     return uid;

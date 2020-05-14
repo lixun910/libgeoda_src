@@ -60,6 +60,7 @@ lwdebug(int level, const char *fmt, ...)
 static void
 default_debuglogger(int level, const char *fmt, va_list ap)
 {
+#ifdef __PGGEODA__
     char msg[LW_MSG_MAXLEN+1];
     if ( POSTGIS_DEBUG_LEVEL >= level )
     {
@@ -71,24 +72,29 @@ default_debuglogger(int level, const char *fmt, va_list ap)
         msg[LW_MSG_MAXLEN]='\0';
         fprintf(stderr, "%s\n", msg);
     }
+#endif
 }
 
 static void
 default_errorreporter(const char *fmt, va_list ap)
 {
+#ifdef __PGGEODA__
     char msg[LW_MSG_MAXLEN+1];
     vsnprintf (msg, LW_MSG_MAXLEN, fmt, ap);
     msg[LW_MSG_MAXLEN]='\0';
     fprintf(stderr, "%s\n", msg);
     exit(1);
+#endif
 }
 
 
 static void
 default_noticereporter(const char *fmt, va_list ap)
 {
+#ifdef __PGGEODA__
     char msg[LW_MSG_MAXLEN+1];
     vsnprintf (msg, LW_MSG_MAXLEN, fmt, ap);
     msg[LW_MSG_MAXLEN]='\0';
     fprintf(stderr, "%s\n", msg);
+#endif
 }

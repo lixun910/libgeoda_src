@@ -294,7 +294,7 @@ void GalWeight::GetNbrStats()
         if (i==0 || n_nbrs > max_nbrs) max_nbrs = n_nbrs;
         nnbrs_array.push_back(n_nbrs);
     }
-    double n_edges = e_dict.size() / 2.0;
+    //double n_edges = e_dict.size() / 2.0;
     density = 100.0 * sum_nnbrs / (double)(num_obs * num_obs);
     
     if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;

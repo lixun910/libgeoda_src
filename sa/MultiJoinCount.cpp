@@ -14,11 +14,12 @@ MultiJoinCount::MultiJoinCount(int num_obs, GeoDaWeight *w,
                            const std::vector<std::vector<double> > &_data,
                            const std::vector<std::vector<bool> > &_undefs,
                                int _nCPUs, int _perm, uint64_t _last_seed)
-        : LISA(num_obs, w, _undefs, _nCPUs, _perm, _last_seed), data(_data),
+        : LISA(num_obs, w, _undefs, _nCPUs, _perm, _last_seed), 
           CLUSTER_NOT_SIG(0),
           CLUSTER_SIG(1),
           CLUSTER_UNDEFINED(2),
-          CLUSTER_NEIGHBORLESS(3)
+          CLUSTER_NEIGHBORLESS(3),
+          data(_data)
 {
     labels.push_back("Not significant");
     labels.push_back("Significant");

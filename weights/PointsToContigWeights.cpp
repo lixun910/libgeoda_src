@@ -69,7 +69,7 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
 	double bb_ymax = y_orig_max + y_range * bb_pad;
 
     // seed sites
-    jcv_point points[num_obs];     
+    jcv_point* points = new jcv_point[num_obs];     
     for (size_t i=0; i< num_obs; ++i) {
         points[i].x = (float)x[i];
         points[i].y = (float)y[i];
@@ -148,7 +148,7 @@ bool gda::PointsToContiguity(const std::vector<double>& x,
             }
         }
     }
-
+    delete[] points;
     jcv_diagram_free( &diagram );
     return true;
 }

@@ -10,7 +10,7 @@
 
 #include "LISA.h"
 
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
 #include <boost/system/config.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -34,22 +34,35 @@ void* lisa_thread_helper(void* voidArgs)
 
 
 LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<bool>& _undefs, int _nCPUs, int _perm, uint64_t _last_seed)
-: undefs(_undefs), nCPUs(_nCPUs), last_seed_used(_last_seed),
-  permutations(_perm), reuse_last_seed(true),
-  calc_significances(true),row_standardize(true),
-  has_undefined(false), has_isolates(w->HasIsolates()),
-  user_sig_cutoff(0), weights(w), num_obs(num_obs)
+: nCPUs(_nCPUs), 
+num_obs(num_obs),
+row_standardize(true),
+permutations(_perm), 
+user_sig_cutoff(0), 
+has_undefined(false), 
+has_isolates(w->HasIsolates()),
+calc_significances(true),
+last_seed_used(_last_seed),
+reuse_last_seed(true),
+weights(w), 
+undefs(_undefs)
 {
     SetSignificanceFilter(1);
 }
 
 LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<std::vector<bool> >& _undefs, int _nCPUs, int _perm, uint64_t
 _last_seed)
-        :  nCPUs(_nCPUs), last_seed_used(_last_seed),
-          permutations(_perm), reuse_last_seed(true),
-          calc_significances(true),row_standardize(true),
-          has_undefined(false), has_isolates(w->HasIsolates()),
-          user_sig_cutoff(0), weights(w), num_obs(num_obs)
+: nCPUs(_nCPUs), 
+num_obs(num_obs),
+row_standardize(true),
+permutations(_perm), 
+user_sig_cutoff(0), 
+has_undefined(false), 
+has_isolates(w->HasIsolates()),
+calc_significances(true),
+last_seed_used(_last_seed),
+reuse_last_seed(true),
+weights(w)
 {
     undefs.resize(num_obs, false);
     for (size_t i=0; i < _undefs.size(); ++i) {
@@ -223,12 +236,12 @@ void LISA::CalcPseudoP()
 
 void LISA::CalcPseudoP_threaded()
 {
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
     if (nCPUs <= 0) nCPUs = boost::thread::hardware_concurrency();
     boost::thread_group threadPool;
 #else
-    pthread_t threadPool[nCPUs];
-    struct lisa_thread_args args[nCPUs];
+    pthread_t *threadPool = new pthread_t[nCPUs];
+    struct lisa_thread_args *args = new lisa_thread_args[nCPUs];
 #endif
 
     // divide up work according to number of observations
@@ -237,8 +250,8 @@ void LISA::CalcPseudoP_threaded()
 
     if (work_chunk == 0) work_chunk = 1;
 
-    int obs_start = 0;
-    int obs_end = obs_start + work_chunk;
+    //int obs_start = 0;
+    //int obs_end = obs_start + work_chunk;
 
     int quotient = num_obs / nCPUs;
     int remainder = num_obs % nCPUs;
@@ -257,10 +270,10 @@ void LISA::CalcPseudoP_threaded()
             b = a+quotient-1;
         }
         uint64_t seed_start = last_seed_used+a;
-        uint64_t seed_end = seed_start + ((uint64_t) (b-a));
-        int thread_id = i+1;
+        //uint64_t seed_end = seed_start + ((uint64_t) (b-a));
+        //int thread_id = i+1;
 
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
         boost::thread* worker = new boost::thread(boost::bind(&LISA::CalcPseudoP_range,this, a, b, seed_start));
         threadPool.add_thread(worker);
 #else
@@ -273,12 +286,14 @@ void LISA::CalcPseudoP_threaded()
         }
 #endif
     }
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
     threadPool.join_all();
 #else
     for (int j = 0; j < nCPUs; j++) {
         pthread_join(threadPool[j], NULL);
     }
+    delete[] args;
+    delete[] threadPool;
 #endif
 }
 

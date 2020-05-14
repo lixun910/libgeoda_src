@@ -1118,7 +1118,7 @@ static LWPOLY* lwpoly_from_wkb_state(wkb_parse_state *s)
     if (s->error) {
         return NULL;
     }
-    
+
     poly = lwpoly_construct_empty(s->srid, s->has_z, s->has_m);
 
     LWDEBUGF(4,"Polygon has %d rings", nrings);
@@ -1180,11 +1180,11 @@ static LWPOLY* lwcurvepoly_from_wkb_state(wkb_parse_state *s)
         return NULL;
     cp = lwcurvepoly_construct_empty(s->srid, s->has_z, s->has_m);
     geom = NULL;
-    
+
 
     /* Empty collection? */
     if ( ngeoms == 0 )
-        return cp;
+        return (LWPOLY*)cp;
 
     for ( i = 0; i < ngeoms; i++ )
     {
@@ -1198,7 +1198,7 @@ static LWPOLY* lwcurvepoly_from_wkb_state(wkb_parse_state *s)
         }
     }
 
-    return cp;
+    return (LWPOLY*)cp;
 }
 
 /**
@@ -1266,14 +1266,14 @@ static LWCOLLECTION* lwcollection_from_wkb_state(wkb_parse_state *s)
 {
     LWCOLLECTION *col;
     LWGEOM *geom;
-    uint32_t i; 
+    uint32_t i;
     uint32_t ngeoms = integer_from_wkb_state(s);
     if (s->error)
         return NULL;
 
     col = lwcollection_construct_empty(s->lwtype, s->srid, s->has_z, s->has_m);
     geom = NULL;
-    
+
 
     /* Empty collection? */
     if ( ngeoms == 0 )

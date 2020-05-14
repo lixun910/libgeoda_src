@@ -10,23 +10,23 @@
 
 #include "BatchLISA.h"
 
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
 #include <boost/system/config.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #else
 #include <pthread.h>
 
-struct lisa_thread_args {
+struct batchlisa_thread_args {
     BatchLISA *lisa;
     int start;
     int end;
     uint64_t seed_start;
 };
 
-void* lisa_thread_helper(void* voidArgs)
+void* batchlisa_thread_helper(void* voidArgs)
 {
-    lisa_thread_args *args = (lisa_thread_args*)voidArgs;
+    batchlisa_thread_args *args = (batchlisa_thread_args*)voidArgs;
     args->lisa->CalcPseudoP_range(args->start, args->end, args->seed_start);
     return 0;
 }
@@ -35,11 +35,18 @@ void* lisa_thread_helper(void* voidArgs)
 
 BatchLISA::BatchLISA(int num_obs, GeoDaWeight* w, const std::vector<std::vector<bool> >& _undefs, int _nCPUs, int _perm,
         uint64_t _last_seed)
-        :  nCPUs(_nCPUs), last_seed_used(_last_seed),
-          permutations(_perm), reuse_last_seed(true),
-          calc_significances(true),row_standardize(true),
-          has_undefined(false), has_isolates(w->HasIsolates()),
-          user_sig_cutoff(0), weights(w), num_obs(num_obs), undefs(_undefs)
+    :  nCPUs(_nCPUs), 
+    num_obs(num_obs), 
+    row_standardize(true),
+    permutations(_perm), 
+    user_sig_cutoff(0), 
+    has_undefined(false), 
+    has_isolates(w->HasIsolates()),
+    calc_significances(true),
+    last_seed_used(_last_seed),
+    reuse_last_seed(true),
+    weights(w),  
+    undefs(_undefs)
 {
     SetSignificanceFilter(1);
 }
@@ -217,12 +224,12 @@ void BatchLISA::CalcPseudoP()
 
 void BatchLISA::CalcPseudoP_threaded()
 {
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
     if (nCPUs <= 0) nCPUs = boost::thread::hardware_concurrency();
     boost::thread_group threadPool;
 #else
-    pthread_t threadPool[nCPUs];
-    struct lisa_thread_args args[nCPUs];
+    pthread_t* threadPool = new pthread_t[nCPUs];
+    struct batchlisa_thread_args* args = new batchlisa_thread_args[nCPUs];
 #endif
 
     // divide up work according to number of observations
@@ -231,8 +238,8 @@ void BatchLISA::CalcPseudoP_threaded()
 
     if (work_chunk == 0) work_chunk = 1;
 
-    int obs_start = 0;
-    int obs_end = obs_start + work_chunk;
+    //int obs_start = 0;
+    //int obs_end = obs_start + work_chunk;
 
     int quotient = num_obs / nCPUs;
     int remainder = num_obs % nCPUs;
@@ -251,10 +258,9 @@ void BatchLISA::CalcPseudoP_threaded()
             b = a+quotient-1;
         }
         uint64_t seed_start = last_seed_used+a;
-        uint64_t seed_end = seed_start + ((uint64_t) (b-a));
-        int thread_id = i+1;
+        //uint64_t seed_end = seed_start + ((uint64_t) (b-a));
 
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
         boost::thread* worker = new boost::thread(boost::bind(&BatchLISA::CalcPseudoP_range,this, a, b, seed_start));
         threadPool.add_thread(worker);
 #else
@@ -262,17 +268,19 @@ void BatchLISA::CalcPseudoP_threaded()
         args[i].start = a;
         args[i].end = b;
         args[i].seed_start = seed_start;
-        if (pthread_create(&threadPool[i], NULL, &lisa_thread_helper, &args[i])) {
+        if (pthread_create(&threadPool[i], NULL, &batchlisa_thread_helper, &args[i])) {
             perror("Thread create failed.");
         }
 #endif
     }
-#ifndef __JSGEODA__
+#ifndef __USE_PTHREAD__
     threadPool.join_all();
 #else
     for (int j = 0; j < nCPUs; j++) {
         pthread_join(threadPool[j], NULL);
     }
+    delete[] args;
+    delete[] threadPool;
 #endif
 }
 
@@ -280,11 +288,11 @@ void BatchLISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_star
 {
     GeoDaSet workPermutation(num_obs);
     int max_rand = num_obs-1;
-    bool perm_valid = true;
+    //bool perm_valid = true;
     int numNeighbors;
 
     for (size_t cnt=obs_start; cnt<=obs_end; cnt++) {
-        int numNeighbors = weights->GetNbrSize(cnt);
+        numNeighbors = weights->GetNbrSize(cnt);
         if (numNeighbors == 0) {
             for (size_t v=0; v < num_batch; ++v) {
                 sig_cat_vec[v][cnt] = 5; // neighborless cat

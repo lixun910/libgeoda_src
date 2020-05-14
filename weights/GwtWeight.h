@@ -18,7 +18,7 @@ public:
 	GwtNeighbor* data; // list neighborhood
 	
 public:
-	GwtElement() : data(0), nbrs(0) {}
+	GwtElement() :  nbrs(0),data(0) {}
 	virtual ~GwtElement();
     
 	bool alloc(const int sz);

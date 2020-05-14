@@ -50,8 +50,9 @@ class PartitionP : public BasePartition  {
     PartitionP(const int els= 0, const int cls= 0, const double range= 0);
     ~PartitionP();
     void alloc(const int els, const int cls, const double range);
-    
-    void include(const int incl);
+
+    using BasePartition::include; // tell the compiler we want both the include from Base and ours
+    virtual void include(const int incl);
     void initIx(const int incl, const double range)  {
         int cl= (int) floor(range / step);
         // if (cl < -1 || cl > cells || incl < 0 || incl >= elements)

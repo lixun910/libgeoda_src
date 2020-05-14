@@ -25,7 +25,7 @@ vector<vector<double> >& AbstractMDS::GetResult()
 void AbstractMDS::fullmds(vector<vector<double> >& d, int dim, int maxiter)
 {
     int k = d.size();
-    int n = d[0].size();
+    //int n = d[0].size();
     
     DataUtils::doubleCenter(d);
     DataUtils::squareEntries(d);

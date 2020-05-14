@@ -151,7 +151,7 @@ public:
     static void eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
         
         if ( GdaConst::use_gda_user_seed) {
-            srand(GdaConst::gda_user_seed);
+            std::srand(GdaConst::gda_user_seed);
         }
         
         int d = evals.size();
@@ -164,7 +164,7 @@ public:
                     for (int j = 0; j < k; j++)
                         matrix[i][j] -= evals[(m - 1)] * evecs[(m - 1)][i] * evecs[(m - 1)][j];
             for (int i = 0; i < k; i++)
-                evecs[m][i] = (double) rand() / RAND_MAX;
+                evecs[m][i] = (double) std::rand() / RAND_MAX;
             normalize(evecs[m]);
             
             double r = 0.0;
@@ -187,7 +187,7 @@ public:
     static void reverse_eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
         
         if ( GdaConst::use_gda_user_seed) {
-            srand(GdaConst::gda_user_seed);
+            std::srand(GdaConst::gda_user_seed);
         }
         double rho = largestEigenvalue(matrix);
         int d = evals.size();
@@ -199,7 +199,7 @@ public:
                     for (int j = 0; j < k; j++)
                         matrix[i][j] -= evals[(m - 1)] * evecs[(m - 1)][i] * evecs[(m - 1)][j];
             for (int i = 0; i < k; i++)
-                evecs[m][i] = (double) rand() / RAND_MAX;
+                evecs[m][i] = (double) std::rand() / RAND_MAX;
             normalize(evecs[m]);
             
             double r = 0.0;
@@ -228,12 +228,12 @@ public:
         double lambda = 0.0;
         vector<double> x(n);
         for (int i = 0; i < n; i++)
-            x[i] = (0.5 - (double) rand() / RAND_MAX);
+            x[i] = (0.5 - (double) std::rand() / RAND_MAX);
         normalize(x);
         
         double r = 0.0;
         
-        for (int iter = 0; (abs(1.0 - r) > eps) && (iter < 100); iter++) {
+        for (int iter = 0; (abs(1.0 - r) > eps) && (iter < maxiter); iter++) {
             vector<double> q(n,0);
             
             for (int i = 0; i < n; i++) {
@@ -258,7 +258,7 @@ public:
         vector<double> x(n,1.0);
         double r = 0.0;
         
-        for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
+        for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
             vector<double> q(n,0);
             
             for (int i = 0; i < n; i++) {
@@ -275,13 +275,13 @@ public:
     
     static void randomize(vector<vector<double> >& matrix) {
         if ( GdaConst::use_gda_user_seed) {
-            srand(GdaConst::gda_user_seed);
+            std::srand(GdaConst::gda_user_seed);
         }
         int k = matrix.size();
         int n = matrix[0].size();
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
-                matrix[i][j] = (double) rand() / RAND_MAX;
+                matrix[i][j] = (double) std::rand() / RAND_MAX;
             }
         }
     }
@@ -477,7 +477,7 @@ public:
     static vector<vector<double> > landmarkMatrix(vector<vector<double> >& matrix)
     {
         int k = matrix.size();
-        int n = matrix[0].size();
+        //int n = matrix[0].size();
         
         vector<vector<double> > result(k);
         for (int i=0; i<k; i++) result[i].resize(k);

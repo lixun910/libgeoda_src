@@ -6,12 +6,12 @@
 //----------------------------------------------------------------------
 // Copyright (c) 1997-2010 University of Maryland and Sunil Arya and
 // David Mount.  All Rights Reserved.
-// 
+//
 // This software and related documentation is part of the Approximate
 // Nearest Neighbor Library (ANN).  This software is provided under
 // the provisions of the Lesser GNU Public License (LGPL).  See the
 // file ../ReadMe.txt for further information.
-// 
+//
 // The University of Maryland (U.M.) and the authors make no
 // representations about the suitability or fitness of this software for
 // any purpose.  It is provided "as is" without express or implied
@@ -106,16 +106,20 @@ DLL_API void annUpdateStats()				// update stats with current counts
 										// print a single statistic
 void print_one_stat(const char* title, ANNsampStat s, double div)
 {
+#ifndef __RGEODA__
 	cout << title << "= [ ";
 	cout.width(9); cout << s.mean()/div			<< " : ";
 	cout.width(9); cout << s.stdDev()/div		<< " ]<";
 	cout.width(9); cout << s.min()/div			<< " , ";
 	cout.width(9); cout << s.max()/div			<< " >\n";
+#endif
 }
 
 DLL_API void annPrintStats(				// print statistics for a run
 	ANNbool validate)					// true if average errors desired
 {
+
+#ifndef __RGEODA__
 	cout.precision(4);					// set floating precision
 	cout << "  (Performance stats: "
 		 << " [      mean :    stddev ]<      min ,       max >\n";
@@ -133,4 +137,5 @@ DLL_API void annPrintStats(				// print statistics for a run
 	cout.precision(0);					// restore the default
 	cout << "  )\n";
 	cout.flush();
+#endif
 }

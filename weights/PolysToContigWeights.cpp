@@ -204,7 +204,8 @@ int PolygonPartition::sweep(PolygonPartition & guest, bool is_queen,
                             double precision_threshold)
 {
 	int       host, dot, cly, cell;
-	double    yStart= GetMinY(), yStop= GetMaxY();
+	double    yStart= GetMinY();
+	//double  yStop= GetMaxY();
 	gda::Point* pt;
 	guest.MakeSmallPartition(pX.Cells(), GetMinX(), GetMaxX());
 	for (cell= 0; cell < pX.Cells(); ++cell) {
@@ -306,8 +307,10 @@ void PartitionM::initIx(const int incl, const double lwr, const double upr)  {
     
     if (lower < 0 || upper > cells || incl < 0 || incl >= elements)
     {
+#ifndef __RGEODA__
         //     cout << "PartM: incl= " << incl << " l= " << lwr << "  " << upr;
         exit(1);
+#endif
     }
 
     

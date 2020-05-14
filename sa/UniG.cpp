@@ -18,12 +18,13 @@ UniG::UniG(int num_obs,
            const std::vector<double> &_data,
            const std::vector<bool> &_undefs,
            int _nCPUs, int _perm, uint64_t _last_seed)
-: LISA(num_obs, w, _undefs, _nCPUs, _perm, _last_seed), data(_data), undefs(_undefs),
+: LISA(num_obs, w, _undefs, _nCPUs, _perm, _last_seed), 
           CLUSTER_NOT_SIG(0),
           CLUSTER_HIGHHIGH(1),
           CLUSTER_LOWLOW(2),
           CLUSTER_UNDEFINED(3),
           CLUSTER_NEIGHBORLESS(4),
+          data(_data), undefs(_undefs),
           sum_x(0)
 
 {

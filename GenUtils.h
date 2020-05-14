@@ -141,7 +141,7 @@ namespace Gda {
 struct HingeStats {
 	HingeStats() : num_obs(0), min_val(0),
 		max_val(0), is_even_num_obs(false),
-		Q2(0), Q2_ind(0), Q1(0), Q1_ind(0),
+		Q1(0), Q1_ind(0), Q2(0), Q2_ind(0), 
 		Q3(0), Q3_ind(0), min_IQR_ind(0), max_IQR_ind(0) {}
 	void CalculateHingeStats(const vector<Gda::dbl_int_pair_type>& data);
 	void CalculateHingeStats(const vector<Gda::dbl_int_pair_type>& data,

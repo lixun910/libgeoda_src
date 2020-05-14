@@ -37,7 +37,7 @@ using namespace std;
 using namespace boost;
 using namespace SpanningTreeClustering;
 
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #else
@@ -196,7 +196,7 @@ Edge::Edge(Node* a, Node* b, double _length)
 //
 /////////////////////////////////////////////////////////////////////////
 Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactory* _cluster)
-: ordered_ids(_ordered_ids), edges(_edges), cluster(_cluster)
+:  cluster(_cluster),  edges(_edges), ordered_ids(_ordered_ids)
 {
     ssd_reduce = 0;
     ssd_utils = cluster->ssd_utils;
@@ -269,7 +269,7 @@ void Tree::run_threads(vector<int>& ids,
 {
     int n_jobs = od_array.size();
 
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
     int nCPUs = 8;//boost::thread::hardware_concurrency();;
     boost::thread_group threadPool;
 #else
@@ -292,7 +292,7 @@ void Tree::run_threads(vector<int>& ids,
             a = remainder*(quotient+1) + (i-remainder)*quotient;
             b = a+quotient-1;
         }
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
         //prunecost(tree, a, b, scores, candidates);
         boost::thread* worker = new boost::thread(boost::bind(&Tree::Partition,
                 this, a, b, boost::ref(ids), boost::ref(od_array),
@@ -311,7 +311,7 @@ void Tree::run_threads(vector<int>& ids,
 #endif
     }
 
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
     threadPool.join_all();
 #else
     for (int j = 0; j < nCPUs; j++) {
@@ -325,10 +325,9 @@ void Tree::Partition(int start, int end, vector<int>& ids,
                            boost::unordered_map<int, vector<int> >& nbr_dict)
 {
     int size = nbr_dict.size();
-    int id, orig_id, dest_id;
-    int i, e_idx, k = 1, cnt=0;
+    int orig_id, dest_id;
+    int i;
     
-    int best_edge = -1;
     int evaluated = 0;
     int best_pos = -1;
     double tmp_ssd_reduce = 0, tmp_ssd=0;
@@ -380,7 +379,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
         ss.split_ids = best_ids;
         ss.ssd = tmp_ssd;
         ss.ssd_reduce = tmp_ssd_reduce;
-#ifdef _WIN32
+#ifndef __USE_PTHREAD__
         mutex.lock();
         split_cands.push_back(ss);
         mutex.unlock();
@@ -721,7 +720,7 @@ void FirstOrderSLKRedCap::Clustering()
 
     ordered_edges.resize(num_nodes-1);
     int cnt = 0;
-    double sum_length = 0;
+    //double sum_length = 0;
     
     for (int i=0; i<edges.size(); i++) {
         Edge* edge = edges[i];
@@ -835,7 +834,7 @@ FullOrderSLKRedCap::~FullOrderSLKRedCap()
 
 double FullOrderSLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
-    double new_dist;
+    double new_dist = 0;
     if (conn_c_o && conn_c_d) {
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];
@@ -1054,7 +1053,7 @@ void FullOrderALKRedCap::Clustering()
 
 double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
-    double new_dist;
+    double new_dist = 0.0;
     if (conn_c_o && conn_c_d) {
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];
@@ -1117,7 +1116,7 @@ FullOrderCLKRedCap::~FullOrderCLKRedCap()
 
 double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
-    double new_dist;
+    double new_dist=0.0;
     if (conn_c_o && conn_c_d) {
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];

@@ -104,7 +104,9 @@ void GeoDa::Init(const std::string &layer_name,
     } else if (map_type == "map_lines") {
         main_map->shape_type = gda::POLY_LINE;
     } else {
+#ifndef __RGEODA__
         std::cout << "map type is not supported." << std::endl;
+#endif
     }
 
     main_map->num_obs = num_features;

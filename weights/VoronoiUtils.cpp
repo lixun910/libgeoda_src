@@ -343,7 +343,8 @@ bool Gda::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	VD vd;
 	VB vb;
 	for (int i=0; i<num_obs; i++) {
-		int index = vb.insert_point(int_pts[i].first, int_pts[i].second);
+		//int index = vb.insert_point(int_pts[i].first, int_pts[i].second);
+		vb.insert_point(int_pts[i].first, int_pts[i].second);
 	}
 	vb.construct(&vd);
 		

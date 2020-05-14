@@ -16,14 +16,16 @@ BatchLocalMoran::BatchLocalMoran(int num_obs,
                  const std::vector<std::vector<double> > &_data,
                  const std::vector<std::vector<bool> > &_undefs,
                  int _nCPUs, int _perm, uint64_t _last_seed)
-: BatchLISA(num_obs, w, _undefs, _nCPUs, _perm, _last_seed), data(_data), undefs(_undefs),
-  CLUSTER_NOT_SIG(0),
-  CLUSTER_HIGHHIGH(1),
-  CLUSTER_LOWLOW(2),
-  CLUSTER_LOWHIGH(3),
-  CLUSTER_HIGHLOW(4),
-  CLUSTER_UNDEFINED(5),
-  CLUSTER_NEIGHBORLESS(6)
+: BatchLISA(num_obs, w, _undefs, _nCPUs, _perm, _last_seed),
+CLUSTER_NOT_SIG(0),
+CLUSTER_HIGHHIGH(1),
+CLUSTER_LOWLOW(2),
+CLUSTER_LOWHIGH(3),
+CLUSTER_HIGHLOW(4),
+CLUSTER_UNDEFINED(5),
+CLUSTER_NEIGHBORLESS(6),
+data(_data), 
+undefs(_undefs)
 {
     labels.push_back("Not significant");
     labels.push_back("High-High");

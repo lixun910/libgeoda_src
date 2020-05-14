@@ -323,7 +323,7 @@ typedef struct
     uint8_t type; /* POINTTYPE */
     char pad[1]; /* Padding to 24 bytes (unused) */
 }
-LWPOINT; /* "light-weight point" *
+LWPOINT; /* "light-weight point" */
 
  /* POLYGONTYPE */
 typedef struct
