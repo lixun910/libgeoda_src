@@ -5,7 +5,7 @@
 // Assemble and include the file manually:
 // 1. 12.0\VC\bin\x86_amd64\ml64.exe" /c ttmathuint_x86_64_msvc.asm (inside the ttmath folder).
 // 2. Include the object file in compilation: ttmath/ttmathuint_x86_64_msvc.obj
-#ifdef _MSC_VER
+#ifdef _WIN32
 // or Disable assembly by adding the following line before #include ttmath.h
 #define TTMATH_NOASM 1
 #endif
@@ -218,7 +218,7 @@ public:
         totalLength(0.0),
         ptCount(0)
     {
-        // The first element in the array represents the exterior ring. 
+        // The first element in the array represents the exterior ring.
         // Any subsequent elements represent interior rings
         for (size_t p = 0; p < poly->num_parts; ++p) {
             int start = poly->parts[p];
@@ -267,8 +267,8 @@ private:
 
     void setAreaBasePoint(gda::Point& basePt)
     {
-        areaBasePt.x = basePt.x; 
-        areaBasePt.y = basePt.y; 
+        areaBasePt.x = basePt.x;
+        areaBasePt.y = basePt.y;
     }
 
     void centroid3(const gda::Point& p1, const gda::Point& p2, const gda::Point& p3, gda::Point& c)

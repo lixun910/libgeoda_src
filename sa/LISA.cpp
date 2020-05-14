@@ -3,7 +3,7 @@
 //
 
 #include <math.h>
-
+#include <time.h>
 #include "../GeoDaSet.h"
 #include "../GenUtils.h"
 #include "../weights/GeodaWeight.h"
@@ -34,17 +34,17 @@ void* lisa_thread_helper(void* voidArgs)
 
 
 LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<bool>& _undefs, int _nCPUs, int _perm, uint64_t _last_seed)
-: nCPUs(_nCPUs), 
+: nCPUs(_nCPUs),
 num_obs(num_obs),
 row_standardize(true),
-permutations(_perm), 
-user_sig_cutoff(0), 
-has_undefined(false), 
+permutations(_perm),
+user_sig_cutoff(0),
+has_undefined(false),
 has_isolates(w->HasIsolates()),
 calc_significances(true),
 last_seed_used(_last_seed),
 reuse_last_seed(true),
-weights(w), 
+weights(w),
 undefs(_undefs)
 {
     SetSignificanceFilter(1);
@@ -52,12 +52,12 @@ undefs(_undefs)
 
 LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<std::vector<bool> >& _undefs, int _nCPUs, int _perm, uint64_t
 _last_seed)
-: nCPUs(_nCPUs), 
+: nCPUs(_nCPUs),
 num_obs(num_obs),
 row_standardize(true),
-permutations(_perm), 
-user_sig_cutoff(0), 
-has_undefined(false), 
+permutations(_perm),
+user_sig_cutoff(0),
+has_undefined(false),
 has_isolates(w->HasIsolates()),
 calc_significances(true),
 last_seed_used(_last_seed),
