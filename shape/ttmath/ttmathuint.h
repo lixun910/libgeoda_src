@@ -1270,15 +1270,15 @@ private:
 			Mul2Big2<ss_size>(ss1, ss2, res);
 
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
 			for(uint i=0 ; i<ss_size*2 ; ++i)
 				result[i] = res.table[i];
 
 #ifdef __clang__
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 #endif
 
 		return;
@@ -1323,8 +1323,8 @@ private:
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
 
@@ -1379,8 +1379,8 @@ private:
 		Mul3Big2<first_size>(temp.table, temp2.table, z1.table);
 
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
 		// clearing the rest of z1
@@ -1388,7 +1388,7 @@ private:
 			z1.table[i] = 0;
 
 #ifdef __clang__
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 #endif
 		
 		if( xc )
@@ -1407,8 +1407,8 @@ private:
 		if( xc && yc )
 		{
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
 			for( i=first_size*2 ; i<first_size*3 ; ++i )
@@ -1416,7 +1416,7 @@ private:
  					break;  // break if there was no carry 
 
 #ifdef __clang__
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 #endif
 		}
 
@@ -1437,8 +1437,8 @@ private:
 			TTMATH_ASSERT( z1_size <= first_size*3 )
 
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
 			for(i=z1_size ; i<first_size*3 ; ++i)
@@ -1447,7 +1447,7 @@ private:
 			}
 
 #ifdef __clang__
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 #endif
  			
 			c = AddVector(result+first_size, z1.table, result_size-first_size, z1_size, result+first_size);
@@ -1462,7 +1462,7 @@ private:
 
 
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic pop
 #endif
 
 #ifdef _MSC_VER
@@ -2565,8 +2565,8 @@ public:
 	bool IsOnlyTheHighestBitSet() const
 	{
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-compare"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wtautological-compare"
 #endif
 
 		for(uint i=0 ; i<value_size-1 ; ++i)
@@ -2574,7 +2574,7 @@ public:
 				return false;
 
 #ifdef __clang__
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 #endif
 		if( table[value_size-1] != TTMATH_UINT_HIGHEST_BIT )
 			return false;
