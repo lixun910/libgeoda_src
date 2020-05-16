@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <time.h>
+#include <iostream>
 #include "../GeoDaSet.h"
 #include "../GenUtils.h"
 #include "../weights/GeodaWeight.h"
@@ -142,39 +143,21 @@ void LISA::SetUserCutoff(double val)
 
 double LISA::GetFDR(double current_p)
 {
-
-    double fdr = 0; //False Discovery Rate
     std::vector<double> pvals = sig_local_vec; // make sure copy
     // FDR
     // sort all p-values from smallest to largets
     std::sort(pvals.begin(), pvals.end());
 
-    int i_0 = -1;
-    bool stop = false;
-    double p_start = current_p;
+    double fdr = 0;
 
-    while (!stop) {
-        // find the i_0 that corresponds to p = alpha
-        for (int i=1; i<=num_obs; i++) {
-            if (pvals[i] >= p_start) {
-                if (i_0 == i) {
-                    stop = true;
-                }
-                i_0 = i;
-                break;
-            }
+    for (size_t i=0; i<num_obs; i++) {
+        double val = (i+1) * current_p / (double)num_obs;
+        if (i==0) fdr = val;
+        if (pvals[i] >= val) {
+            break;
         }
-        if (i_0 < 0)
-            stop = true;
-
-        // compute p* = i_0 x alpha / N
-        p_start = i_0 * current_p / (double)num_obs ;
+        fdr = val;
     }
-
-    if (i_0 < 0)
-        p_start = 0.0;
-
-    fdr = p_start;
 
     return fdr;
 }
