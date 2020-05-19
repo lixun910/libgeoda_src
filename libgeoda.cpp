@@ -456,7 +456,7 @@ std::vector<std::string> GeoDa::GetFieldNames() {
 }
 
 std::vector<std::string> GeoDa::GetFieldTypes() {
-    if (fieldNames.empty()) {
+    if (fieldTypes.empty()) {
         if (table) {
             size_t n_cols = table->GetNumCols();
             for (size_t i=0; i<n_cols; ++i) {
