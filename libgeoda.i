@@ -14,6 +14,7 @@
 %template(VecVecDouble) std::vector<std::vector<double> >;
 %template(VecInt) std::vector<int>;
 %template(VecBool) std::vector<bool>;
+%template(VecVecBool) std::vector<std::vector<bool> >;
 %template(VecLong) std::vector<long>;
 %template(VecInt64) std::vector<long long>;
 %template(VecVecInt) std::vector<std::vector<int> >;
@@ -95,6 +96,7 @@
 #include <stdint.h>
 #include <weights/GeodaWeight.h>
 #include <sa/LISA.h>
+#include <sa/BatchLISA.h>
 #include <pg/geoms.h>
 #include <gda_interface.h>
 #include <libgeoda.h>
@@ -108,7 +110,7 @@
 %include <std_string.i>
 %include <weights/GeodaWeight.h>
 %include <sa/LISA.h>
-#include <pg/geoms.h>
+%include <sa/BatchLISA.h>
 %include <gda_interface.h>
 %include <libgeoda.h>
 %include <gda_sa.h>
