@@ -199,6 +199,7 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
 :  cluster(_cluster),  edges(_edges), ordered_ids(_ordered_ids)
 {
     ssd_reduce = 0;
+    split_pos = 0;
     ssd_utils = cluster->ssd_utils;
     controls = cluster->controls;
     control_thres = cluster->control_thres;
@@ -270,7 +271,7 @@ void Tree::run_threads(vector<int>& ids,
     int n_jobs = od_array.size();
 
 #ifndef __USE_PTHREAD__
-    int nCPUs = 8;//boost::thread::hardware_concurrency();;
+    int nCPUs = boost::thread::hardware_concurrency();;
     boost::thread_group threadPool;
 #else
     int nCPUs = 8;
@@ -593,7 +594,6 @@ void AbstractClusterFactory::Partitioning(int k)
         sub_trees.push(not_split_trees[i]);
     }
 
-    /*
     PriorityQueue::iterator begin = sub_trees.begin();
     PriorityQueue::iterator end = sub_trees.end();
 
@@ -601,13 +601,13 @@ void AbstractClusterFactory::Partitioning(int k)
         Tree* tmp_tree = *it;
         cluster_ids.push_back(tmp_tree->ordered_ids);
     }
-    */
+    /*
     while(!sub_trees.empty()) {
         Tree* tmp_tree = sub_trees.top();
         cluster_ids.push_back(tmp_tree->ordered_ids);
         sub_trees.pop();
     }
-
+    */
     for (int i = 0; i< not_split_trees.size(); i++) {
         delete not_split_trees[i];
     }

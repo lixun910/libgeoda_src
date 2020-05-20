@@ -27,7 +27,6 @@
 #include <float.h>
 #include <boost/unordered_map.hpp>
 #include <boost/heap/priority_queue.hpp>
-#include <queue>
 #include <boost/graph/adjacency_list.hpp>
 
 #include "../weights/GalWeight.h"
@@ -232,7 +231,8 @@ namespace SpanningTreeClustering {
         }
     };
 
-    typedef std::priority_queue<Tree*, std::vector<Tree*>, CompareTree> PriorityQueue;
+    //typedef std::priority_queue<Tree*, std::vector<Tree*>, CompareTree> PriorityQueue;
+    typedef boost::heap::priority_queue<Tree*, boost::heap::compare<CompareTree> > PriorityQueue;
 
     class AbstractClusterFactory
     {

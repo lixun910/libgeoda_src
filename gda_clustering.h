@@ -53,7 +53,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 const std::string &redcap_method =  "firstorder-singlelinkage",
                                                 const std::string &distance_method = "euclidean",
                                                 const std::vector<double>& bound_vals = std::vector<double>(),
-                                                double min_bound = -1,
+                                                double min_bound = 0,
                                                 int rand_seed = 123456789);
 
 /**
@@ -72,7 +72,7 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 const std::vector<std::vector<double> > &data,
                                                 const std::string &distance_method = "euclidean",
                                                 const std::vector<double>& bound_vals = std::vector<double>(),
-                                                double min_bound = -1,
+                                                double min_bound = 0,
                                                 int rand_seed = 123456789);
 
 
