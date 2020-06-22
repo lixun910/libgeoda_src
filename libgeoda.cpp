@@ -41,7 +41,7 @@ GeoDa::GeoDa(const std::string &layer_name,
              const std::string& map_type,
              int num_features,
              unsigned char* wkbs,
-             const std::vector<int>& wkb_bytes_len);
+             const std::vector<int>& wkb_bytes_len)
 : numObs(num_features), numCols(table->GetNumCols()), table(NULL)
 {
     main_map = new gda::MainMap();
