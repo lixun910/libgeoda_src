@@ -36,23 +36,21 @@ GeoDaColumn *ToGeoDaColumn(GeoDaRealColumn *col) {
 
 int test() { return 100;}
 
-// this constructor is for Python
+// this constructor is for R
 GeoDa::GeoDa(const std::string &layer_name,
-        const std::string& map_type,
-        int num_features,
-        GeoDaTable* table,
-        unsigned char* wkbs,
-        const std::vector<int>& wkb_bytes_len,
-        const std::string& pszProj4)
-: numObs(num_features), numCols(table->GetNumCols()), table(table)
+             const std::string& map_type,
+             int num_features,
+             unsigned char* wkbs,
+             const std::vector<int>& wkb_bytes_len,
+             const std::string& pszProj4)
+: numObs(num_features), numCols(table->GetNumCols()), table(NULL)
 {
     main_map = new gda::MainMap();
     Init(layer_name, map_type, num_features, wkbs, wkb_bytes_len, pszProj4);
 }
 
-// this constructor is for R
-GeoDa::GeoDa(GeoDaTable* table,
-             const std::string& layer_name,
+// this constructor is for Python
+GeoDa::GeoDa(const std::string& layer_name,
              const std::string& map_type,
              const std::vector<unsigned char> &wkbs,
              const std::vector<int>& wkb_bytes_len,
@@ -311,10 +309,6 @@ void GeoDa::AddMultiPolygon(LWMPOLY *lw_mpoly) {
         shpring++;
     }
 
-    lwdebug(4, "poly->box[0]=%f", minx);
-    lwdebug(4, "poly->box[1]=%f", miny);
-    lwdebug(4, "poly->box[2]=%f", maxx);
-    lwdebug(4, "poly->box[3]=%f", maxy);
     poly->box.resize(4);
     poly->box[0] = minx;
     poly->box[1] = miny;

@@ -115,21 +115,19 @@ public:
     enum MapType { point_type, polygon_type, line_type, unknown_type };
 
     // this constructor is for Python
-    GeoDa(GeoDaTable* table,
-            const std::string& layer_name,
-            const std::string& map_type,
-            const std::vector<unsigned char> &wkbs,
-            const std::vector<int>& wkb_bytes_len,
-            const std::string& pszProj4);
+    GeoDa(const std::string& layer_name,
+          const std::string& map_type,
+          const std::vector<unsigned char> &wkbs,
+          const std::vector<int>& wkb_bytes_len,
+          const std::string& pszProj4);
 
 	// this constructor is for R
     GeoDa(const std::string& layer_name,
-            const std::string& map_type,
-            int num_features,
-            GeoDaTable* table,
-            unsigned char* wkbs,
-            const std::vector<int>& wkb_bytes_len,
-            const std::string& pszProj4);
+          const std::string& map_type,
+          int num_features,
+          unsigned char* wkbs,
+          const std::vector<int>& wkb_bytes_len,
+          const std::string& pszProj4);
 
     // this constructor is for ESRI Shapefile
     GeoDa(const char* pDsPath, const char* layer_name=NULL);
