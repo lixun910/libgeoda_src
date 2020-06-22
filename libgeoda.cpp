@@ -41,24 +41,22 @@ GeoDa::GeoDa(const std::string &layer_name,
              const std::string& map_type,
              int num_features,
              unsigned char* wkbs,
-             const std::vector<int>& wkb_bytes_len,
-             const std::string& pszProj4)
+             const std::vector<int>& wkb_bytes_len);
 : numObs(num_features), numCols(table->GetNumCols()), table(NULL)
 {
     main_map = new gda::MainMap();
-    Init(layer_name, map_type, num_features, wkbs, wkb_bytes_len, pszProj4);
+    Init(layer_name, map_type, num_features, wkbs, wkb_bytes_len);
 }
 
 // this constructor is for Python
 GeoDa::GeoDa(const std::string& layer_name,
              const std::string& map_type,
              const std::vector<unsigned char> &wkbs,
-             const std::vector<int>& wkb_bytes_len,
-             const std::string& pszProj4)
+             const std::vector<int>& wkb_bytes_len)
 : numObs(wkb_bytes_len.size()), numCols(table->GetNumCols()), table(table)
 {
     main_map = new gda::MainMap();
-	Init(layer_name, map_type, wkb_bytes_len.size(), (unsigned char*)(&wkbs[0]), wkb_bytes_len, pszProj4);
+	Init(layer_name, map_type, wkb_bytes_len.size(), (unsigned char*)(&wkbs[0]), wkb_bytes_len);
 }
 
 // this constructor is for reading from ESRI shapefile
@@ -91,8 +89,7 @@ void GeoDa::Init(const std::string &layer_name,
                  const std::string& map_type,
                  int num_features,
                  unsigned char* wkbs,
-                 const std::vector<int>& wkb_bytes_len,
-                 const std::string& pszProj4)
+                 const std::vector<int>& wkb_bytes_len)
 {
     if (map_type == "map_polygons") {
         //mapType = polygon_type;

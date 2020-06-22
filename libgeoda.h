@@ -118,16 +118,14 @@ public:
     GeoDa(const std::string& layer_name,
           const std::string& map_type,
           const std::vector<unsigned char> &wkbs,
-          const std::vector<int>& wkb_bytes_len,
-          const std::string& pszProj4);
+          const std::vector<int>& wkb_bytes_len);
 
 	// this constructor is for R
     GeoDa(const std::string& layer_name,
           const std::string& map_type,
           int num_features,
           unsigned char* wkbs,
-          const std::vector<int>& wkb_bytes_len,
-          const std::string& pszProj4);
+          const std::vector<int>& wkb_bytes_len);
 
     // this constructor is for ESRI Shapefile
     GeoDa(const char* pDsPath, const char* layer_name=NULL);
@@ -169,8 +167,7 @@ protected:
             const std::string& map_type,
             int num_features,
             unsigned char* wkbs,
-            const std::vector<int>& wkb_bytes_len,
-            const std::string& pszProj4);
+            const std::vector<int>& wkb_bytes_len);
 
     static const std::string DT_STRING;
     static const std::string DT_INTEGER;
