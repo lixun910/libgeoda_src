@@ -31,10 +31,12 @@
 
 #include "../weights/GalWeight.h"
 
-#ifndef __USE_PTHREAD__
-#include <boost/thread/mutex.hpp>
-#else
-#include <pthread.h>
+#ifndef __NO_THREAD__
+    #ifndef __USE_PTHREAD__
+        #include <boost/thread/mutex.hpp>
+    #else
+        #include <pthread.h>
+    #endif
 #endif
 
 using namespace std;
@@ -205,12 +207,15 @@ namespace SpanningTreeClustering {
         double* controls;
         double control_thres;
 
+#ifndef __NO_THREAD__
         // threads
 #ifndef __USE_PTHREAD__
         boost::mutex mutex;
 #else
         pthread_mutex_t lock;
 #endif
+#endif
+
         void run_threads(vector<int>& ids,
                        vector<pair<int, int> >& od_array,
                        boost::unordered_map<int, vector<int> >& nbr_dict);

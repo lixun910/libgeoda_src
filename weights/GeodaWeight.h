@@ -47,6 +47,8 @@ public:
    
     virtual std::string GetIDName() const { return id_field;}
 
+    virtual std::string GetUID() const {return uid;}
+    
     // Properties
 	enum WeightType { gal_type, gwt_type };
 	WeightType    weight_type;

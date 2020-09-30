@@ -37,10 +37,11 @@ using namespace std;
 using namespace boost;
 using namespace SpanningTreeClustering;
 
-#ifndef __USE_PTHREAD__
+#ifndef __NO_THREAD__
+  #ifndef __USE_PTHREAD__
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
-#else
+  #else
 #include <pthread.h>
 struct redcap_thread_args {
     Tree* tree;
@@ -59,7 +60,7 @@ void* redcap_thread_helper(void* voidArgs)
     return 0;
 }
 #endif
-
+#endif
 
 bool EdgeLess(Edge* a, Edge* b)
 {
@@ -233,6 +234,9 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
             nbr_dict[o_id].push_back(d_id);
             nbr_dict[d_id].push_back(o_id);
         }
+#ifdef __NO_THREAD__
+        Partition(0, od_array.size()-1, ordered_ids, od_array, nbr_dict);
+#else
         if (size < 1000) {
             //std::cout << "Tree()a" << std::endl;
             Partition(0, od_array.size()-1, ordered_ids, od_array, nbr_dict);
@@ -240,6 +244,8 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
             //std::cout << "Tree()b" << std::endl;
             run_threads(ordered_ids, od_array, nbr_dict);
         }
+#endif
+
         if (!split_cands.empty()) {
             SplitSolution& ss = split_cands[0];
             this->split_ids = ss.split_ids;
@@ -268,6 +274,7 @@ void Tree::run_threads(vector<int>& ids,
                        vector<pair<int, int> >& od_array,
                        boost::unordered_map<int, vector<int> >& nbr_dict)
 {
+#ifndef __NO_THREAD__
     int n_jobs = od_array.size();
 
 #ifndef __USE_PTHREAD__
@@ -318,6 +325,8 @@ void Tree::run_threads(vector<int>& ids,
     for (int j = 0; j < nCPUs; j++) {
         pthread_join(threadPool[j], NULL);
     }
+#endif
+
 #endif
 }
 
@@ -380,6 +389,9 @@ void Tree::Partition(int start, int end, vector<int>& ids,
         ss.split_ids = best_ids;
         ss.ssd = tmp_ssd;
         ss.ssd_reduce = tmp_ssd_reduce;
+#ifdef __NO_THREAD__
+        split_cands.push_back(ss);
+#else
 #ifndef __USE_PTHREAD__
         mutex.lock();
         split_cands.push_back(ss);
@@ -388,6 +400,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
         //pthread_mutex_lock(&lock);
         split_cands.push_back(ss);
         //pthread_mutex_unlock(&lock);
+#endif
 #endif
     }
 }
@@ -585,7 +598,7 @@ void AbstractClusterFactory::Partitioning(int k)
             sub_trees.push(right_tree);
         }
 
-        //delete tmp_tree;
+        delete tmp_tree;
     }
 
     cluster_ids.clear();

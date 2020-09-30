@@ -33,24 +33,26 @@
 
 using namespace std;
 
-#ifndef __USE_PTHREAD__
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#else
-#include <pthread.h>
+#ifndef __NO_THREAD__
+    #ifndef __USE_PTHREAD__
+    #include <boost/thread.hpp>
+    #include <boost/bind.hpp>
+    #else
+    #include <pthread.h>
 
-struct maxp_thread_args {
-    Maxp *maxp;
-    int start;
-    int end;
-};
+    struct maxp_thread_args {
+        Maxp *maxp;
+        int start;
+        int end;
+    };
 
-void* maxp_thread_helper(void* voidArgs)
-{
-    maxp_thread_args *args = (maxp_thread_args*)voidArgs;
-    args->maxp->run(args->start, args->end);
-    return 0;
-}
+    void* maxp_thread_helper(void* voidArgs)
+    {
+        maxp_thread_args *args = (maxp_thread_args*)voidArgs;
+        args->maxp->run(args->start, args->end);
+        return 0;
+    }
+    #endif
 #endif
 
 Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor,
@@ -130,9 +132,12 @@ test(_test)
 
         int attemps = 0;
 
+#ifdef __NO_THREAD__
+        for (int i=0; i<initial; i++)  init_solution(i);
+#else
         // parallize following block, comparing the objective_function() return values
-        //for (int i=0; i<initial; i++)  init_solution(i);
         run_threaded();
+#endif
 
         for (int i=0; i<initial; i++) {
             vector<vector<int> >& current_regions = regions_group[i];
@@ -189,6 +194,7 @@ void Maxp::run(int a, int b)
 
 void Maxp::run_threaded()
 {
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     int nCPUs = 8;//boost::thread::hardware_concurrency();;
     boost::thread_group threadPool;
@@ -231,6 +237,8 @@ void Maxp::run_threaded()
     for (int j = 0; j < nCPUs; j++) {
         pthread_join(threadPool[j], NULL);
     }
+#endif
+
 #endif
 }
 

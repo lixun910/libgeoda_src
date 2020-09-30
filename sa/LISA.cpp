@@ -11,28 +11,35 @@
 
 #include "LISA.h"
 
-#ifndef __USE_PTHREAD__
-#include <boost/system/config.hpp>
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#else
-#include <pthread.h>
+#ifndef __NO_THREAD__
+    #ifndef __USE_PTHREAD__
+        #include <boost/system/config.hpp>
+        #include <boost/thread.hpp>
+        #include <boost/bind.hpp>
+    #else
+        #include <pthread.h>
 
-struct lisa_thread_args {
-    LISA *lisa;
-    int start;
-    int end;
-    uint64_t seed_start;
-};
+        struct lisa_thread_args {
+            LISA *lisa;
+            int start;
+            int end;
+            uint64_t seed_start;
+        };
 
-void* lisa_thread_helper(void* voidArgs)
-{
-    lisa_thread_args *args = (lisa_thread_args*)voidArgs;
-    args->lisa->CalcPseudoP_range(args->start, args->end, args->seed_start);
-    return 0;
-}
+        void* lisa_thread_helper(void* voidArgs)
+        {
+            lisa_thread_args *args = (lisa_thread_args*)voidArgs;
+            args->lisa->CalcPseudoP_range(args->start, args->end, args->seed_start);
+            return 0;
+        }
+    #endif
 #endif
 
+#ifdef __JSGEODA__
+// static for caching
+std::map<std::string, bool>  LISA::has_cached_perm;
+std::map<std::string, std::vector<std::vector<int> > >  LISA::cached_perm_nbrs;
+#endif
 
 LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<bool>& _undefs, int _nCPUs, int _perm, uint64_t _last_seed)
 : nCPUs(_nCPUs),
@@ -48,11 +55,16 @@ reuse_last_seed(true),
 weights(w),
 undefs(_undefs)
 {
+#ifdef __JSGEODA__
+    if (has_cached_perm.find(w->GetUID()) == has_cached_perm.end()) {
+        has_cached_perm[w->GetUID()] = false;
+        cached_perm_nbrs[w->GetUID()] = std::vector<std::vector<int> >(0);
+    }
+#endif
     SetSignificanceFilter(1);
 }
 
-LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<std::vector<bool> >& _undefs, int _nCPUs, int _perm, uint64_t
-_last_seed)
+LISA::LISA(int num_obs, GeoDaWeight* w, const std::vector<std::vector<bool> >& _undefs, int _nCPUs, int _perm, uint64_t _last_seed)
 : nCPUs(_nCPUs),
 num_obs(num_obs),
 row_standardize(true),
@@ -214,11 +226,20 @@ bool LISA::GetHasUndefined()
 void LISA::CalcPseudoP()
 {
     if (!calc_significances) return;
+
+#ifdef __NO_THREAD__
+    CalcPseudoP_range(0, num_obs-1, last_seed_used);
+    if (has_cached_perm[weights->GetUID()] == false) {
+        has_cached_perm[weights->GetUID()] = true;
+    }
+#else
     CalcPseudoP_threaded();
+#endif
 }
 
 void LISA::CalcPseudoP_threaded()
 {
+#ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
     if (nCPUs <= 0) nCPUs = boost::thread::hardware_concurrency();
     boost::thread_group threadPool;
@@ -278,12 +299,19 @@ void LISA::CalcPseudoP_threaded()
     delete[] args;
     delete[] threadPool;
 #endif
+#endif
 }
 
 void LISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
     GeoDaSet workPermutation(num_obs);
     int max_rand = num_obs-1;
+
+#ifdef __JSGEODA__
+    std::string wuid = weights->GetUID();
+    bool using_cache = has_cached_perm[wuid];
+    std::vector<std::vector<int> >& cache = cached_perm_nbrs[wuid];
+#endif
 
     for (size_t cnt=obs_start; cnt<=obs_end; cnt++) {
         if (undefs[cnt]) {
@@ -300,6 +328,37 @@ void LISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
         }
 
         std::vector<double> permutedSA(permutations, 0);
+#ifdef __JSGEODA__
+        if (using_cache == false) {
+            for (size_t perm = 0; perm < permutations; perm++) {
+                int rand = 0, newRandom;
+                double rng_val;
+                while (rand < numNeighbors) {
+                    // computing 'perfect' permutation of given size
+                    rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                    // round is needed to fix issue
+                    // https://github.com/GeoDaCenter/geoda/issues/488
+                    newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
+
+                    if (newRandom != cnt && !workPermutation.Belongs(newRandom) && weights->GetNbrSize(newRandom) > 0) {
+                        workPermutation.Push(newRandom);
+                        rand++;
+                    }
+                }
+                std::vector<int> permNeighbors(numNeighbors);
+                for (int cp = 0; cp < numNeighbors; cp++) {
+                    permNeighbors[cp] = workPermutation.Pop();
+                }
+                cache.push_back(permNeighbors);
+                PermLocalSA(cnt, perm, permNeighbors, permutedSA);
+
+            }
+        } else {
+            for (size_t perm = 0; perm < permutations; perm++) {
+                PermLocalSA(cnt, perm, cache[perm], permutedSA);
+            }
+        }
+#else
         for (size_t perm=0; perm<permutations; perm++) {
             int rand=0, newRandom;
             double rng_val;
@@ -322,6 +381,7 @@ void LISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 
             PermLocalSA(cnt, perm, permNeighbors, permutedSA);
         }
+#endif
 
         uint64_t countLarger = CountLargerSA(cnt, permutedSA);
         double _sigLocal = (countLarger+1.0)/(permutations+1);
