@@ -107,6 +107,28 @@
 #include <gda_algorithms.h>
 %}
 
+// release memory for some function to prevent memory leaking
+// the SWIG generated wrappers will have a memory leak--the returned
+// data will be copied into a string object and the old contents ignored.
+%newobject gda_queen_weights;
+%newobject gda_rook_weights;
+%newobject gda_knn_weights;
+%newobject gda_distance_weights;
+%newobject gda_localmoran;
+%newobject gda_batchlocalmoran;
+%newobject gda_geary;
+%newobject gda_multigeary;
+%newobject gda_joincount;
+%newobject gda_multijoincount;
+%newobject gda_localg;
+%newobject gda_localgstar;
+%newobject gda_quantilelisa;
+%newobject gda_fdr;
+%newobject gda_bo;
+%newobject CreateGeoDaFromGPD;
+%newobject CreateGeoDaFromSHP;
+%newobject gda_pca;
+
 %include <std_string.i>
 %include <weights/GeodaWeight.h>
 %include <sa/LISA.h>
@@ -120,4 +142,5 @@
 %include <gda_algorithms.h>
 
 %template(VecGeoDaColumn) std::vector<GeoDaColumn*>;
+
 

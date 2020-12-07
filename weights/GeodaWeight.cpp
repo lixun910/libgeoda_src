@@ -22,6 +22,10 @@ std::string GeoDaWeight::GetTitle()  const
 	return title;
 }
 
+bool GeoDaWeight::IsSymmetric() const
+{
+    return is_symmetric;
+}
 double GeoDaWeight::GetSparsity() const
 {
     return sparsity;
@@ -35,19 +39,19 @@ int GeoDaWeight::GetNumObs() const
     return num_obs;
 }
 
-int GeoDaWeight::GetMinNumNbrs() const
+int GeoDaWeight::GetMinNbrs() const
 {
     return min_nbrs;
 }
-int GeoDaWeight::GetMaxNumNbrs() const
+int GeoDaWeight::GetMaxNbrs() const
 {
     return max_nbrs;
 }
-double GeoDaWeight::GetMeanNumNbrs() const
+double GeoDaWeight::GetMeanNbrs() const
 {
     return mean_nbrs;
 }
-double GeoDaWeight::GetMedianNumNbrs() const
+double GeoDaWeight::GetMedianNbrs() const
 {
     return median_nbrs;
 }

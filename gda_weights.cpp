@@ -104,6 +104,7 @@ double gda_min_distthreshold(AbstractGeoDa* geoda, bool is_arc, bool is_mile)
     int num_obs = geoda->GetNumObs();
 
     const std::vector<gda::PointContents*>& centroids = geoda->GetCentroids();
+
     std::vector<double> x(num_obs), y(num_obs);
     for (size_t i=0; i<num_obs; ++i) {
         x[i] = centroids[i]->x;
@@ -128,6 +129,7 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
     int num_obs = geoda->GetNumObs();
 
     const std::vector<gda::PointContents*>& centroids = geoda->GetCentroids();
+    
     std::vector<double> x(num_obs), y(num_obs);
     for (size_t i=0; i<num_obs; ++i) {
         x[i] = centroids[i]->x;

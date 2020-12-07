@@ -10,14 +10,149 @@
 #include <cmath>
 #include <algorithm>    // std::max
 
+#include "rng.h"
 #include "../GdaConst.h"
 #include "../weights/GalWeight.h"
 
 using namespace std;
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// DistMatrix
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class DistMatrix
+{
+protected:
+    std::vector<int> ids;
+    bool has_ids;
+public:
+    DistMatrix(const std::vector<int>& _ids=std::vector<int>())
+            : ids(_ids), has_ids(!_ids.empty()) {}
+    virtual ~DistMatrix() {}
+    // Get distance between i-th and j-th object
+    // if ids vector is provided, the distance (i,j) -> distance(ids[i], ids[j])
+    virtual double getDistance(int i, int j) = 0;
+    virtual void setIds(const std::vector<int>& _ids) {
+        ids = _ids;
+        has_ids = !ids.empty();
+    }
+};
+
+/*
+class RowWiseDistMatrix : public DistMatrix
+{
+    double** dist;
+    char dist_method;
+    int num_vars;
+    int num_rows;
+    const std::vector<std::vector<double> >& data;
+public:
+    RowWiseDistMatrix(const double** const input_data,
+                      const std::vector<int>& _ids=std::vector<int>())
+    : data(_data), DistMatrix(_ids)
+    {
+        thread_pool pool;
+        for (size_t i=0; i<num_rows; ++i) {
+            pool.enqueue(boost::bind(&ComputeDistMatrix::compute_dist, this, i));
+        }
+    }
+    virtual ~ComputeDistMatrix() {}
+
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
+        // lower part triangle, store column wise
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        int idx = n - (num_obs - c - 1) * (num_obs - c) / 2 + (r -c) -1 ;
+        return dist[idx];
+    }
+
+    void compute_dist(size_t i)
+    {
+        for (size_t j=i+1; j < num_rows; ++j) {
+            double val = 0, var_dist = 0;
+            if (dist_method == 'm') {
+                for (size_t v=0; v < num_vars; ++v) {
+                    val += fabs(data[v][i] - data[v][j]);
+                }
+                var_dist = sqrt(val);
+            } else {
+                // euclidean as default 'e'
+                for (size_t v=0; v < num_vars; ++v) {
+                    val = data[v][i] - data[v][j];
+                    var_dist += val * val;
+                }
+                var_dist = sqrt(var_dist);
+            }
+        }
+    }
+};
+*/
+
+class RawDistMatrix : public DistMatrix
+{
+    double** dist;
+public:
+    RawDistMatrix(double** dist, const std::vector<int>& _ids=std::vector<int>())
+            : DistMatrix(_ids), dist(dist) {}
+    virtual ~RawDistMatrix() {}
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
+        // lower part triangle
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        return dist[r][c];
+    }
+};
+
+class RDistMatrix : public DistMatrix
+{
+    int num_obs;
+    int n;
+    const std::vector<double>& dist;
+public:
+    RDistMatrix(int num_obs, const std::vector<double>& dist, const std::vector<int>& _ids=std::vector<int>())
+            : DistMatrix(_ids), num_obs(num_obs), dist(dist) {
+        n = (num_obs - 1) * num_obs / 2;
+    }
+    virtual ~RDistMatrix() {}
+
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
+        // lower part triangle, store column wise
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        int idx = n - (num_obs - c - 1) * (num_obs - c) / 2 + (r -c) -1 ;
+        return dist[idx];
+    }
+};
+
 class DataUtils {
 public:
+    static void Shuffle(std::vector<int>& arry, Xoroshiro128Random& rng)
+    {
+        //random_shuffle
+        for (int i=arry.size()-1; i>=1; --i) {
+            int k = rng.nextInt(i+1);
+            while (k>=i) k = rng.nextInt(i+1);
+            if (k != i) std::iter_swap(arry.begin() + k, arry.begin()+i);
+        }
+    }
+
     static double ManhattanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0;
@@ -37,7 +172,29 @@ public:
         }
         return d;
     }
-    
+
+    static double EuclideanDistance(const std::vector<std::vector<double> >& col_data, int p, int q)
+    {
+        double d =0, tmp=0;
+        for (size_t i =0; i<col_data.size(); i++ ) {
+            tmp = (col_data[i][p] - col_data[i][q]);
+            d += tmp * tmp;
+        }
+        return d;
+    }
+
+    static double EuclideanDistance(double* x1, const std::vector<double>& x2)
+    {
+        double d =0,tmp=0;
+        size_t size = x2.size();
+
+        for (size_t i =0; i<size; i++ ) {
+            tmp = (x1[i] - x2[i]);
+            d += tmp * tmp;
+        }
+        return d; // squared
+    }
+
     static double EuclideanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0,tmp=0;
@@ -48,7 +205,7 @@ public:
         return d;
     }
 
-    static double EuclideanDist(const std::vector<double>& x1,
+    static double EuclideanDistance(const std::vector<double>& x1,
                                 const std::vector<double>& x2)
     {
         double d =0, tmp = 0;
@@ -78,7 +235,7 @@ public:
 
         for (size_t i=1; i<nrows; ++i) {
             for (size_t j=0; j < i; ++j) {
-                d = dist_method == 'e' ? EuclideanDist(data[i], data[j]) : ManhattanDist(data[i], data[j]);
+                d = dist_method == 'e' ? EuclideanDistance(data[i], data[j]) : ManhattanDist(data[i], data[j]);
                 matrix[i][j] = d;
                 matrix[j][i] = d;
             }

@@ -29,6 +29,7 @@ set(GEODA_SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/redcap_wrapper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/mds.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/pca.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/clustering/azp.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/pg/geoms.c
         ${CMAKE_CURRENT_SOURCE_DIR}/pg/utils.c
         ${CMAKE_CURRENT_SOURCE_DIR}/shapelib/dbfopen.c
