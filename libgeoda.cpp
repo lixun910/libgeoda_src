@@ -21,6 +21,20 @@ const std::string GeoDa::DT_STRING = "string";
 const std::string GeoDa::DT_INTEGER= "integer";
 const std::string GeoDa::DT_NUMERIC = "numeric";
 
+GeoDa* CreateGeoDaFromGPD(const std::string& layer_name,
+                         const std::string& map_type,
+                         const std::vector<unsigned char> &wkbs,
+                         const std::vector<int>& wkb_bytes_len)
+{
+    return new GeoDa(layer_name, map_type, wkbs, wkb_bytes_len);
+}
+                         
+
+GeoDa* CreateGeoDaFromSHP(const char* pDsPath, const char* layer_name)
+{
+    return new GeoDa(pDsPath, layer_name);
+}
+
 GeoDaColumn* ToGeoDaColumn(GeoDaStringColumn* col)
 {
     return dynamic_cast<GeoDaColumn*>(col);
@@ -330,7 +344,9 @@ const std::vector<gda::PointContents*>& GeoDa::GetCentroids()
        if (this->GetMapType() == gda::POINT_TYP) {
            this->centroids.resize(this->GetNumObs());
            for (size_t i=0; i<this->centroids.size(); ++i) {
-               this->centroids[i] = (gda::PointContents*)this->main_map->records[i];
+               this->centroids[i] = new gda::PointContents;
+               this->centroids[i]->x = ((gda::PointContents*)(this->main_map->records[i]))->x;
+               this->centroids[i]->y = ((gda::PointContents*)(this->main_map->records[i]))->y;
            }
        } else if (this->GetMapType() == gda::POLYGON) {
            this->centroids.resize(this->GetNumObs());

@@ -15,7 +15,7 @@ public:
     virtual const  std::vector<long> GetNeighbors(int obs_idx) = 0;
     virtual const  std::vector<double> GetNeighborWeights(int obs_idx) = 0;
     virtual void   Update(const std::vector<bool>& undefs) = 0;
-    virtual bool   HasIsolates() = 0;
+    virtual bool   HasIsolations() = 0;
     virtual void   GetNbrStats() = 0;
     
     virtual int    GetNbrSize(int obs_idx) = 0;
@@ -31,12 +31,13 @@ public:
                               const char* id_var_name,
                               const std::vector<const char*>& id_vec) = 0;
     // functions:
+    virtual bool   IsSymmetric() const;
     virtual double GetSparsity() const;
     virtual double GetDensity() const;
-    virtual int    GetMinNumNbrs() const;
-    virtual int    GetMaxNumNbrs() const;
-    virtual double GetMeanNumNbrs() const;
-    virtual double GetMedianNumNbrs() const;
+    virtual int    GetMinNbrs() const;
+    virtual int    GetMaxNbrs() const;
+    virtual double GetMeanNbrs() const;
+    virtual double GetMedianNbrs() const;
     virtual int    GetNumObs() const;
     virtual bool   IsInternalUse() const { return is_internal_use; }
     virtual bool   IsSymmetric() const { return is_symmetric; }

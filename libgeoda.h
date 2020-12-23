@@ -196,4 +196,11 @@ GeoDaColumn* ToGeoDaColumn(GeoDaIntColumn* col);
 GeoDaColumn* ToGeoDaColumn(GeoDaRealColumn* col);
 
 
+GeoDa* CreateGeoDaFromGPD(const std::string& layer_name,
+                         const std::string& map_type,
+                         const std::vector<unsigned char> &wkbs,
+                         const std::vector<int>& wkb_bytes_len);
+
+GeoDa* CreateGeoDaFromSHP(const char* pDsPath, const char* layer_name=NULL);
+
 #endif

@@ -178,6 +178,154 @@ double ZoneControl::getZoneValue(int i, boost::unordered_map<int, bool>& candida
     return zone_val;
 }
 
+double ZoneControl::getZoneValue(int i, const std::vector<int>& candidates)
+{
+    // get zone value for comparison
+    double zone_val = 0;
+    boost::unordered_map<int, bool>::iterator it;
+    if (operations[i] == SUM) {
+        double sum = 0;
+        for (int j=0; j<candidates.size(); ++j) {
+            sum += data[ candidates[j] ];
+        }
+        zone_val = sum;
+    } else if (operations[i] == MEAN) {
+        double sum = 0;
+        for (int j=0; j<candidates.size(); ++j) {
+            sum += data[candidates[j]];
+        }
+        double mean = sum / (double) candidates.size();
+        zone_val = mean;
+    } else if (operations[i] == MAX) {
+        double max = data[candidates[0]];
+        for (int j=0; j<candidates.size(); ++j) {
+            if (max < data[candidates[j]]) {
+                max = data[candidates[j]];
+            }
+        }
+        zone_val = max;
+    } else if (operations[i] == MIN) {
+        double min = data[candidates[0]];
+        for (int j=0; j<candidates.size(); ++j) {
+            if (min > data[candidates[j]]) {
+                min = data[candidates[j]];
+            }
+        }
+        zone_val = min;
+    }
+    return zone_val;
+}
+
+bool ZoneControl::HasUpperBound()
+{
+    for (size_t i=0;  i< comparators.size(); ++i) {
+        if (comparators[i] == LESS_THAN) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ZoneControl::CheckLowerBound(const std::vector<int>& candidates)
+{
+    bool is_valid = true; // default true since no check will yield good cands
+    for (size_t i=0;  i< comparators.size(); ++i) {
+        // compare zone value
+        if (comparators[i] == MORE_THAN) {
+            // get zone value for comparison
+            double zone_val = getZoneValue(i, candidates);
+            
+            if (zone_val < comp_values[i]) {
+                return false; // not yet satisfy lower bound
+            }
+        }
+    }
+    return is_valid;
+}
+
+bool ZoneControl::CheckLowerBound(boost::unordered_map<int, int>& group, int flag)
+{
+    bool is_valid = true; // default true since no check will yield good cands
+    for (size_t i=0;  i< comparators.size(); ++i) {
+        if (comparators[i] != MORE_THAN) {
+            continue;
+        }
+        boost::unordered_map<int, int>::iterator it;
+        
+        // get zone value for comparison
+        double zone_val = 0;
+
+        if (operations[i] == SUM) {
+            double sum = 0;
+            for (it = group.begin(); it != group.end(); ++it) {
+                if (it->second == flag) {
+                    sum += data[ it->first ];
+                }
+            }
+            zone_val = sum;
+        } else if (operations[i] == MEAN) {
+            double sum = 0;
+            double sz = 0;
+            for (it = group.begin(); it != group.end(); ++it) {
+                if (it->second == flag) {
+                    sum += data[ it->first ];
+                    sz += 1;
+                }
+            }
+            double mean = sz == 0 ? 0 : sum / sz;
+            zone_val = mean;
+        } else if (operations[i] == MAX) {
+            double max = std::numeric_limits<double>::min();
+            for (it = group.begin(); it != group.end(); ++it) {
+                if (it->second == flag) {
+                    if (max < data[ it->first ]) {
+                        max = data[ it->first ];
+                    }
+                }
+            }
+            zone_val = max;
+        } else if (operations[i] == MIN) {
+            double min = std::numeric_limits<double>::max();
+            for (it = group.begin(); it != group.end(); ++it) {
+                if (it->second == flag) {
+                    if (min > data[ it->first ]) {
+                        min = data[ it->first ];
+                    }
+                }
+            }
+            zone_val = min;
+        }
+        
+        // compare zone value
+        if (comparators[i] == MORE_THAN) {
+            if (zone_val < comp_values[i]) {
+                return false; // not yet satisfy lower bound
+            }
+        }
+    }
+    return is_valid;
+}
+
+bool ZoneControl::CheckUpperBound(const std::vector<int>& candidates)
+{
+    bool is_valid = true; // default true since no check will yield good cands
+    for (size_t i=0;  i< comparators.size(); ++i) {
+        if (comparators[i] != LESS_THAN) {
+            continue;
+        }
+
+        // get zone value for comparison
+        double zone_val = getZoneValue(i, candidates);
+        // compare zone value
+        if (comparators[i] == LESS_THAN) {
+            if (zone_val > comp_values[i]) {
+                return false; // not yet satisfy upper bound
+            }
+        }
+    }
+    return is_valid;
+}
+
 bool ZoneControl::SatisfyLowerBound(boost::unordered_map<int, bool>& candidates)
 {
     bool is_valid = true; // default true since no check will yield good cands
