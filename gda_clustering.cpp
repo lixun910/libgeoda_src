@@ -72,7 +72,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
 
     if (w == 0 ||  method > 3) return result;
 
-    if (k > w->num_obs || k < 1) return result;
+    if (k > w->num_obs) return result;
 
     redcap_wrapper redcap(k, w, data, method, distance_method, bound_vals, min_bound, rand_seed);
     return redcap.GetClusters();

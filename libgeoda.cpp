@@ -517,7 +517,6 @@ void GeoDa::ReadDbffile(const char* fpath)
             }
         }
 
-        GeoDaColumn *column;
         if (eType == FTInteger)
             table->AddIntColumn(szTitle, val_i, undefs);
         else if (eType == FTDouble)
@@ -537,7 +536,7 @@ void GeoDa::ReadShapefile(const char* fpath)
         // unable to open, throw error
         return;
     }
-    int	nShapeType, nEntities, i, j, iPart, bValidate = 0,nInvalidCount=0;
+    int	nShapeType, nEntities, i, j;
     double 	adfMinBound[4], adfMaxBound[4];
     // get bounds
     SHPGetInfo( hSHP, &nEntities, &nShapeType, adfMinBound, adfMaxBound );

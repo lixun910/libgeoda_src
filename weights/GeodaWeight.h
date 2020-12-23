@@ -39,6 +39,7 @@ public:
     virtual double GetMedianNumNbrs() const;
     virtual int    GetNumObs() const;
     virtual bool   IsInternalUse() const { return is_internal_use; }
+    virtual bool   IsSymmetric() const { return is_symmetric; }
     
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);

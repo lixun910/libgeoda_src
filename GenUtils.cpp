@@ -2,7 +2,7 @@
  * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
- * 
+ *
  * GeoDa is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -68,7 +68,7 @@ void DbfFileUtils::SuggestDoubleParams(int length, int decimals,
     if (decimals < 1) decimals = 1;
     if (decimals > 15) decimals = 15;
     if (length-2 < decimals) length = decimals + 2;
-    
+
     *suggest_len = length;
     *suggest_dec = decimals;
 }
@@ -78,13 +78,13 @@ double DbfFileUtils::GetMaxDouble(int length, int decimals,
 {
     // make sure that length and decimals have legal values
     SuggestDoubleParams(length, decimals, &length, &decimals);
-    
+
     int len_inter = length - (1+decimals);
     //if (len_inter + decimals > 15) len_inter = 15-decimals;
     double r = 0;
     for (int i=0; i<len_inter+decimals; i++) r = r*10 + 9;
     for (int i=0; i<decimals; i++) r /= 10;
-    
+
     if (suggest_len) *suggest_len = length;
     if (suggest_dec) *suggest_dec = decimals;
     return r;
@@ -200,21 +200,21 @@ double Gda::ThomasWangDouble(uint64_t& key) {
 
 double Gda::factorial(unsigned int n)
 {
-    double r;
+    double r=0;
     int i;
     for(i = n-1; i > 1; i--)
     r *= i;
-    
+
     return r;
 }
 
 double Gda::nChoosek(unsigned int n, unsigned int k) {
-   
+
     double r = 1;
     double s = 1;
     int i;
     int kk = k > n/2 ? k : n-k;
-    
+
     for(i=n; i > kk; i--) r *= i;
     for(i=(n-kk); i>0; i--) s *= i;
     return r/s;
@@ -226,9 +226,9 @@ std::string Gda::CreateUUID(int nSize)
         nSize = 8;
 
     std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
-    
+
     std::srand (time(NULL));
-    
+
     std::string uid;
     while (uid.length() < nSize) {
         int iSecret = std::rand() % letters.size();
@@ -316,7 +316,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
     num_obs = data.size();
     double N = 0.0;
     std::vector<double> data_valid;
-    
+
     bool has_init = false;
     for (size_t i =0; i<num_obs; i++) {
         int obs_idx = data[i].second;
@@ -334,11 +334,11 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
                 max_val = val;
         }
     }
-    
+
     N = data_valid.size();
-    
+
     is_even_num_obs = (data_valid.size() % 2) == 0;
-    
+
     Q2_ind = (N+1)/2.0 - 1;
     if (is_even_num_obs) {
         Q1_ind = (N+2)/4.0 - 1;
@@ -347,20 +347,20 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
         Q1_ind = (N+3)/4.0 - 1;
         Q3_ind = (3*N+1)/4.0 - 1;
     }
-    
+
     if (N == 0 || N < Q3_ind) return;
-    
+
     Q1 = (data_valid[(int) floor(Q1_ind)] + data_valid[(int) ceil(Q1_ind)])/2.0;
     Q2 = (data_valid[(int) floor(Q2_ind)] + data_valid[(int) ceil(Q2_ind)])/2.0;
     Q3 = (data_valid[(int) floor(Q3_ind)] + data_valid[(int) ceil(Q3_ind)])/2.0;
-    
+
     IQR = Q3 - Q1;
-    
+
     extreme_lower_val_15 = Q1 - 1.5*IQR;
     extreme_lower_val_30 = Q1 - 3.0*IQR;
     extreme_upper_val_15 = Q3 + 1.5*IQR;
     extreme_upper_val_30 = Q3 + 3.0*IQR;
-    
+
     min_IQR_ind = -1;
     for (int i=0; i<num_obs; i++) {
         if (data[i].first < Q1) {
@@ -373,7 +373,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
         min_IQR_ind++;
     }
     max_IQR_ind = num_obs;
-    
+
     for (int i=num_obs-1; i>=0; i--) {
         if (data[i].first > Q3) {
             max_IQR_ind = i;
@@ -397,12 +397,12 @@ double Gda::percentile(double x, const std::vector<double>& v)
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
-    
+
     if (v.empty()) return 0;
-    
+
 	if (x <= p_0) return v[0];
 	if (x >= p_Nm1) return v[N-1];
-	
+
 	for (int i=1; i<N; i++) {
 		double p_i = (100.0/Nd) * ((((double) i)+1.0)-0.5);
 		if (x == p_i) return v[i];
@@ -422,10 +422,10 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v,
     for (size_t i = 0; i<v.size(); i++ ) {
         double val = v[i].first;
         int ind = v[i].second;
-        
+
         if (undefs[ind])
             continue;
-        
+
         valid_data.push_back(val);
     }
     return percentile(x, valid_data);
@@ -438,13 +438,13 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
-    
+
 	if (x <= p_0)
         return v[0].first;
-    
+
 	if (x >= p_Nm1)
         return v[N-1].first;
-	
+
 	for (int i=1; i<N; i++) {
 		double p_i = (100.0/Nd) * ((((double) i)+1.0)-0.5);
 		if (x == p_i)
@@ -520,16 +520,16 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 
 	CalcMinMax(data, min, max);
 	mean = CalcMean(data);
-	
+
 	double n = sample_size;
 	double sum_squares = 0;
 	for (int i=0, iend = data.size(); i<iend; i++) {
 		sum_squares += data[i] * data[i];
 	}
-	
+
 	var_without_bessel = (sum_squares/n) - (mean*mean);
 	sd_without_bessel = sqrt(var_without_bessel);
-	
+
 	if (sample_size == 1) {
 		var_with_bessel = var_without_bessel;
 		sd_with_bessel = sd_without_bessel;
@@ -552,23 +552,23 @@ CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
             data.push_back(data_[i].first);
         }
     }
-    
+
 	sample_size = data.size();
 	if (sample_size == 0) return;
-	
+
 	min = data[0];
 	max = data[sample_size-1];
 	mean = CalcMean(data);
-	
+
 	double n = sample_size;
 	double sum_squares = 0;
 	for (int i=0, iend = data.size(); i<iend; i++) {
 		sum_squares += data[i] * data[i];
 	}
-	
+
 	var_without_bessel = (sum_squares/n) - (mean*mean);
 	sd_without_bessel = sqrt(var_without_bessel);
-	
+
 	if (sample_size == 1) {
 		var_with_bessel = var_without_bessel;
 		sd_with_bessel = sd_without_bessel;
@@ -672,14 +672,14 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
 	valid(false), valid_correlation(false), valid_std_err(false),
 	error_sum_squares(0)
 {
-    
+
     std::vector<double> X_valid;
     std::vector<double> Y_valid;
-    
+
     for (int i=0; i<X.size(); i++) {
         if (X_undef[i] || Y_undef[i])
             continue;
-        
+
         X_valid.push_back(X[i]);
         Y_valid.push_back(Y[i]);
     }
@@ -717,10 +717,10 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 	} else {
 		r_squared = 1 - error_sum_squares / SS_tot;
 	}
-	
+
 	if (Y.size()>2 && varX > 4*DBL_MIN) {
 		// error_sum_squares/(n-k-1), k=1
-		std_err_of_estimate = error_sum_squares/(Y.size()-2); 
+		std_err_of_estimate = error_sum_squares/(Y.size()-2);
 		std_err_of_estimate = sqrt(std_err_of_estimate);
 		std_err_of_beta = std_err_of_estimate/sqrt(X.size()*varX);
 		double sum_x_squared = 0;
@@ -728,7 +728,7 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 			sum_x_squared += X[i] * X[i];
 		}
 		std_err_of_alpha = std_err_of_beta * sqrt(sum_x_squared / X.size());
-		
+
 		if (std_err_of_alpha >= 16*DBL_MIN) {
 			t_score_alpha = alpha / std_err_of_alpha;
 		} else {
@@ -741,10 +741,10 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		}
 		p_value_alpha = TScoreTo2SidedPValue(t_score_alpha, X.size()-2);
 		p_value_beta = TScoreTo2SidedPValue(t_score_beta, X.size()-2);
-		
+
 		valid_std_err = true;
 	}
-	
+
 	double d = sqrt(varX)*sqrt(varY);
 	if (d > 4*DBL_MIN) {
 		correlation = covariance / d;
@@ -789,8 +789,8 @@ scale_range(0), tic_inc(0), p(0)
 AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s,
                      int lbl_precision_s, bool lbl_prec_fixed_point_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
-scale_range(0), tic_inc(0), p(0), ticks(ticks_s),
-lbl_precision(lbl_precision_s), lbl_prec_fixed_point(lbl_prec_fixed_point_s)
+scale_range(0), tic_inc(0), lbl_precision(lbl_precision_s),
+ lbl_prec_fixed_point(lbl_prec_fixed_point_s),  ticks(ticks_s), p(0)
 {
 	CalculateScale(data_min_s, data_max_s, ticks_s);
 }
@@ -798,10 +798,9 @@ lbl_precision(lbl_precision_s), lbl_prec_fixed_point(lbl_prec_fixed_point_s)
 AxisScale::AxisScale(const AxisScale& s)
 : data_min(s.data_min), data_max(s.data_max),
 	scale_min(s.scale_min), scale_max(s.scale_max),
-	scale_range(s.scale_range), tic_inc(s.tic_inc), p(s.p),
-	tics(s.tics), tics_str(s.tics_str), tics_str_show(s.tics_str_show),
-	ticks(s.ticks), lbl_precision(s.lbl_precision),
-    lbl_prec_fixed_point(s.lbl_prec_fixed_point)
+	scale_range(s.scale_range), tic_inc(s.tic_inc),
+	lbl_precision(s.lbl_precision), lbl_prec_fixed_point(s.lbl_prec_fixed_point),
+	ticks(s.ticks), tics(s.tics), p(s.p), tics_str(s.tics_str),tics_str_show(s.tics_str_show)
 {
 }
 
@@ -831,9 +830,9 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 		data_max = data_max_s;
 	} else {
 		data_min = data_max_s;
-		data_max = data_min_s;	
+		data_max = data_min_s;
 	}
-	
+
 	double data_range = data_max - data_min;
 	if ( data_range <= 2*DBL_MIN ) {
 		scale_max = ceil((data_max + 0.05)*10)/10;
@@ -970,7 +969,7 @@ std::string GenUtils::DblToStr(double x, int precision, bool fixed_point)
 std::string GenUtils::IntToStr(int x, int precision)
 {
     std::stringstream ss;
-    
+
     if (x < 10000000) {
         ss << std::fixed;
     }
@@ -984,7 +983,7 @@ std::string GenUtils::IntToStr(int x, int precision)
 double GenUtils::Median(std::vector<double>& data)
 {
     if (data.empty()) return 0;
-    
+
     std::sort(data.begin(), data.end());
 
     int n = data.size();
@@ -1005,7 +1004,7 @@ void GenUtils::DeviationFromMean(int nObs, double* data)
 void GenUtils::DeviationFromMean(int nObs, double* data, std::vector<bool>& undef)
 {
 	if (nObs == 0) return;
-    
+
     int nValid = 0;
 	double sum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
@@ -1110,7 +1109,6 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data,
     if (data.size() == 0) return;
     double sum = 0.0;
     double nValid = 0;
-    double nn = data.size();
     for (int i=0, iend=data.size(); i<iend; i++) {
         if (undef[i]) continue;
         sum += data[i];
@@ -1162,7 +1160,7 @@ double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
     }
     double mean_x = sum_x / nObs;
     double mean_y = sum_y / nObs;
-   
+
     double ss_x = 0;
     double ss_y = 0;
     double ss_xy = 0;
@@ -1174,7 +1172,7 @@ double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
         ss_y += d_y * d_y;
         ss_xy += d_x * d_y;
     }
-    
+
     double r = pow(ss_x * ss_y, 0.5);
     r = ss_xy / r;
     return r;
@@ -1223,13 +1221,13 @@ bool GenUtils::StandardizeData(int nObs, double* data)
 bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
 {
 	if (nObs <= 1) return false;
-    
+
     int nValid = 0;
     for (int i=0; i<undef.size(); i++) {
         if (!undef[i])
             nValid += 1;
     }
-    
+
 	GenUtils::DeviationFromMean(nObs, data, undef);
 	double ssum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
@@ -1263,13 +1261,13 @@ bool GenUtils::StandardizeData(std::vector<double>& data, std::vector<bool>& und
 {
     int nObs = data.size();
     if (nObs <= 1) return false;
-    
+
     int nValid = 0;
     for (int i=0; i<undef.size(); i++) {
         if (!undef[i])
             nValid += 1;
     }
-    
+
     GenUtils::DeviationFromMean(data, undef);
     double ssum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
@@ -1334,7 +1332,7 @@ void GenUtils::SkipTillNumber(std::istream &s)
 }
 
 // This is an implementation of ltoa
-void GenUtils::longToString(const long d, char* Id, const int base) 
+void GenUtils::longToString(const long d, char* Id, const int base)
 {
 	int i = 0;
 	long j = d;
@@ -1361,7 +1359,7 @@ void GenUtils::longToString(const long d, char* Id, const int base)
 		}
 		return;
 	}
-	
+
 	Id[i] = '\0';
 	while (i > 0) {
 		Id[i - 1] = rId[j - i];
@@ -1384,7 +1382,7 @@ void GenUtils::strToInt64(const char *str, int *val)
 {
 	int total = 0;
 	bool minus = 0;
- 
+
 	while (isspace(*str)) str++;
 	if (*str == '+') {
 		str++;

@@ -86,8 +86,6 @@ GeoDaWeight* gda_knn_weights(AbstractGeoDa* geoda, unsigned int k,
 {
     if (geoda == 0) return 0;
 
-    int num_obs = geoda->GetNumObs();
-
     const std::vector<gda::PointContents*>& centroids = geoda->GetCentroids();
 
     GwtWeight* poW = SpatialIndAlgs::knn_build(centroids, k, is_arc,
