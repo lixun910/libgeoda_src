@@ -17,7 +17,7 @@
 LISA* gda_localg(GeoDaWeight *w,
                  const std::vector<double> &data,
                  const std::vector<bool> &undefs,
-                 int nCPUs, int perm, int last_seed)
+                 double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -28,13 +28,14 @@ LISA* gda_localg(GeoDaWeight *w,
         copy_undefs.resize(num_obs, false);
     }
     UniG* localg = new UniG(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    localg->SetSignificanceCutoff(significance_cutoff);
     return localg;
 }
 
 LISA* gda_localgstar(GeoDaWeight *w,
                          const std::vector<double> &data,
                          const std::vector<bool> &undefs,
-                     int nCPUs, int perm, int last_seed)
+                     double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -45,13 +46,14 @@ LISA* gda_localgstar(GeoDaWeight *w,
         copy_undefs.resize(num_obs, false);
     }
     UniGstar* localgstar = new UniGstar(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    localgstar->SetSignificanceCutoff(significance_cutoff);
     return localgstar;
 }
 
 LISA* gda_localmoran(GeoDaWeight *w,
                         const std::vector<double> &data,
                         const std::vector<bool> &undefs,
-                     int nCPUs, int perm, int last_seed)
+                     double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -62,13 +64,14 @@ LISA* gda_localmoran(GeoDaWeight *w,
         copy_undefs.resize(num_obs, false);
     }
     UniLocalMoran* lisa = new UniLocalMoran(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    lisa->SetSignificanceCutoff(significance_cutoff);
     return lisa;
 }
 
 BatchLISA* gda_batchlocalmoran(GeoDaWeight *w,
                      const std::vector<std::vector<double> > &data,
                      const std::vector<std::vector<bool> > &undefs,
-                     int nCPUs, int perm, int last_seed)
+                     double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -81,13 +84,14 @@ BatchLISA* gda_batchlocalmoran(GeoDaWeight *w,
     }
 
     BatchLISA* bm = new BatchLocalMoran(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    bm->SetSignificanceCutoff(significance_cutoff);
     return bm;
 }
 
 LISA* gda_geary(GeoDaWeight *w,
                     const std::vector<double> &data,
                     const std::vector<bool> &undefs,
-                int nCPUs, int perm, int last_seed)
+                double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -98,26 +102,28 @@ LISA* gda_geary(GeoDaWeight *w,
         copy_undefs.resize(num_obs, false);
     }
     UniGeary* geary = new UniGeary(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    geary->SetSignificanceCutoff(significance_cutoff);
     return geary;
 }
 
 LISA* gda_multigeary(GeoDaWeight *w,
                 const std::vector<std::vector<double> > &data,
                 const std::vector<std::vector<bool> > &undefs,
-                     int nCPUs, int perm, int last_seed)
+                     double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
     int num_obs = w->num_obs;
 
     MultiGeary* geary = new MultiGeary(num_obs, w, data, undefs, nCPUs, perm, last_seed);
+    geary->SetSignificanceCutoff(significance_cutoff);
     return geary;
 }
 
 LISA* gda_joincount(GeoDaWeight *w,
                             const std::vector<double> &data,
                             const std::vector<bool> &undefs,
-                    int nCPUs, int perm, int last_seed)
+                    double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -128,19 +134,21 @@ LISA* gda_joincount(GeoDaWeight *w,
         copy_undefs.resize(num_obs, false);
     }
     UniJoinCount* jc= new UniJoinCount(num_obs, w, data, copy_undefs, nCPUs, perm, last_seed);
+    jc->SetSignificanceCutoff(significance_cutoff);
     return jc;
 }
 
 LISA* gda_multijoincount(GeoDaWeight *w,
                 const std::vector<std::vector<double> > &data,
                 const std::vector<std::vector<bool> > &undefs,
-                         int nCPUs, int perm, int last_seed)
+                         double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
     int num_obs = w->num_obs;
 
     MultiJoinCount* jc = new MultiJoinCount(num_obs, w, data, undefs, nCPUs, perm, last_seed);
+    jc->SetSignificanceCutoff(significance_cutoff);
     return jc;
 }
 
@@ -158,7 +166,7 @@ double gda_bo(LISA *lisa, double current_p) {
 
 LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, const std::vector<double> &data,
                        const std::vector<bool> &undefs,
-                       int nCPUs, int perm, int last_seed)
+                       double significance_cutoff, int nCPUs, int perm, int last_seed)
 {
     if (w == 0) return 0;
 
@@ -198,6 +206,6 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
 
     // apply local join count on binary data
     UniJoinCount* jc= new UniJoinCount(num_obs, w, bin_data, copy_undefs, nCPUs, perm, last_seed);
-
+    jc->SetSignificanceCutoff(significance_cutoff);
     return jc;
 }

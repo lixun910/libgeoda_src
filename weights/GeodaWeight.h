@@ -8,7 +8,7 @@ class GeoDaWeight {
 public:
 	GeoDaWeight() : symmetry_checked(false), num_obs(0) {}
 	GeoDaWeight(const GeoDaWeight& gw);
-    
+
 	virtual ~GeoDaWeight() {}
 
     virtual bool   CheckNeighbor(int obs_idx, int nbr_idx) = 0;
@@ -17,7 +17,7 @@ public:
     virtual void   Update(const std::vector<bool>& undefs) = 0;
     virtual bool   HasIsolations() = 0;
     virtual void   GetNbrStats() = 0;
-    
+
     virtual int    GetNbrSize(int obs_idx) = 0;
     virtual double SpatialLag(int obs_idx,
                               const std::vector<double>& data) = 0;
@@ -40,17 +40,16 @@ public:
     virtual double GetMedianNbrs() const;
     virtual int    GetNumObs() const;
     virtual bool   IsInternalUse() const { return is_internal_use; }
-    virtual bool   IsSymmetric() const { return is_symmetric; }
-    
+
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
-   
+
     virtual std::string GetTitle() const; // returns portion of wflnm if title empty
-   
+
     virtual std::string GetIDName() const { return id_field;}
 
     virtual std::string GetUID() const {return uid;}
-    
+
     // Properties
 	enum WeightType { gal_type, gwt_type };
 	WeightType    weight_type;

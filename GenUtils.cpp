@@ -800,7 +800,7 @@ AxisScale::AxisScale(const AxisScale& s)
 	scale_min(s.scale_min), scale_max(s.scale_max),
 	scale_range(s.scale_range), tic_inc(s.tic_inc),
 	lbl_precision(s.lbl_precision), lbl_prec_fixed_point(s.lbl_prec_fixed_point),
-	ticks(s.ticks), tics(s.tics), p(s.p), tics_str(s.tics_str),tics_str_show(s.tics_str_show)
+	ticks(s.ticks), p(s.p), tics(s.tics), tics_str(s.tics_str),tics_str_show(s.tics_str_show)
 {
 }
 
