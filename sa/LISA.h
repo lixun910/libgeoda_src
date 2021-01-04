@@ -95,7 +95,6 @@ public:
     virtual void SetRowStandardize(bool rowStandardize);
 
     virtual int GetNumThreads() const;
-
     virtual void SetNumThreads(int n_threads);
 
     virtual std::vector<std::string> GetLabels();

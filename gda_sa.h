@@ -16,10 +16,10 @@ class BatchLISA;
  * @param undefs
  * @return
  */
-LISA* gda_localmoran(GeoDaWeight *w,
-                        const std::vector<double> &data,
-                        const std::vector<bool> &undefs = std::vector<bool>(), double significance_cutoff = 0.05,
-                     int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localmoran(GeoDaWeight *w,
+                     const std::vector<double> &data,
+                     const std::vector<std::vector<bool> > &undefs, double significance_cutoff,
+                     int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -28,9 +28,9 @@ LISA* gda_localmoran(GeoDaWeight *w,
  * @param undefs
  * @return
  */
-BatchLISA* gda_batchlocalmoran(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
-                     const std::vector<std::vector<bool> > &undefs = std::vector<std::vector<bool> >(), double significance_cutoff = 0.05,
-                     int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+BatchLISA *gda_batchlocalmoran(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
+                               const std::vector<std::vector<bool> > &undefs, double significance_cutoff,
+                               int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -39,9 +39,9 @@ BatchLISA* gda_batchlocalmoran(GeoDaWeight *w, const std::vector<std::vector<dou
  * @param undefs
  * @return
  */
-LISA* gda_geary(GeoDaWeight *w, const std::vector<double> &data,
-                    const std::vector<bool> &undefs = std::vector<bool>(), double significance_cutoff = 0.05,
-                int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localgeary(GeoDaWeight *w, const std::vector<double> &data,
+                     const std::vector<bool> &undefs, double significance_cutoff,
+                     int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -50,9 +50,9 @@ LISA* gda_geary(GeoDaWeight *w, const std::vector<double> &data,
  * @param undefs
  * @return
  */
-LISA* gda_multigeary(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
-                    const std::vector<std::vector<bool> > &undefs = std::vector<std::vector<bool> >(), double significance_cutoff = 0.05,
-                     int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localmultigeary(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
+                     const std::vector<std::vector<bool> > &undefs, double significance_cutoff,
+                     int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -61,13 +61,13 @@ LISA* gda_multigeary(GeoDaWeight *w, const std::vector<std::vector<double> > &da
  * @param undefs
  * @return
  */
-LISA* gda_joincount(GeoDaWeight *w, const std::vector<double> &data,
-                            const std::vector<bool> &undefs = std::vector<bool>(), double significance_cutoff = 0.05,
-                    int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localjoincount(GeoDaWeight *w, const std::vector<double> &data,
+                    const std::vector<bool> &undefs, double significance_cutoff,
+                    int nCPUs, int permutations, int last_seed_used);
 
-LISA* gda_multijoincount(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
-                const std::vector<std::vector<bool> > &undefs = std::vector<std::vector<bool> >(), double significance_cutoff = 0.05,
-                         int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localmultijoincount(GeoDaWeight *w, const std::vector<std::vector<double> > &data,
+                         const std::vector<std::vector<bool> > &undefs, double significance_cutoff,
+                         int nCPUs, int permutations, int last_seed_used);
 /**
  *
  * @param w
@@ -75,9 +75,9 @@ LISA* gda_multijoincount(GeoDaWeight *w, const std::vector<std::vector<double> >
  * @param undefs
  * @return
  */
-LISA* gda_localg(GeoDaWeight *w, const std::vector<double> &data,
-                 const std::vector<bool> &undefs = std::vector<bool>(), double significance_cutoff = 0.05,
-                 int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localg(GeoDaWeight *w, const std::vector<double> &data,
+                 const std::vector<bool> &undefs, double significance_cutoff,
+                 int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -86,9 +86,9 @@ LISA* gda_localg(GeoDaWeight *w, const std::vector<double> &data,
  * @param undefs
  * @return
  */
-LISA* gda_localgstar(GeoDaWeight *w, const std::vector<double> &data,
-                         const std::vector<bool> &undefs = std::vector<bool>(), double significance_cutoff = 0.05,
-                     int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_localgstar(GeoDaWeight *w, const std::vector<double> &data,
+                     const std::vector<bool> &undefs, double significance_cutoff,
+                     int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -98,9 +98,9 @@ LISA* gda_localgstar(GeoDaWeight *w, const std::vector<double> &data,
  * @param undefs
  * @return
  */
-LISA* gda_quantilelisa(GeoDaWeight* w, unsigned int k,  unsigned int quantile, const std::vector<double> &data,
-                       const std::vector<bool> &undefs = std::vector<bool>(), double significance_cutoff = 0.05,
-                       int nCPUs = 6, int permutations = 999, int last_seed_used = 123456789);
+LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, const std::vector<double> &data,
+                       const std::vector<bool> &undefs, double significance_cutoff,
+                       int nCPUs, int permutations, int last_seed_used);
 
 /**
  *
@@ -108,7 +108,7 @@ LISA* gda_quantilelisa(GeoDaWeight* w, unsigned int k,  unsigned int quantile, c
  * @param current_p
  * @return
  */
-double gda_fdr(LISA* lisa, double current_p);
+double gda_fdr(LISA *lisa, double current_p);
 
 /**
  *
@@ -116,6 +116,6 @@ double gda_fdr(LISA* lisa, double current_p);
  * @param current_p
  * @return
  */
-double gda_bo(LISA* lisa, double current_p);
+double gda_bo(LISA *lisa, double current_p);
 
 #endif
