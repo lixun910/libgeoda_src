@@ -25,7 +25,7 @@
 #include <vector>
 #include <map>
 #include <boost/unordered_map.hpp>
-
+#include "../rng.h"
 #include "../weights/GalWeight.h"
 
 using namespace std;
@@ -299,6 +299,8 @@ protected:
     list<int> test_random_numbers;
     list<int> enclave_random_number;
     list<vector<int> > test_random_cand;
+
+    Xoroshiro128Random rng;  
 };
 
 #endif

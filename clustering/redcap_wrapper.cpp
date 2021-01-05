@@ -21,9 +21,6 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
         int rand_seed)
 {
     if (w) {
-        setrandomstate(rand_seed);
-        resetrandom();
-
         num_obs = w->num_obs;
 
         GalElement* gal = 0;

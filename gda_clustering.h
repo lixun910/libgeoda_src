@@ -27,13 +27,13 @@ const std::vector<std::vector<int> > gda_maxp(GeoDaWeight *w,
                                               const std::vector<std::vector<double> >& data,
                                               const std::vector<double>& bound_vals,
                                               double min_bound,
-                                              const std::string& local_search_method = "greedy",
-                                              int initial = 99,
-                                              int tabu_length = 85,
-                                              double cool_rate = 0.85,
-                                              const std::vector<int>& seeds = std::vector<int>(),
-                                              const std::string &distance_method = "euclidean",
-                                              int rand_seed = 123456789);
+                                              const std::string& local_search_method,
+                                              int iterations,
+                                              int tabu_length,
+                                              double cool_rate,
+                                              const std::vector<int>& init_regions,
+                                              const std::string &distance_method,
+                                              int rand_seed);
 
 /**
  *
@@ -50,11 +50,11 @@ const std::vector<std::vector<int> > gda_maxp(GeoDaWeight *w,
 const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 GeoDaWeight *w,
                                                 const std::vector<std::vector<double> > &data,
-                                                const std::string &redcap_method =  "firstorder-singlelinkage",
-                                                const std::string &distance_method = "euclidean",
-                                                const std::vector<double>& bound_vals = std::vector<double>(),
-                                                double min_bound = 0,
-                                                int rand_seed = 123456789);
+                                                const std::string &redcap_method,
+                                                const std::string &distance_method,
+                                                const std::vector<double>& bound_vals,
+                                                double min_bound,
+                                                int rand_seed);
 
 /**
  *
@@ -70,10 +70,10 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
 const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 GeoDaWeight *w,
                                                 const std::vector<std::vector<double> > &data,
-                                                const std::string &distance_method = "euclidean",
-                                                const std::vector<double>& bound_vals = std::vector<double>(),
-                                                double min_bound = 0,
-                                                int rand_seed = 123456789);
+                                                const std::string &distance_method,
+                                                const std::vector<double>& bound_vals,
+                                                double min_bound,
+                                                int rand_seed);
 
 
 /**

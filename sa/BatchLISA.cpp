@@ -42,7 +42,7 @@ BatchLISA::BatchLISA(int num_obs, GeoDaWeight* w, const std::vector<std::vector<
     permutations(_perm),
     user_sig_cutoff(0),
     has_undefined(false),
-    has_isolates(w->HasIsolates()),
+    has_isolates(w->HasIsolations()),
     calc_significances(true),
     last_seed_used(_last_seed),
     reuse_last_seed(true),

@@ -18,7 +18,7 @@ class BatchLISA;
  */
 LISA *gda_localmoran(GeoDaWeight *w,
                      const std::vector<double> &data,
-                     const std::vector<std::vector<bool> > &undefs, double significance_cutoff,
+                     const std::vector<bool> &undefs, double significance_cutoff,
                      int nCPUs, int permutations, int last_seed_used);
 
 /**

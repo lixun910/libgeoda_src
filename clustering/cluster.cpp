@@ -32,6 +32,8 @@
 #include <limits.h>
 #include <string.h>
 #include "cluster.h"
+#include "../rng.h"
+
 #ifdef WINDOWS
 #  include <windows.h>
 #endif
@@ -1776,24 +1778,25 @@ Return value
 A double-precison number between 0.0 and 1.0.
 ============================================================================
 */
-{ int z;
+{ 
+  int z;
   static const int m1 = 2147483563;
   static const int m2 = 2147483399;
   const double scale = 1.0/m1;
 
+  static Xoroshiro128Random rng;
+
   static int s1 = 0;
   static int s2 = 0;
 
-  if (s1==0 || s2==0 || reset_random==1) /* initialize */
-  { if (random_state<0) {
-      unsigned int initseed = (unsigned int) time(0);
-      srand(initseed);
-    } else {
-      srand(random_state);
+  if (s1==0 || s2==0 || reset_random==1) // initialize
+  { 
+    if (random_state>0) {
+      rng.SetSeed(random_state);
     }
-    s1 = rand();
-    s2 = rand();
-      reset_random = 0;
+    s1 = rng.nextLong();
+    s2 = rng.nextLong();
+    reset_random = 0;
   }
 
   do
@@ -1806,7 +1809,7 @@ A double-precison number between 0.0 and 1.0.
     if(s2 < 0) s2+=m2;
     z = s1-s2;
     if(z < 1) z+=(m1-1);
-  } while (z==m1); /* To avoid returning 1.0 */
+  } while (z==m1); // To avoid returning 1.0
 
   return z*scale;
 }

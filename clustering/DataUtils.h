@@ -307,10 +307,8 @@ public:
     
     static void eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
         
-        if ( GdaConst::use_gda_user_seed) {
-            std::srand(GdaConst::gda_user_seed);
-        }
-        
+        Xoroshiro128Random rng();
+
         int d = evals.size();
         int k = matrix.size();
         //double eps = 1.0E-10;
@@ -321,7 +319,7 @@ public:
                     for (int j = 0; j < k; j++)
                         matrix[i][j] -= evals[(m - 1)] * evecs[(m - 1)][i] * evecs[(m - 1)][j];
             for (int i = 0; i < k; i++)
-                evecs[m][i] = (double) std::rand() / RAND_MAX;
+                evecs[m][i] = rng.nextDouble();
             normalize(evecs[m]);
             
             double r = 0.0;
@@ -342,10 +340,9 @@ public:
     }
     
     static void reverse_eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
-        
-        if ( GdaConst::use_gda_user_seed) {
-            std::srand(GdaConst::gda_user_seed);
-        }
+
+        Xoroshiro128Random rng();
+
         double rho = largestEigenvalue(matrix);
         int d = evals.size();
         int k = matrix.size();
@@ -355,8 +352,9 @@ public:
                 for (int i = 0; i < k; i++)
                     for (int j = 0; j < k; j++)
                         matrix[i][j] -= evals[(m - 1)] * evecs[(m - 1)][i] * evecs[(m - 1)][j];
-            for (int i = 0; i < k; i++)
-                evecs[m][i] = (double) std::rand() / RAND_MAX;
+            for (int i = 0; i < k; i++) {
+                evecs[m][i] = rng.nextDouble();
+            }
             normalize(evecs[m]);
             
             double r = 0.0;
@@ -378,14 +376,17 @@ public:
  
     static double smallestEigenvalue(vector<vector<double> >& matrix)
     {
+        Xoroshiro128Random rng();
+
         int n = matrix.size();
         double rho = largestEigenvalue(matrix);
         double eps = 1.0E-6;
         int maxiter = 100;
         double lambda = 0.0;
         vector<double> x(n);
-        for (int i = 0; i < n; i++)
-            x[i] = (0.5 - (double) std::rand() / RAND_MAX);
+        for (int i = 0; i < n; i++) {
+            x[i] = (0.5 - rng.nextDouble());
+        }
         normalize(x);
         
         double r = 0.0;
@@ -431,14 +432,13 @@ public:
     }
     
     static void randomize(vector<vector<double> >& matrix) {
-        if ( GdaConst::use_gda_user_seed) {
-            std::srand(GdaConst::gda_user_seed);
-        }
+        Xoroshiro128Random rng();
+
         int k = matrix.size();
         int n = matrix[0].size();
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
-                matrix[i][j] = (double) std::rand() / RAND_MAX;
+                matrix[i][j] = rng.nextDouble();
             }
         }
     }

@@ -87,13 +87,10 @@ test(_test)
     }
 
     // setup random number
-    if (rnd_seed<0) {
-        unsigned int initseed = (unsigned int) time(0);
-        std::srand(initseed);
-    } else {
-        std::srand(rnd_seed);
+    if (rnd_seed>0) {
+        rng.SetSeed(rnd_seed);
     }
-    seed_start = std::rand();
+    seed_start = rng.nextLong();
     seed_increment = MAX_ATTEMPTS * num_obs * 10000;
 
     // init solution

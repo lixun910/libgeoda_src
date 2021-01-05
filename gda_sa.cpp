@@ -116,7 +116,7 @@ LISA *gda_localgeary(GeoDaWeight *w,
     return geary;
 }
 
-LISA *gda_multigeary(GeoDaWeight *w,
+LISA *gda_localmultigeary(GeoDaWeight *w,
                      const std::vector<std::vector<double> > &data,
                      const std::vector<std::vector<bool> > &undefs,
                      double significance_cutoff, int nCPUs, int perm, int last_seed)
@@ -131,7 +131,7 @@ LISA *gda_multigeary(GeoDaWeight *w,
     return geary;
 }
 
-LISA *gda_joincount(GeoDaWeight *w,
+LISA *gda_localjoincount(GeoDaWeight *w,
                     const std::vector<double> &data,
                     const std::vector<bool> &undefs,
                     double significance_cutoff, int nCPUs, int perm, int last_seed)
@@ -151,7 +151,7 @@ LISA *gda_joincount(GeoDaWeight *w,
     return jc;
 }
 
-LISA *gda_multijoincount(GeoDaWeight *w,
+LISA *gda_localmultijoincount(GeoDaWeight *w,
                          const std::vector<std::vector<double> > &data,
                          const std::vector<std::vector<bool> > &undefs,
                          double significance_cutoff, int nCPUs, int perm, int last_seed)
