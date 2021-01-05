@@ -352,7 +352,7 @@ void Maxp::init_solution(int solution_idx)
             }
         }
 
-        // get enclaves: areas that are not assigned to a region are known as “enclaves.”
+        // get enclaves: areas that are not assigned to a region are known as enclaves.
         for (int i=0; i<num_obs;i++) {
             if (a2r.find(i) == a2r.end()) {
                 enclaves.push_back(i);

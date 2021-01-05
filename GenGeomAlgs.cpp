@@ -179,7 +179,7 @@ double GenGeomAlgs::ComputeEucDist(double x1, double y1, double x2, double y2)
  84 sphere. Remember that this equation is just an approximation
  because the earth is actually an ellipsoid. Because of
  this, the distance between latitudes will increase as the latitude
- increases. The distance at 0∞ on the WGS 84 ellipsoid is
+ increases. The distance at 0 on the WGS 84 ellipsoid is
  actually 68.71 miles while it is 69.40 miles at 90 deg.
  */
 
@@ -320,7 +320,7 @@ namespace GenGeomAlgs {
 	}
 }
 
-// Cohen–Sutherland clipping algorithm clips a line from
+// Cohen-Sutherland clipping algorithm clips a line from
 // P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with 
 // diagonal from (xmin, ymin) to (xmax, ymax).
 // Based on http://en.wikipedia.org/wiki/Cohen-Sutherland_algorithm

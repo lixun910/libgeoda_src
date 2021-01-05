@@ -28,7 +28,7 @@ GeoDa* CreateGeoDaFromGPD(const std::string& layer_name,
 {
     return new GeoDa(layer_name, map_type, wkbs, wkb_bytes_len);
 }
-                         
+
 
 GeoDa* CreateGeoDaFromSHP(const char* pDsPath, const char* layer_name)
 {
@@ -82,7 +82,7 @@ GeoDa::GeoDa(const char* poDsPath, const char* layer_name)
 
     char dbfpath[512];
     strcpy(dbfpath, poDsPath);
-    strncpy(dbfpath + strlen(poDsPath)-3, "dbf", 3);
+    strncpy(dbfpath + strlen(poDsPath)-3, "dbf", 4);
 
     ReadShapefile(poDsPath);
     ReadDbffile(dbfpath);

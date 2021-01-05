@@ -4,20 +4,20 @@
  * Author: Tomasz Sowa <t.sowa@ttmath.org>
  */
 
-/* 
+/*
  * Copyright (c) 2006-2010, Tomasz Sowa
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- *    
+ *
  *  * Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *    
+ *
  *  * Neither the name Tomasz Sowa nor the names of contributors to this
  *    project may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
@@ -68,7 +68,7 @@ namespace ttmath
 	{
 		#ifdef TTMATH_PLATFORM32
 			static const char info[] = "no_asm_32";
-		#endif		
+		#endif
 
 		#ifdef TTMATH_PLATFORM64
 			static const char info[] = "no_asm_64";
@@ -77,7 +77,7 @@ namespace ttmath
 	return info;
 	}
 
-	
+
 	/*!
 		returning the currect type of the library
 	*/
@@ -86,7 +86,7 @@ namespace ttmath
 	{
 		#ifdef TTMATH_PLATFORM32
 			LibTypeCode info = no_asm_32;
-		#endif		
+		#endif
 
 		#ifdef TTMATH_PLATFORM64
 			LibTypeCode info = no_asm_64;
@@ -137,7 +137,7 @@ namespace ttmath
 		c must be zero or one (might be a bigger value than 1)
 		function returns carry (1) (if it was)
 	*/
-	
+
 	template<uint value_size>
 	uint UInt<value_size>::Add(const UInt<value_size> & ss2, uint c)
 	{
@@ -147,7 +147,7 @@ namespace ttmath
 			c = AddTwoWords(table[i], ss2.table[i], c, &table[i]);
 
 		TTMATH_LOGC("UInt::Add", c)
-	
+
 	return c;
 	}
 
@@ -188,7 +188,7 @@ namespace ttmath
 			c = AddTwoWords(table[i], 0, c, &table[i]);
 
 		TTMATH_LOGC("UInt::AddInt", c)
-	
+
 	return c;
 	}
 
@@ -226,10 +226,10 @@ namespace ttmath
 			table[1] = 4 + x1 = 14
 			table[2] = 5 + x2 = 25
 			table[3] = 6
-		
+
 		and no carry at the end of table[3]
 
-		(of course if there was a carry in table[2](5+20) then 
+		(of course if there was a carry in table[2](5+20) then
 		this carry would be passed to the table[3] etc.)
 	*/
 	template<uint value_size>
@@ -247,7 +247,7 @@ namespace ttmath
 			c = AddTwoWords(table[i], 0, c, &table[i]);
 
 		TTMATH_LOGC("UInt::AddTwoInts", c)
-	
+
 	return c;
 	}
 
@@ -280,7 +280,7 @@ namespace ttmath
 	uint i, c = 0;
 
 		TTMATH_ASSERT( ss1_size >= ss2_size )
-		
+
 		for(i=0 ; i<ss2_size ; ++i)
 			c = AddTwoWords(ss1[i], ss2[i], c, &result[i]);
 
@@ -358,7 +358,7 @@ namespace ttmath
 
 			table[0] = 10;
 			table[1] = 30;
-			table[2] = 5;	
+			table[2] = 5;
 
 		and we call:
 
@@ -386,7 +386,7 @@ namespace ttmath
 			c = SubTwoWords(table[i], 0, c, &table[i]);
 
 		TTMATH_LOGC("UInt::SubInt", c)
-	
+
 	return c;
 	}
 
@@ -418,7 +418,7 @@ namespace ttmath
 	uint i, c = 0;
 
 		TTMATH_ASSERT( ss1_size >= ss2_size )
-		
+
 		for(i=0 ; i<ss2_size ; ++i)
 			c = SubTwoWords(ss1[i], ss2[i], c, &result[i]);
 
@@ -598,7 +598,7 @@ namespace ttmath
 			return -1;
 
 		uint bit = TTMATH_BITS_PER_UINT - 1;
-		
+
 		while( (x & TTMATH_UINT_HIGHEST_BIT) == 0 )
 		{
 			x = x << 1;
@@ -621,7 +621,7 @@ namespace ttmath
 			return -1;
 
 		uint bit = 0;
-		
+
 		while( (x & 1) == 0 )
 		{
 			x = x >> 1;
@@ -679,7 +679,7 @@ namespace ttmath
 		multiplication: result_high:result_low = a * b
 		-  result_high - higher word of the result
 		-  result_low  - lower word of the result
-	
+
 		this methos never returns a carry
 
 		this method is used in the second version of the multiplication algorithms
@@ -724,7 +724,7 @@ namespace ttmath
 		uint_ b_;
 		uint_ res_high1, res_high2;
 		uint_ res_low1,  res_low2;
-		
+
 		a_.u = a;
 		b_.u = b;
 
@@ -748,6 +748,11 @@ namespace ttmath
 
 
 		uint_ temp;
+
+		res_low1.u_.high  = 0;
+		a_.u_.high        = 0;
+		b_.u_.high        = 0;
+		temp.u_.high      = 0;
 
 		res_low1.u        = uint(b_.u_.low) * uint(a_.u_.low);
 
@@ -780,12 +785,12 @@ namespace ttmath
 	 *
 	 *
 	*/
-	
+
 
 	/*!
 		this method calculates 64bits word a:b / 32bits c (a higher, b lower word)
 		r = a:b / c and rest - remainder
-		
+
 		*
 		* WARNING:
 		* the c has to be suitably large for the result being keeped in one word,
@@ -845,7 +850,7 @@ namespace ttmath
 			res_.u_.high  = (unsigned int)(temp1.u / c);
 			temp2.u_.high = (unsigned int)(temp1.u % c);
 			temp2.u_.low  = b_.u_.low;
-			
+
 			res_.u_.low  = (unsigned int)(temp2.u / c);
 			*rest        = temp2.u % c;
 
@@ -865,7 +870,7 @@ namespace ttmath
 
 	/*!
 		this method is available only on 64bit platforms
-		
+
 		the same algorithm like the third division algorithm in ttmathuint.h
 		but now with the radix=2^32
 	*/
@@ -893,7 +898,7 @@ namespace ttmath
 		u3         = b_.u_.high;
 		q_.u_.high = DivTwoWordsCalculate(u_, u3, c_);
 		MultiplySubtract(u_, u3, q_.u_.high, c_);
-		
+
 		u_.u_.high = u_.u_.low;
 		u_.u_.low  = u3;
 		u3         = b_.u_.low;
@@ -910,7 +915,7 @@ namespace ttmath
 
 
 
-	
+
 	template<uint value_size>
 	uint UInt<value_size>::DivTwoWordsNormalize(uint_ & a_, uint_ & b_, uint_ & c_)
 	{
@@ -919,11 +924,11 @@ namespace ttmath
 		for( ; (c_.u & TTMATH_UINT_HIGHEST_BIT) == 0 ; ++d )
 		{
 			c_.u = c_.u << 1;
-			
+
 			uint bc = b_.u & TTMATH_UINT_HIGHEST_BIT; // carry from 'b'
 
 			b_.u = b_.u << 1;
-			a_.u = a_.u << 1; // carry bits from 'a' are simply skipped 
+			a_.u = a_.u << 1; // carry bits from 'a' are simply skipped
 
 			if( bc )
 				a_.u = a_.u | 1;
@@ -970,7 +975,7 @@ namespace ttmath
 				if( qp_.u * uint(v_.u_.low) > temp_.u )
 					decrease = true;
 			}
-			
+
 			next_test = false;
 
 			if( decrease )
@@ -978,7 +983,7 @@ namespace ttmath
 				--qp_.u;
 				rp_.u += v_.u_.high;
 
-				if( rp_.u_.high == 0 ) 
+				if( rp_.u_.high == 0 )
 					next_test = true;
 			}
 		}
@@ -992,7 +997,7 @@ namespace ttmath
 	void UInt<value_size>::MultiplySubtract(uint_ & u_, unsigned int & u3, unsigned int & q, uint_ v_)
 	{
 	uint_ temp_;
-		
+
 		uint res_high;
 		uint res_low;
 
@@ -1005,7 +1010,7 @@ namespace ttmath
 		temp_.u_.low  = u3;
 
 		uint c = SubTwoWords(temp_.u, res_low, 0, &sub_res_low_.u);
-			
+
 		temp_.u_.high = 0;
 		temp_.u_.low  = u_.u_.high;
 		c = SubTwoWords(temp_.u, res_high, c, &sub_res_high_.u);
