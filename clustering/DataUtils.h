@@ -307,7 +307,7 @@ public:
     
     static void eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
         
-        Xoroshiro128Random rng();
+        Xoroshiro128Random rng;
 
         int d = evals.size();
         int k = matrix.size();
@@ -341,7 +341,7 @@ public:
     
     static void reverse_eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
 
-        Xoroshiro128Random rng();
+        Xoroshiro128Random rng;
 
         double rho = largestEigenvalue(matrix);
         int d = evals.size();
@@ -376,7 +376,7 @@ public:
  
     static double smallestEigenvalue(vector<vector<double> >& matrix)
     {
-        Xoroshiro128Random rng();
+        Xoroshiro128Random rng;
 
         int n = matrix.size();
         double rho = largestEigenvalue(matrix);
@@ -432,7 +432,7 @@ public:
     }
     
     static void randomize(vector<vector<double> >& matrix) {
-        Xoroshiro128Random rng();
+        Xoroshiro128Random rng;
 
         int k = matrix.size();
         int n = matrix[0].size();

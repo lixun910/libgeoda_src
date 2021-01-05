@@ -29,6 +29,7 @@
 #include <boost/random.hpp>
 #include <boost/random/uniform_01.hpp>
 
+#include "rng.h"
 #include "GdaConst.h"
 #include "GenUtils.h"
 
@@ -227,7 +228,7 @@ std::string Gda::CreateUUID(int nSize)
 
     std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-    Xoroshiro128Random rng();
+    Xoroshiro128Random rng;
 
     std::string uid;
     while (uid.length() < nSize) {

@@ -502,7 +502,7 @@ pair<Tree*, Tree*> Tree::GetSubTrees()
 //
 ////////////////////////////////////////////////////////////////////////////////
 AbstractClusterFactory::AbstractClusterFactory(int row, int col,  double** _distances, double** _data, const vector<bool>& _undefs, GalElement * _w)
-: rows(row), cols(col), dist_matrix(_distances), raw_data(_data), undefs(_undefs), w(_w)
+: rows(row), cols(col), w(_w), dist_matrix(_distances), raw_data(_data), undefs(_undefs) 
 {
 }
 
