@@ -10,7 +10,7 @@
 #include <cmath>
 #include <algorithm>    // std::max
 
-#include "rng.h"
+#include "../rng.h"
 #include "../GdaConst.h"
 #include "../weights/GalWeight.h"
 
