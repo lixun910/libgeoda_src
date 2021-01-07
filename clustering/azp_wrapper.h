@@ -1,9 +1,9 @@
 //
-// Created by Xun Li on 9/26/19.
+// Created by Xun Li on 1/6/21.
 //
 
-#ifndef GEODA_MAXP_WRAPPER_H
-#define GEODA_MAXP_WRAPPER_H
+#ifndef GEODA_AZP_WRAPPER_H
+#define GEODA_AZP_WRAPPER_H
 
 
 #include <vector>
@@ -12,25 +12,25 @@ class GeoDa;
 class GalElement;
 class GeoDaWeight;
 class ZoneControl;
-class MaxpRegion;
+class RegionMaker;
 class RawDistMatrix;
 
-class maxp_wrapper {
+class azp_wrapper {
 public:
-    maxp_wrapper(GeoDaWeight *w,
+    azp_wrapper(int p, GeoDaWeight *w,
                  const std::vector<std::vector<double> >& data,
-                 int iterations,
+                 int inits,
                  const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                  const std::vector<int>& init_regions,
                  const std::string &distance_method,
                  int rnd_seed);
 
-    virtual ~maxp_wrapper();
+    virtual ~azp_wrapper();
 
     virtual const std::vector<std::vector<int> > GetClusters();
 
-    virtual MaxpRegion* RunMaxp() = 0;
+    virtual RegionMaker* RunAZP() = 0;
 
     virtual void CreateController(const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
                                   const std::vector<std::pair<double, std::vector<double> > >& max_bounds);
@@ -38,11 +38,13 @@ public:
     virtual void Run();
 
 protected:
+    int p;
+
     int num_obs;
 
     int n_cols;
 
-    int iterations;
+    int inits;
 
     std::string distance_method;
 
@@ -63,20 +65,20 @@ protected:
     std::vector<std::vector<int> > cluster_ids;
 };
 
-class maxp_greedy_wrapper : public maxp_wrapper {
+class azp_greedy_wrapper : public azp_wrapper {
 public:
-    maxp_greedy_wrapper(GeoDaWeight *w,
+    azp_greedy_wrapper(int p, GeoDaWeight *w,
                         const std::vector<std::vector<double> >& data,
-                        int iterations,
+                        int inits,
                         const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
                         const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                         const std::vector<int>& init_regions,
                         const std::string &distance_method,
                         int rnd_seed);
 
-    virtual ~maxp_greedy_wrapper();
+    virtual ~azp_greedy_wrapper();
 
-    virtual MaxpRegion* RunMaxp();
+    virtual RegionMaker* RunAZP();
 
 protected:
     double cooling_rate;
@@ -84,11 +86,11 @@ protected:
     int sa_maxit;
 };
 
-class maxp_sa_wrapper : public maxp_wrapper {
+class azp_sa_wrapper : public azp_wrapper {
 public:
-    maxp_sa_wrapper(GeoDaWeight *w,
+    azp_sa_wrapper(int p, GeoDaWeight *w,
                     const std::vector<std::vector<double> >& data,
-                    int iterations,
+                    int inits,
                     double cooling_rate,
                     int sa_maxit,
                     const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
@@ -97,9 +99,9 @@ public:
                     const std::string &distance_method,
                     int rnd_seed);
 
-    virtual ~maxp_sa_wrapper();
+    virtual ~azp_sa_wrapper();
 
-    virtual MaxpRegion* RunMaxp();
+    virtual RegionMaker* RunAZP();
 
 protected:
     double cooling_rate;
@@ -107,11 +109,11 @@ protected:
     int sa_maxit;
 };
 
-class maxp_tabu_wrapper : public maxp_wrapper {
+class azp_tabu_wrapper : public azp_wrapper {
 public:
-    maxp_tabu_wrapper(GeoDaWeight *w,
+    azp_tabu_wrapper(int p, GeoDaWeight *w,
                     const std::vector<std::vector<double> >& data,
-                    int iterations,
+                    int inits,
                     int tabu_length,
                     int conv_tabu,
                     const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
@@ -120,13 +122,13 @@ public:
                     const std::string &distance_method,
                     int rnd_seed);
 
-    virtual ~maxp_tabu_wrapper();
+    virtual ~azp_tabu_wrapper();
 
-    virtual MaxpRegion* RunMaxp();
+    virtual RegionMaker* RunAZP();
 
 protected:
     int tabu_length;
 
     int conv_tabu;
 };
-#endif //GEODA_MAXP_WRAPPER_H
+#endif //GEODA_azp_wrapper_H

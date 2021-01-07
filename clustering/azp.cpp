@@ -1092,7 +1092,7 @@ std::vector<int> MaxpRegionMaker::returnRegions()
 MaxpRegion::MaxpRegion(int _max_iter, GalElement* const _w,
                        double** _data, // row-wise
                        RawDistMatrix* _dist_matrix,
-                       int _n, int _m, const std::vector<ZoneControl>& c,int inits,
+                       int _n, int _m, const std::vector<ZoneControl>& c,
                        const std::vector<int>& init_regions,
                        long long _seed)
 : RegionMaker(-1, _w, _data, _dist_matrix, _n, _m, c, std::vector<int>(), _seed),
@@ -1216,10 +1216,9 @@ MaxpGreedy::MaxpGreedy(int _max_iter, GalElement* const _w,
                double** _data, // row-wise
                RawDistMatrix* _dist_matrix,
                int _n, int _m, const std::vector<ZoneControl>& c,
-               int inits,
                const std::vector<int>& init_regions,
                long long seed)
-        : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, inits, init_regions, seed)
+        : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed)
 {
     Run();
 }
@@ -1243,10 +1242,10 @@ MaxpSA::MaxpSA(int _max_iter, GalElement* const _w,
                double** _data, // row-wise
                RawDistMatrix* _dist_matrix,
                int _n, int _m, const std::vector<ZoneControl>& c,
-               double _alpha, int _sa_iter, int inits,
+               double _alpha, int _sa_iter,
                const std::vector<int>& init_regions,
                long long seed)
-: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, inits, init_regions, seed),
+: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed),
 temperature(1.0), alpha(_alpha), sa_iter(_sa_iter)
 {
     Run();
@@ -1271,10 +1270,10 @@ MaxpTabu::MaxpTabu(int _max_iter, GalElement* const _w,
                double** _data, // row-wise
                RawDistMatrix* _dist_matrix,
                int _n, int _m, const std::vector<ZoneControl>& c,
-               int _tabu_length, int _conv_tabu, int inits,
+               int _tabu_length, int _conv_tabu,
                const std::vector<int>& init_regions,
                long long seed)
-: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, inits, init_regions, seed),
+: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed),
 tabuLength(_tabu_length), convTabu(_conv_tabu)
 {
     Run();

@@ -579,7 +579,7 @@ public:
     MaxpRegion(int max_iter, GalElement* const w,
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
-               int n, int m, const std::vector<ZoneControl>& c, int inits,
+               int n, int m, const std::vector<ZoneControl>& c,
                const std::vector<int>& init_areas,
                long long seed);
 
@@ -653,7 +653,6 @@ public:
            double** data, // row-wise
            RawDistMatrix* dist_matrix,
            int n, int m, const std::vector<ZoneControl>& c,
-           int inits,
            const std::vector<int>& init_regions,
            long long seed);
 
@@ -669,7 +668,7 @@ public:
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
                int n, int m, const std::vector<ZoneControl>& c,
-               double alpha, int sa_iter, int inits,
+               double alpha, int sa_iter,
                const std::vector<int>& init_regions,
                long long seed);
 
@@ -689,12 +688,12 @@ class MaxpTabu : public MaxpRegion
 {
 public:
     MaxpTabu(int max_iter, GalElement* const w,
-               double** data, // row-wise
-               RawDistMatrix* dist_matrix,
-               int n, int m, const std::vector<ZoneControl>& c,
-                int tabu_length, int _conv_tabu, int inits,
-               const std::vector<int>& init_areas,
-               long long seed);
+             double** data, // row-wise
+             RawDistMatrix* dist_matrix,
+             int n, int m, const std::vector<ZoneControl>& c,
+             int tabu_length, int _conv_tabu,
+             const std::vector<int>& init_areas,
+             long long seed);
 
     virtual ~MaxpTabu() {}
 

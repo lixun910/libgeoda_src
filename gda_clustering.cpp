@@ -3,13 +3,13 @@
 #include "weights/GeodaWeight.h"
 #include "clustering/maxp_wrapper.h"
 #include "clustering/redcap_wrapper.h"
+#include "clustering/azp_wrapper.h"
 #include "GenUtils.h"
 #include "gda_clustering.h"
 
 
-const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
+const std::vector<std::vector<int> > gda_azp_greedy(int p, GeoDaWeight *w,
                                                      const std::vector<std::vector<double> > &data,
-                                                     int iterations,
                                                      int inits,
                                                      const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
                                                      const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
@@ -21,7 +21,68 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
 
     if (w == 0) return result;
 
-    maxp_greedy_wrapper maxp(w, data, iterations, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed);
+    azp_greedy_wrapper azp(p, w, data, inits, min_bounds, max_bounds, init_regions, distance_method,
+            rnd_seed);
+
+    return azp.GetClusters();
+}
+
+const std::vector<std::vector<int> > gda_azp_sa(int p, GeoDaWeight *w,
+                                                const std::vector<std::vector<double> > &data,
+                                                int inits,
+                                                double cooling_rate,
+                                                int sa_maxit,
+                                                const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                                const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                                const std::vector<int>& init_regions,
+                                                const std::string &distance_method,
+                                                int rnd_seed)
+{
+    std::vector<std::vector<int> > result;
+
+    if (w == 0) return result;
+
+    azp_sa_wrapper azp(p, w, data, inits, cooling_rate, sa_maxit, min_bounds, max_bounds, init_regions, distance_method,
+                           rnd_seed);
+
+    return azp.GetClusters();
+}
+
+const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
+                                                  const std::vector<std::vector<double> > &data,
+                                                  int inits,
+                                                  int tabu_length,
+                                                  int conv_tabu,
+                                                  const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                                  const std::vector<int>& init_regions,
+                                                  const std::string &distance_method,
+                                                  int rnd_seed)
+{
+    std::vector<std::vector<int> > result;
+
+    if (w == 0) return result;
+
+    azp_tabu_wrapper azp(p, w, data, inits, tabu_length, conv_tabu, min_bounds, max_bounds, init_regions,
+            distance_method, rnd_seed);
+
+    return azp.GetClusters();
+}
+
+const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
+                                                     const std::vector<std::vector<double> > &data,
+                                                     int iterations,
+                                                     const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                                     const std::vector<int>& init_regions,
+                                                     const std::string &distance_method,
+                                                     int rnd_seed)
+{
+    std::vector<std::vector<int> > result;
+
+    if (w == 0) return result;
+
+    maxp_greedy_wrapper maxp(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed);
 
     return maxp.GetClusters();
 }
@@ -29,7 +90,6 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
 const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
                                               const std::vector<std::vector<double> > &data,
                                               int iterations,
-                                              int inits,
                                               double cooling_rate,
                                               int sa_maxit,
                                               const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
@@ -42,7 +102,7 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
 
     if (w == 0) return result;
 
-    maxp_sa_wrapper maxp(w, data, iterations, inits, cooling_rate, sa_maxit, min_bounds, max_bounds, init_regions,
+    maxp_sa_wrapper maxp(w, data, iterations, cooling_rate, sa_maxit, min_bounds, max_bounds, init_regions,
             distance_method, rnd_seed);
 
     return maxp.GetClusters();
@@ -51,7 +111,6 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
 const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
                                                    const std::vector<std::vector<double> > &data,
                                                    int iterations,
-                                                   int inits,
                                                    int tabu_length,
                                                    int conv_tabu,
                                                    const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
@@ -64,7 +123,7 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
 
     if (w == 0) return result;
 
-    maxp_tabu_wrapper maxp(w, data, iterations, inits, tabu_length, conv_tabu, min_bounds, max_bounds, init_regions,
+    maxp_tabu_wrapper maxp(w, data, iterations, tabu_length, conv_tabu, min_bounds, max_bounds, init_regions,
             distance_method, rnd_seed);
 
     return maxp.GetClusters();

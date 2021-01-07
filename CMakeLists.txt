@@ -24,6 +24,7 @@ set(GEODA_SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/MultiJoinCount.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/cluster.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/maxp_wrapper.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/clustering/azp_wrapper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/redcap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/redcap_wrapper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/mds.cpp
