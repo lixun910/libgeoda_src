@@ -23,15 +23,69 @@ class GeoDaWeight;
  * @param rand_seed
  * @return
  */
-const std::vector<std::vector<int> > gda_maxp(GeoDaWeight *w,
-                                              const std::vector<std::vector<double> > &data,
-                                              int iterations,
-                                              int inits,
-                                              const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
-                                              const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
-                                              const std::vector<int>& init_regions,
-                                              const std::string &distance_method,
-                                              int rnd_seed);
+const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
+                                                     const std::vector<std::vector<double> > &data,
+                                                     int iterations,
+                                                     int inits,
+                                                     const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                                     const std::vector<int>& init_regions,
+                                                     const std::string &distance_method,
+                                                     int rnd_seed);
+
+/**
+ *
+ * @param w
+ * @param data
+ * @param iterations
+ * @param inits
+ * @param cooling_rate
+ * @param sa_maxit
+ * @param min_bounds
+ * @param max_bounds
+ * @param init_regions
+ * @param distance_method
+ * @param rnd_seed
+ * @return
+ */
+const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
+                                                 const std::vector<std::vector<double> > &data,
+                                                 int iterations,
+                                                 int inits,
+                                                 double cooling_rate,
+                                                 int sa_maxit,
+                                                 const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                                 const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                                 const std::vector<int>& init_regions,
+                                                 const std::string &distance_method,
+                                                 int rnd_seed);
+
+/**
+ *
+ * @param w
+ * @param data
+ * @param iterations
+ * @param inits
+ * @param tabu_length
+ * @param conv_tabu
+ * @param min_bounds
+ * @param max_bounds
+ * @param init_regions
+ * @param distance_method
+ * @param rnd_seed
+ * @return
+ */
+const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
+                                                   const std::vector<std::vector<double> > &data,
+                                                   int iterations,
+                                                   int inits,
+                                                   int tabu_length,
+                                                   int conv_tabu,
+                                                   const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                                   const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                                   const std::vector<int>& init_regions,
+                                                   const std::string &distance_method,
+                                                   int rnd_seed);
 
 /**
  *

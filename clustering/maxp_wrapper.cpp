@@ -19,20 +19,22 @@ maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
                            int inits,
                            const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
                            const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
-                           const std::vector<int>& _init_regions,
+                           const std::vector<int>& init_regions,
                            const std::string &distance_method,
-                           int _rnd_seed)
+                           int rnd_seed)
+                           : num_obs(w->num_obs), n_cols(data.size()), iterations(iterations), inits(inits),
+                           distance_method(distance_method), data(data), init_regions(init_regions), rnd_seed(rnd_seed)
 {
-    num_obs = 0;
-    init_regions = _init_regions;
-    rnd_seed = _rnd_seed;
+    gal = Gda::GetGalElement(w);
 
-    if (w) {
-        num_obs = w->num_obs;
-        gal = Gda::GetGalElement(w);
+    // create bounds
+    CreateController(min_bounds, max_bounds);
+}
+
+void maxp_wrapper::Run() {
         if (gal) {
+
             // get distance matrix
-            n_cols = data.size();
             input_data = new double*[num_obs];
             int** mask = new int*[num_obs];
             for (size_t i=0; i<num_obs; ++i) {
@@ -47,6 +49,7 @@ maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
                     input_data[r][i] = vals[r];
                 }
             }
+
             char dist = 'e';
             if (boost::iequals(distance_method, "manhattan")) dist = 'b';
             int transpose = 0; // row wise
@@ -55,9 +58,6 @@ maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
 
             double** ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
             dm = new RawDistMatrix(ragged_distances);
-
-            // create bounds
-            CreateController(min_bounds, max_bounds);
 
             MaxpRegion* maxp = RunMaxp();
 
@@ -79,7 +79,6 @@ maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
 
             delete dm;
         }
-    }
 }
 
 void maxp_wrapper::CreateController(const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
@@ -111,9 +110,84 @@ const std::vector<std::vector<int> > maxp_wrapper::GetClusters() {
     return cluster_ids;
 }
 
-MaxpRegion* maxp_wrapper::RunMaxp() {
-    MaxpRegion* maxp = new MaxpRegion(iterations, gal, input_data, dm, num_obs, n_cols, controllers, inits, init_regions,
-            rnd_seed);
+
+maxp_greedy_wrapper::~maxp_greedy_wrapper(){
+
+}
+
+maxp_greedy_wrapper::maxp_greedy_wrapper(GeoDaWeight *w,
+                                         const std::vector<std::vector<double> >& data,
+                                         int iterations,
+                                         int inits,
+                                         const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                         const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                         const std::vector<int>& init_regions,
+                                         const std::string &distance_method,
+                                         int rnd_seed)
+        : maxp_wrapper(w, data, iterations, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed)
+{
+    Run();
+}
+
+MaxpRegion* maxp_greedy_wrapper::RunMaxp() {
+    MaxpRegion* maxp = new MaxpGreedy(iterations, gal, input_data, dm, num_obs, n_cols, controllers, inits,
+            init_regions,rnd_seed);
+
+    return maxp;
+}
+
+maxp_sa_wrapper::~maxp_sa_wrapper(){
+
+}
+
+maxp_sa_wrapper::maxp_sa_wrapper(GeoDaWeight *w,
+                                 const std::vector<std::vector<double> >& data,
+                                 int iterations,
+                                 int inits,
+                                 double cooling_rate,
+                                 int sa_maxit,
+                                 const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                 const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                 const std::vector<int>& init_regions,
+                                 const std::string &distance_method,
+                                 int rnd_seed)
+: maxp_wrapper(w, data, iterations, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed),
+cooling_rate(cooling_rate), sa_maxit(sa_maxit)
+{
+    Run();
+}
+
+MaxpRegion* maxp_sa_wrapper::RunMaxp() {
+    MaxpRegion* maxp = new MaxpSA(iterations, gal, input_data, dm, num_obs, n_cols, controllers, cooling_rate, sa_maxit,
+            inits,init_regions, rnd_seed);
+
+    return maxp;
+}
+
+maxp_tabu_wrapper::~maxp_tabu_wrapper(){
+
+}
+
+maxp_tabu_wrapper::maxp_tabu_wrapper(GeoDaWeight *w,
+                                     const std::vector<std::vector<double> >& data,
+                                     int iterations,
+                                     int inits,
+                                     int tabu_length,
+                                     int conv_tabu,
+                                     const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                     const std::vector<int>& init_regions,
+                                     const std::string &distance_method,
+                                     int rnd_seed)
+        : maxp_wrapper(w, data, iterations, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed),
+          tabu_length(tabu_length), conv_tabu(conv_tabu)
+{
+    Run();
+}
+
+MaxpRegion* maxp_tabu_wrapper::RunMaxp() {
+    MaxpRegion* maxp = new MaxpTabu(iterations, gal, input_data, dm, num_obs, n_cols, controllers, tabu_length,
+            conv_tabu, inits,init_regions, rnd_seed);
 
     return maxp;
 }

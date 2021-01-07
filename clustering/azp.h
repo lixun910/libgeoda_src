@@ -579,9 +579,9 @@ public:
     MaxpRegion(int max_iter, GalElement* const w,
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
-               int n, int m, const std::vector<ZoneControl>& c, int inits=0,
-               const std::vector<int>& init_areas=std::vector<int>(),
-               long long seed=123456789);
+               int n, int m, const std::vector<ZoneControl>& c, int inits,
+               const std::vector<int>& init_areas,
+               long long seed);
 
     virtual ~MaxpRegion() {}
 
@@ -603,13 +603,15 @@ public:
 
     virtual void PhaseLocalImprovementThreaded();
 
-    virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
+    virtual void RunAZP(std::vector<int>& solution, long long seed, int i) = 0;
     
     virtual void RunConstruction(long long seed);
 
     virtual void RunConstructionRange(int start, int end);
 
     virtual void RunLocalImprovementRange(int start, int end);
+
+    virtual void Run();
     
 protected:
     long long seed;
@@ -644,6 +646,22 @@ protected:
 #endif
 };
 
+class MaxpGreedy : public MaxpRegion
+{
+public:
+    MaxpGreedy(int max_iter, GalElement* const w,
+           double** data, // row-wise
+           RawDistMatrix* dist_matrix,
+           int n, int m, const std::vector<ZoneControl>& c,
+           int inits,
+           const std::vector<int>& init_regions,
+           long long seed);
+
+    virtual ~MaxpGreedy() {}
+
+    virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
+};
+
 class MaxpSA : public MaxpRegion
 {
 public:
@@ -651,9 +669,9 @@ public:
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
                int n, int m, const std::vector<ZoneControl>& c,
-               double alpha = 0.85, int sa_iter= 1, int inits=0,
-               const std::vector<int>& init_regions=std::vector<int>(),
-               long long seed=123456789);
+               double alpha, int sa_iter, int inits,
+               const std::vector<int>& init_regions,
+               long long seed);
 
     virtual ~MaxpSA() {}
 
@@ -674,9 +692,9 @@ public:
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
                int n, int m, const std::vector<ZoneControl>& c,
-                int tabu_length=10, int _conv_tabu=0, int inits=0,
-               const std::vector<int>& init_areas=std::vector<int>(),
-               long long seed=123456789);
+                int tabu_length, int _conv_tabu, int inits,
+               const std::vector<int>& init_areas,
+               long long seed);
 
     virtual ~MaxpTabu() {}
 

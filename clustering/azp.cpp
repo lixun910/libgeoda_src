@@ -1096,12 +1096,13 @@ MaxpRegion::MaxpRegion(int _max_iter, GalElement* const _w,
                        const std::vector<int>& init_regions,
                        long long _seed)
 : RegionMaker(-1, _w, _data, _dist_matrix, _n, _m, c, std::vector<int>(), _seed),
-seed(_seed), init_areas(init_regions), max_iter(_max_iter)
-{
+seed(_seed), init_areas(init_regions), max_iter(_max_iter) {
     objective_function = 0;
     largest_p = 0;
     best_of = DBL_MAX;
+}
 
+void MaxpRegion::Run() {
 #ifdef __NO_THREAD__
     // construction phase: find a collection of feasible solution with largest p
     for (int iter=0; iter< max_iter; ++iter) {
@@ -1211,7 +1212,19 @@ void MaxpRegion::RunConstruction(long long seed)
     mutex.unlock();
 }
 
-void MaxpRegion::RunAZP(std::vector<int>& solution, long long seed, int i)
+MaxpGreedy::MaxpGreedy(int _max_iter, GalElement* const _w,
+               double** _data, // row-wise
+               RawDistMatrix* _dist_matrix,
+               int _n, int _m, const std::vector<ZoneControl>& c,
+               int inits,
+               const std::vector<int>& init_regions,
+               long long seed)
+        : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, inits, init_regions, seed)
+{
+    Run();
+}
+
+void MaxpGreedy::RunAZP(std::vector<int>& solution, long long seed, int i)
 {
     AZP azp(largest_p, w, data, dist_matrix, n, m, controls, 0, solution, seed);
     
@@ -1236,6 +1249,7 @@ MaxpSA::MaxpSA(int _max_iter, GalElement* const _w,
 : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, inits, init_regions, seed),
 temperature(1.0), alpha(_alpha), sa_iter(_sa_iter)
 {
+    Run();
 }
 
 void MaxpSA::RunAZP(std::vector<int>& solution, long long seed, int i)
@@ -1263,6 +1277,7 @@ MaxpTabu::MaxpTabu(int _max_iter, GalElement* const _w,
 : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, inits, init_regions, seed),
 tabuLength(_tabu_length), convTabu(_conv_tabu)
 {
+    Run();
 }
 
 void MaxpTabu::RunAZP(std::vector<int>& solution, long long seed, int i)

@@ -31,10 +31,12 @@ public:
 
     virtual const std::vector<std::vector<int> > GetClusters();
 
-    virtual MaxpRegion* RunMaxp();
+    virtual MaxpRegion* RunMaxp() = 0;
 
     virtual void CreateController(const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
                                   const std::vector<std::pair<double, std::vector<double> > >& max_bounds);
+
+    virtual void Run();
 
 protected:
     int num_obs;
@@ -44,6 +46,10 @@ protected:
     int iterations;
 
     int inits;
+
+    std::string distance_method;
+
+    std::vector<std::vector<double> > data;
 
     GalElement *gal;
 
@@ -60,5 +66,73 @@ protected:
     std::vector<std::vector<int> > cluster_ids;
 };
 
+class maxp_greedy_wrapper : public maxp_wrapper {
+public:
+    maxp_greedy_wrapper(GeoDaWeight *w,
+                        const std::vector<std::vector<double> >& data,
+                        int iterations,
+                        int inits,
+                        const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                        const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                        const std::vector<int>& init_regions,
+                        const std::string &distance_method,
+                        int rnd_seed);
 
+    virtual ~maxp_greedy_wrapper();
+
+    virtual MaxpRegion* RunMaxp();
+
+protected:
+    double cooling_rate;
+
+    int sa_maxit;
+};
+
+class maxp_sa_wrapper : public maxp_wrapper {
+public:
+    maxp_sa_wrapper(GeoDaWeight *w,
+                    const std::vector<std::vector<double> >& data,
+                    int iterations,
+                    int inits,
+                    double cooling_rate,
+                    int sa_maxit,
+                    const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                    const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                    const std::vector<int>& init_regions,
+                    const std::string &distance_method,
+                    int rnd_seed);
+
+    virtual ~maxp_sa_wrapper();
+
+    virtual MaxpRegion* RunMaxp();
+
+protected:
+    double cooling_rate;
+
+    int sa_maxit;
+};
+
+class maxp_tabu_wrapper : public maxp_wrapper {
+public:
+    maxp_tabu_wrapper(GeoDaWeight *w,
+                    const std::vector<std::vector<double> >& data,
+                    int iterations,
+                    int inits,
+                    int tabu_length,
+                    int conv_tabu,
+                    const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                    const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                    const std::vector<int>& init_regions,
+                    const std::string &distance_method,
+                    int rnd_seed);
+
+    virtual ~maxp_tabu_wrapper();
+
+    virtual MaxpRegion* RunMaxp();
+
+protected:
+    int tabu_length;
+
+    int conv_tabu;
+};
 #endif //GEODA_MAXP_WRAPPER_H
