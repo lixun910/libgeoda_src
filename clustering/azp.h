@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <stack>
 #include <limits>
 #include <boost/unordered_map.hpp>
 #include <boost/heap/priority_queue.hpp>
@@ -32,7 +33,15 @@
 
 #include "../weights/GalWeight.h"
 #include "../rng.h"
-#include "../DataUtils.h"
+#include "DataUtils.h"
+
+#ifndef __NO_THREAD__
+#ifndef __USE_PTHREAD__
+#include <boost/thread/mutex.hpp>
+#else
+#include <pthread.h>
+#endif
+#endif
 
 typedef boost::unordered_map<int, boost::unordered_map<int, bool> > REGION_AREAS;
 
@@ -65,16 +74,8 @@ public:
     // SUM of population is LESS than value 50,000
     void AddControl(Operation op, Comparator cmp, const double& val);
 
-    bool HasUpperBound();
-    
     // Check if a candidate zone satisfies the restrictions
     bool SatisfyLowerBound(boost::unordered_map<int, bool>& candidates);
-
-    bool CheckLowerBound(const std::vector<int>& candidates);
-    
-    bool CheckLowerBound(boost::unordered_map<int, int>& group, int flag);
-
-    bool CheckUpperBound(const std::vector<int>& candidates);
 
     bool CheckBound(boost::unordered_map<int, bool>& candidates);
 
@@ -84,8 +85,6 @@ public:
     bool CheckAdd(int area, boost::unordered_map<int, bool>& candidates);
 
     double getZoneValue(int i, boost::unordered_map<int, bool>& candidates);
-
-    double getZoneValue(int i, const std::vector<int>& candidates);
 
 protected:
     std::vector<double> data;
@@ -171,6 +170,20 @@ public:
         }
         return ss;
     }
+    
+    virtual double GetRawValue() {
+        // Calculate the value of the objective function
+        double ss = 0; // e.g. sum of squares
+        REGION_AREAS::iterator it;
+        for (it = regions.begin(); it != regions.end(); ++it) {
+            int region = it->first;
+            // objective function of region needs to be computed
+            double obj = getObjectiveValue(regions[region]);
+            ss += obj;
+        }
+        return ss;
+    }
+    
 
     virtual void UpdateRegions() {
         // region changes, update it's
@@ -271,7 +284,7 @@ public:
         boost::unordered_map<int, bool> to_areas = regions[to_region];
         from_areas.erase(area);
         to_areas[area] = false;
-
+        
         double ss_from = getObjectiveValue(from_areas);
         double ss_to = getObjectiveValue(to_areas);
 
@@ -298,6 +311,11 @@ public:
         // use reference here to make actual change
         boost::unordered_map<int, bool>& from_areas = regions[from_region];
         boost::unordered_map<int, bool>& to_areas = regions[to_region];
+        
+        if (from_areas.size() <=1) {
+            // has to make sure each region has at least one area
+            return 0;
+        }
         from_areas.erase(area);
         to_areas[area] = false;
 
@@ -325,7 +343,11 @@ public:
             // adding an area from a region)
             areas2Eval[areaID] = true;
         }
-
+        
+        if (areas2Eval.empty()) {
+            return false;
+        }
+        
         // remove the area first
         int seedArea = areas2Eval.begin()->first;
 
@@ -348,7 +370,7 @@ public:
         // all should be removed if all connected
         return areas2Eval.empty();
     }
-
+    
 protected:
     // n: number of observations
     int n;
@@ -389,19 +411,22 @@ public:
     // Sets the initial seeds for clustering
     void setSeeds(std::vector<int> seeds);
     
-    virtual void LocalImproving() = 0;
+    virtual void LocalImproving()  {}
     
-    virtual std::vector<int> GetResults() = 0;
+    virtual std::vector<int> GetResults() { return std::vector<int>();}
 
-    virtual double GetInitObjectiveFunction() = 0;
+    virtual double GetInitObjectiveFunction() { return 0;}
 
-    virtual double GetFinalObjectiveFunction() = 0;
+    virtual double GetFinalObjectiveFunction() { return 0;}
 
     // Check is_control_satisfied
     bool IsSatisfyControls();
 
     int GetPRegions() { return region2Area.size();}
 
+    
+    void Copy(RegionMaker& rm);
+    
 protected:
     // Return the areas of a region
     //boost::unordered_map<int, bool> returnRegion2Area(int regionID);
@@ -462,6 +487,14 @@ protected:
 
     ObjectiveFunction* objective_function;
 
+    std::vector<ZoneControl> controls;
+
+    Xoroshiro128Random rng;
+    
+    bool is_control_satisfied;
+    
+public:
+    // for copy
     std::vector<int> init_regions;
 
     boost::unordered_map<int, bool> unassignedAreas;
@@ -486,17 +519,12 @@ protected:
 
     // object function value
     double objInfo;
-
-    std::vector<ZoneControl> controls;
-
-    Xoroshiro128Random rng;
-    
-    bool is_control_satisfied;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 ////// MaxpRegionMaker
 ////////////////////////////////////////////////////////////////////////////////
+
 class MaxpRegionMaker : public RegionMaker
 {
 public:
@@ -533,34 +561,31 @@ public:
     }
 
 protected:
+    std::vector<int> returnRegions();
+    
     void InitSolution();
 
 protected:
     std::vector<int> init_areas;
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
 ////// MaxpRegion
 ////////////////////////////////////////////////////////////////////////////////
 class MaxpRegion : public RegionMaker
 {
-    std::vector<int> final_solution;
-
-    double initial_objectivefunction;
-
-    double final_objectivefunction;
-
 public:
-    MaxpRegion(int max_attemps, GalElement* const w,
+    MaxpRegion(int max_iter, GalElement* const w,
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
-               int n, int m, const std::vector<ZoneControl>& c,
+               int n, int m, const std::vector<ZoneControl>& c, int inits=0,
                const std::vector<int>& init_areas=std::vector<int>(),
                long long seed=123456789);
 
     virtual ~MaxpRegion() {}
 
-    virtual void LocalImproving() {}
+    virtual void LocalImproving() {} // not implemented in maxp since we will call AZP again
 
     virtual std::vector<int> GetResults() {
         return final_solution;
@@ -574,10 +599,93 @@ public:
         return final_objectivefunction;
     }
 
+    virtual void PhaseConstructionThreaded();
+
+    virtual void PhaseLocalImprovementThreaded();
+
+    virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
+    
+    virtual void RunConstruction(long long seed);
+
+    virtual void RunConstructionRange(int start, int end);
+
+    virtual void RunLocalImprovementRange(int start, int end);
+    
 protected:
+    long long seed;
+
+    std::vector<int> final_solution;
+
+    double initial_objectivefunction;
+
+    double final_objectivefunction;
+
     std::vector<int> init_areas;
 
-    int max_attemps;
+    int max_iter;
+    
+    std::map<double, std::vector<int> > candidates;
+    
+    int largest_p;
+    
+    double best_of;
+    
+    std::vector<int> best_result;
+
+    // threads
+#ifndef __NO_THREAD__
+
+    // threads
+#ifndef __USE_PTHREAD__
+    boost::mutex mutex;
+#else
+    pthread_mutex_t lock;
+#endif
+#endif
+};
+
+class MaxpSA : public MaxpRegion
+{
+public:
+    MaxpSA(int max_iter, GalElement* const w,
+               double** data, // row-wise
+               RawDistMatrix* dist_matrix,
+               int n, int m, const std::vector<ZoneControl>& c,
+               double alpha = 0.85, int sa_iter= 1, int inits=0,
+               const std::vector<int>& init_regions=std::vector<int>(),
+               long long seed=123456789);
+
+    virtual ~MaxpSA() {}
+
+    virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
+    
+protected:
+    double temperature;
+
+    double alpha;
+
+    int sa_iter;
+};
+
+class MaxpTabu : public MaxpRegion
+{
+public:
+    MaxpTabu(int max_iter, GalElement* const w,
+               double** data, // row-wise
+               RawDistMatrix* dist_matrix,
+               int n, int m, const std::vector<ZoneControl>& c,
+                int tabu_length=10, int _conv_tabu=0, int inits=0,
+               const std::vector<int>& init_areas=std::vector<int>(),
+               long long seed=123456789);
+
+    virtual ~MaxpTabu() {}
+
+    virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
+    
+protected:
+    int tabuLength; //5
+    
+    int convTabu;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -595,11 +703,21 @@ public:
     AZP(int p, GalElement* const w,
         double** data, // row-wise
         RawDistMatrix* dist_matrix,
-        int n, int m, const std::vector<ZoneControl>& c,
+        int n, int m, const std::vector<ZoneControl>& c, int inits=0,
         const std::vector<int>& init_regions=std::vector<int>(),
         long long seed=123456789)
     : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed)
     {
+        if (inits > 0) {
+            // ARiSeL
+            for (int i=0; i<inits-1; ++i) {
+                RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
+                if (rm.objInfo < this->objInfo && rm.IsSatisfyControls())  {
+                    // better initial solution
+                    this->Copy(rm);
+                }
+            }
+        }
         initial_objectivefunction = this->objInfo;
         double best_score = this->objInfo;
         bool improvement = true;
@@ -665,17 +783,29 @@ public:
           double** data, // row-wise
           RawDistMatrix* dist_matrix,
           int n, int m, const std::vector<ZoneControl>& c,
-          double _alpha = 0.85, int _max_iter= 1,
+          double _alpha = 0.85, int _max_iter= 1, int inits=0,
           const std::vector<int>& init_regions=std::vector<int>(),
           long long seed=123456789)
     : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions,seed), temperature(1.0),
     alpha(_alpha), max_iter(_max_iter)
     {
+        if (inits > 0) {
+            // ARiSeL
+            for (int i=0; i<inits-1; ++i) {
+                RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
+                if (rm.objInfo < this->objInfo && rm.IsSatisfyControls())  {
+                    // better initial solution
+                    this->Copy(rm);
+                }
+            }
+        }
+        
         std::vector<int> init_sol = this->returnRegions();
         initial_objectivefunction = this->objInfo;
 
         // local search
         BasicMemory basicMemory, localBasicMemory;
+        basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
         
         // step a
         int k = 0;
@@ -695,6 +825,7 @@ public:
                     basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
                 }
             }
+            //std::cout << basicMemory.objInfo << std::endl;
             // step c
             temperature *= alpha; // annealing
             if (improved == 1) {
@@ -758,12 +889,23 @@ public:
             double** data, // row-wise
             RawDistMatrix* dist_matrix,
             int n, int m, const std::vector<ZoneControl>& c,
-            int tabu_length=10, int _convTabu=0,
+            int tabu_length=10, int _convTabu=0,  int inits = 0,
             const std::vector<int>& init_regions=std::vector<int>(),
             long long seed=123456789)
     : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed),
     tabuLength(tabu_length), convTabu(_convTabu)
     {
+        if (inits > 0) {
+            // ARiSeL
+            for (int i=0; i<inits-1; ++i) {
+                RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
+                if (rm.objInfo < this->objInfo && rm.IsSatisfyControls())  {
+                    // better initial solution
+                    this->Copy(rm);
+                }
+            }
+        }
+        
         if (tabuLength <= 0) {
             tabuLength = 10;
         }
@@ -775,7 +917,7 @@ public:
 
         this->LocalImproving();
 
-        final_solution = this->returnRegions();
+        final_solution = this->regions;
         final_objectivefunction = this->objInfo;
     }
 
@@ -803,7 +945,7 @@ public:
 protected:
     int tabuLength; //5
 
-    int convTabu; // 5:  230*numpy.sqrt(pRegions)?ß
+    int convTabu; // 5:  230*numpy.sqrt(pRegions)?
 
     boost::unordered_map<std::pair<int, int>, double> neighSolutions;
 

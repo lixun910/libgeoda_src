@@ -9,44 +9,21 @@
 
 const std::vector<std::vector<int> > gda_maxp(GeoDaWeight *w,
                                               const std::vector<std::vector<double> > &data,
-                                              const std::vector<double> &in_bound_vals,
-                                              double min_bound,
-                                              const std::string& local_search_method,
-                                              int initial,
-                                              int tabu_length,
-                                              double cool_rate,
-                                              const std::vector<int> &seeds,
+                                              int iterations,
+                                              int inits,
+                                              const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                              const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                                              const std::vector<int>& init_regions,
                                               const std::string &distance_method,
-                                              int rand_seed)
+                                              int rnd_seed)
 {
     std::vector<std::vector<int> > result;
 
-    int search_method = 0;
-    if (boost::iequals(local_search_method, "greedy")) {
-        search_method = 0;
-    } else if (boost::iequals(local_search_method, "tabu")) {
-        search_method = 1;
-    } else if (boost::iequals(local_search_method, "sa")) {
-        search_method = 2;
-    }
-
     if (w == 0) return result;
 
-    if (search_method == 0 || search_method == 1 || search_method == 2) {
-        double* bound_vals = 0;
-        if (in_bound_vals.size() == w->num_obs) {
-            bound_vals = new double[w->num_obs];
-            for (size_t i = 0; i < w->num_obs; ++i) {
-                bound_vals[i] = in_bound_vals[i];
-            }
-        }
-        maxp_wrapper maxp(search_method, w, data, initial, tabu_length, cool_rate, bound_vals, min_bound, seeds,
-                          distance_method, rand_seed);
-        delete[] bound_vals;
-        return maxp.GetClusters();
-    }
+    maxp_wrapper maxp(w, data, iterations, inits, min_bounds, max_bounds, init_regions, distance_method, rnd_seed);
 
-    return result;
+    return maxp.GetClusters();
 }
 
 const std::vector<std::vector<int> > gda_redcap(unsigned int k,
@@ -68,9 +45,11 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
         method = 2;
     } else if  (boost::iequals(redcap_method, "fullorder-singlelinkage")) {
         method = 3;
+    } else if  (boost::iequals(redcap_method, "fullorder-wardlinkage")) {
+        method = 4;
     }
 
-    if (w == 0 ||  method > 3) return result;
+    if (w == 0 ||  method > 4) return result;
 
     if (k > w->num_obs) return result;
 

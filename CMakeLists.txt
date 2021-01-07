@@ -23,7 +23,6 @@ set(GEODA_SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/MultiGeary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/sa/MultiJoinCount.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/cluster.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/clustering/maxp.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/maxp_wrapper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/redcap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/clustering/redcap_wrapper.cpp

@@ -11,30 +11,51 @@
 class GeoDa;
 class GalElement;
 class GeoDaWeight;
+class ZoneControl;
+class MaxpRegion;
+class RawDistMatrix;
 
 class maxp_wrapper {
 public:
-    maxp_wrapper(int local_search_method,
-                 GeoDaWeight *w,
+    maxp_wrapper(GeoDaWeight *w,
                  const std::vector<std::vector<double> >& data,
-                 int initial = 99,
-                 int tabu_length = 85,
-                 double cool_rate = 0.85,
-                 double *bound_vals = 0,
-                 double min_bound = 0,
-                 const std::vector<int>& seeds = std::vector<int>(),
-                 const std::string &distance_method = "euclidean",
-                 int rnd_seed = -1);
-
+                 int iterations,
+                 int inits,
+                 const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                 const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                 const std::vector<int>& init_regions,
+                 const std::string &distance_method,
+                 int rnd_seed);
 
     virtual ~maxp_wrapper();
 
-    const std::vector<int> GetFlatClusters();
+    virtual const std::vector<std::vector<int> > GetClusters();
 
-    const std::vector<std::vector<int> > GetClusters();
+    virtual MaxpRegion* RunMaxp();
 
-private:
+    virtual void CreateController(const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds);
+
+protected:
     int num_obs;
+
+    int n_cols;
+
+    int iterations;
+
+    int inits;
+
+    GalElement *gal;
+
+    double **input_data;
+
+    RawDistMatrix *dm;
+
+    std::vector<ZoneControl> controllers;
+
+    std::vector<int> init_regions;
+
+    int rnd_seed;
 
     std::vector<std::vector<int> > cluster_ids;
 };

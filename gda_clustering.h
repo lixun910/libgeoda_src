@@ -24,16 +24,14 @@ class GeoDaWeight;
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp(GeoDaWeight *w,
-                                              const std::vector<std::vector<double> >& data,
-                                              const std::vector<double>& bound_vals,
-                                              double min_bound,
-                                              const std::string& local_search_method,
+                                              const std::vector<std::vector<double> > &data,
                                               int iterations,
-                                              int tabu_length,
-                                              double cool_rate,
+                                              int inits,
+                                              const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                              const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                               const std::vector<int>& init_regions,
                                               const std::string &distance_method,
-                                              int rand_seed);
+                                              int rnd_seed);
 
 /**
  *

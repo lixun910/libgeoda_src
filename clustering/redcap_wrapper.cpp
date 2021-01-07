@@ -76,6 +76,9 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             } else if (redcap_method == 3) {
                 redcap = new FullOrderSLKRedCap(num_obs, n_cols, distances, matrix, undefs,
                                                 gal, _bound_vals, min_bound);
+            } else if (redcap_method == 4) {
+                redcap = new FullOrderWardRedCap(num_obs, n_cols, distances, matrix, undefs,
+                                                gal, _bound_vals, min_bound);
             }
             if (redcap) {
                 redcap->Partitioning(k);

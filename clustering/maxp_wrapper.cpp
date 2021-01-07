@@ -6,82 +6,114 @@
 #include "../weights/GalWeight.h"
 #include "../GenUtils.h"
 #include "cluster.h"
-#include "maxp.h"
+#include "azp.h"
 #include "maxp_wrapper.h"
 
 maxp_wrapper::~maxp_wrapper() {
 
 }
 
-maxp_wrapper::maxp_wrapper(int local_search_method, GeoDaWeight *w,
+maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
                            const std::vector<std::vector<double> >& data,
-                           int initial,
-                           int tabu_length,
-                           double cool_rate,
-                           double *bound_vals,
-                           double min_bound,
-                           const std::vector<int>& seeds,
+                           int iterations,
+                           int inits,
+                           const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                           const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
+                           const std::vector<int>& _init_regions,
                            const std::string &distance_method,
-                           int rnd_seed)
+                           int _rnd_seed)
 {
     num_obs = 0;
+    init_regions = _init_regions;
+    rnd_seed = _rnd_seed;
 
     if (w) {
-        setrandomstate(rnd_seed);
-        resetrandom();
-
         num_obs = w->num_obs;
-        GalElement* gal = Gda::GetGalElement(w);
+        gal = Gda::GetGalElement(w);
         if (gal) {
-            // standardize data
-            int n_cols = data.size();
-            std::vector<std::vector<double> > matrix;
-            matrix.resize(n_cols);
+            // get distance matrix
+            n_cols = data.size();
+            input_data = new double*[num_obs];
+            int** mask = new int*[num_obs];
+            for (size_t i=0; i<num_obs; ++i) {
+                input_data[i] = new double[n_cols];
+                mask[i] = new int[n_cols];
+                for (size_t j=0; j<n_cols; ++j) mask[i][j] = 1.0;
+            }
             for (size_t i=0; i<n_cols; ++i) {
                 std::vector<double> vals = data[i];
                 GenUtils::StandardizeData(vals);
-                matrix[i] = vals;
-            }
-            std::vector<std::vector<double> > z(num_obs);
-            for (size_t i=0; i<num_obs; i++) {
-                z[i].resize(n_cols);
-                for (size_t j=0; j<n_cols; j++) {
-                    z[i][j] = matrix[j][i];
+                for (size_t r=0; r<num_obs; ++r) {
+                    input_data[r][i] = vals[r];
                 }
             }
-            // transform seeds
-            std::vector<uint64_t> _seeds;
-            if (seeds.size() == num_obs) {
-                for (size_t i = 0; i < seeds.size(); ++i) {
-                    _seeds.push_back(seeds[i]);
-                }
-            }
-            // dist
             char dist = 'e';
             if (boost::iequals(distance_method, "manhattan")) dist = 'b';
+            int transpose = 0; // row wise
+            double* weight = new double[n_cols];
+            for (size_t i=0; i<n_cols; ++i) weight[i] = 1.0;
 
-            Maxp maxp(gal, z, min_bound, bound_vals, initial, _seeds, local_search_method, tabu_length, cool_rate,
-                    rnd_seed, dist);
-            cluster_ids = maxp.GetRegions();
+            double** ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
+            dm = new RawDistMatrix(ragged_distances);
+
+            // create bounds
+            CreateController(min_bounds, max_bounds);
+
+            MaxpRegion* maxp = RunMaxp();
+
+            std::vector<int> final_solution = maxp->GetResults();
+
+            delete maxp;
+
+            std::map<int, std::vector<int> > solution;
+            for (int i=0; i<final_solution.size(); ++i) {
+                solution[final_solution[i]].push_back(i);
+            }
+            std::map<int, std::vector<int> >::iterator it;
+            for (it = solution.begin(); it != solution.end(); ++it) {
+                cluster_ids.push_back(it->second);
+            }
+
+            for (int i = 1; i < num_obs; i++) free(ragged_distances[i]);
+            free(ragged_distances);
+
+            delete dm;
         }
+    }
+}
+
+void maxp_wrapper::CreateController(const std::vector<std::pair<double, std::vector<double> > >& min_bounds,
+                                    const std::vector<std::pair<double, std::vector<double> > >& max_bounds)
+{
+    // min bounds
+    for (int i=0; i<min_bounds.size(); ++i) {
+        const std::pair<double, std::vector<double> >& bound = min_bounds[i];
+        double min_bound = bound.first;
+        std::vector<double> bound_vals = bound.second;
+        ZoneControl zc(bound_vals);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, min_bound);
+        controllers.push_back(zc);
+    }
+    // max bounds
+    for (int i=0; i<max_bounds.size(); ++i) {
+        const std::pair<double, std::vector<double> >& bound = max_bounds[i];
+        double max_bound = bound.first;
+        std::vector<double> bound_vals = bound.second;
+        ZoneControl zc(bound_vals);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::LESS_THAN, max_bound);
+        controllers.push_back(zc);
     }
 }
 
 const std::vector<std::vector<int> > maxp_wrapper::GetClusters() {
     return cluster_ids;
 }
-const std::vector<int> maxp_wrapper::GetFlatClusters() {
-    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-    int ncluster = cluster_ids.size();
 
-    std::vector<int> clusters(num_obs, 0);
-    for (int i=0; i < ncluster; i++) {
-        int c = i + 1;
-        for (int j=0; j<cluster_ids[i].size(); j++) {
-            int idx = cluster_ids[i][j];
-            clusters[idx] = c;
-        }
-    }
+MaxpRegion* maxp_wrapper::RunMaxp() {
+    MaxpRegion* maxp = new MaxpRegion(iterations, gal, input_data, dm, num_obs, n_cols, controllers, inits, init_regions,
+            rnd_seed);
 
-    return clusters;
+    return maxp;
 }
