@@ -42,7 +42,7 @@ UniGstar::UniGstar(int num_obs,
 
     Gstar_defined.resize(num_obs, true);
 
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         if (!undefs[i])
             sum_x += data[i];
     }
@@ -51,7 +51,7 @@ UniGstar::UniGstar(int num_obs,
 }
 
 void UniGstar::ComputeLoalSA() {
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         if (undefs[i]) {
             lag_vec[i] = 0;
             lisa_vec[i] = 0;
@@ -82,7 +82,7 @@ void UniGstar::ComputeLoalSA() {
     // mean G value
     unsigned int ng = 0;
     double mean_g = 0;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         if (weights->GetNbrSize(i) == 0 || undefs[i] || Gstar_defined[i] == false)
             continue;
         mean_g += lisa_vec[i];
@@ -91,7 +91,7 @@ void UniGstar::ComputeLoalSA() {
     mean_g = mean_g / ng;
 
     // assign cluster
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         if (weights->GetNbrSize(i) == 0 || undefs[i] || Gstar_defined[i] == false)
             continue;
 
@@ -133,7 +133,7 @@ void UniGstar::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighb
 uint64_t UniGstar::CountLargerSA(int cnt, const std::vector<double>& permutedSA)
 {
     uint64_t countLarger = 0;
-    for (size_t i=0; i<permutations; ++i) {
+    for (int i=0; i<permutations; ++i) {
         if (permutedSA[i] >= lisa_vec[cnt]) {
             countLarger += 1;
         }
@@ -151,8 +151,8 @@ std::vector<int> UniGstar::GetClusterIndicators() {
     double cutoff = GetSignificanceCutoff();
 
     for (int i=0; i<num_obs; i++) {
-        if (cluster_vec[i] == CLUSTER_UNDEFINED &&
-            cluster_vec[i] == CLUSTER_NEIGHBORLESS)
+        if ((const unsigned long)cluster_vec[i] == CLUSTER_UNDEFINED &&
+                (const unsigned long)cluster_vec[i] == CLUSTER_NEIGHBORLESS)
             continue;
 
         if (sig_local_vec[i] > cutoff) {

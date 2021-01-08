@@ -105,7 +105,7 @@ void GalElement::Update(const std::vector<bool>& undefs)
 {
     std::vector<int> undef_obj_positions;
    
-    for (int i=0; i<nbr.size(); i++) {
+    for (size_t i=0; i<nbr.size(); i++) {
         int obj_id = nbr[i];
         if (undefs[obj_id]) {
             int pos = nbrLookup[obj_id];
@@ -120,8 +120,8 @@ void GalElement::Update(const std::vector<bool>& undefs)
 	std::sort(undef_obj_positions.begin(),
               undef_obj_positions.end(), std::greater<int>());
    
-    for (int i=0; i<undef_obj_positions.size(); i++) {
-        int pos = undef_obj_positions[i];
+    for (size_t i=0; i<undef_obj_positions.size(); i++) {
+        size_t pos = undef_obj_positions[i];
         if (pos < nbr.size()) {
             nbrLookup.erase( nbr[pos] );
             nbr.erase( nbr.begin() + pos);
@@ -281,7 +281,7 @@ void GalWeight::GetNbrStats()
     for (int i=0; i<num_obs; i++) {
         int n_nbrs = 0;
         const std::vector<long>& nbrs = gal[i].GetNbrs();
-        for (int j=0; j<nbrs.size();j++) {
+        for (size_t j=0; j<nbrs.size();j++) {
             int nbr = nbrs[j];
             if (i != nbr) {
                 n_nbrs++;

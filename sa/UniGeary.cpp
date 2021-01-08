@@ -49,7 +49,7 @@ UniGeary::~UniGeary() {
 }
 
 void UniGeary::ComputeLoalSA() {
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         if (undefs[i]) {
             lag_vec[i] = 0;
             lisa_vec[i] = 0;
@@ -117,7 +117,7 @@ void UniGeary::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighb
 uint64_t UniGeary::CountLargerSA(int cnt, const std::vector<double>& permutedSA)
 {
     double permGearySum = 0, permGearyMean = 0;
-    for (size_t i=0; i<permutations; ++i) {
+    for (int i=0; i<permutations; ++i) {
         permGearySum += permutedSA[i];
     }
     permGearyMean = permGearySum / permutations;
@@ -125,25 +125,26 @@ uint64_t UniGeary::CountLargerSA(int cnt, const std::vector<double>& permutedSA)
 
     if (lisa_vec[cnt] <= permGearyMean) {
         // positive
-        for (size_t i=0; i<permutations; ++i) {
+        for (int i=0; i<permutations; ++i) {
             if (permutedSA[i] <= lisa_vec[cnt]) {
                 countLarger += 1;
             }
             // positive HH cluster_vec[cnt] == 1CLUSTER_HIGHHIGH
             // positive LL cluster_vec[cnt] == 2CLUSTER_LOWLOW
             // positive && but in outlier qudrant: other pos
-            if (cluster_vec[cnt] > CLUSTER_LOWLOW && cluster_vec[cnt] < CLUSTER_UNDEFINED) {
+            if ((const unsigned long)cluster_vec[cnt] > CLUSTER_LOWLOW && (const unsigned long)cluster_vec[cnt] <
+            CLUSTER_UNDEFINED) {
                 cluster_vec[cnt] = CLUSTER_OTHERPOS;
             }
         }
     } else {
         // negative
-        for (size_t i=0; i<permutations; ++i) {
+        for (int i=0; i<permutations; ++i) {
             if (permutedSA[i] > lisa_vec[cnt]) {
                 countLarger += 1;
             }
         }
-        if (cluster_vec[cnt] < CLUSTER_UNDEFINED) {
+        if ((const unsigned long)cluster_vec[cnt] < CLUSTER_UNDEFINED) {
             cluster_vec[cnt] = CLUSTER_NEGATIVE;
         }
 
@@ -156,8 +157,8 @@ std::vector<int> UniGeary::GetClusterIndicators() {
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
         if (sig_local_vec[i] > cuttoff &&
-            cluster_vec[i] != CLUSTER_UNDEFINED &&
-            cluster_vec[i] != CLUSTER_NEIGHBORLESS)
+                (const unsigned long)cluster_vec[i] != CLUSTER_UNDEFINED &&
+                (const unsigned long)cluster_vec[i] != CLUSTER_NEIGHBORLESS)
         {
             clusters[i] = CLUSTER_NOT_SIG;
         } else {

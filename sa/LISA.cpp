@@ -80,7 +80,7 @@ weights(w)
     undefs.resize(num_obs, false);
     for (size_t i=0; i < _undefs.size(); ++i) {
         for (size_t j=0; j< _undefs[i].size(); ++j) {
-            if (j < num_obs) {
+            if ((int)j < num_obs) {
                 undefs[j] = undefs[j] || _undefs[i][j];
             }
         }
@@ -102,7 +102,7 @@ void LISA::Run()
     lisa_vec.resize(num_obs, 0);
     nn_vec.resize(num_obs, 0);
 
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         nn_vec[i] = weights->GetNbrSize(i);
     }
 
@@ -162,7 +162,7 @@ double LISA::GetFDR(double current_p)
 
     double fdr = 0;
 
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         double val = (i+1) * current_p / (double)num_obs;
         if (i==0) fdr = val;
         if (pvals[i] >= val) {
@@ -315,7 +315,7 @@ void LISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
     std::vector<std::vector<int> >& cache = cached_perm_nbrs[wuid];
 #endif
 
-    for (size_t cnt=obs_start; cnt<=obs_end; cnt++) {
+    for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         if (undefs[cnt]) {
             sig_cat_vec[cnt] = 6; // undefined
             continue;
@@ -361,7 +361,7 @@ void LISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
             }
         }
 #else
-        for (size_t perm=0; perm<permutations; perm++) {
+        for (int perm=0; perm<permutations; perm++) {
             int rand=0, newRandom;
             double rng_val;
             while (rand < numNeighbors) {

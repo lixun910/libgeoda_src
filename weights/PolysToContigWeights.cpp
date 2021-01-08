@@ -489,14 +489,14 @@ GalElement* PolysToContigWeights(gda::MainMap& main, bool is_queen,
 
 	//MakeFull(gl, gRecords);
     vector<set<long> > G(gRecords);
-    for (size_t i=0; i<gRecords; ++i) {
+    for (long i=0; i<gRecords; ++i) {
         for (size_t j=0, sz=gl[i].Size(); j<sz; ++j) {
             G[i].insert(gl[i][j]);
             G[gl[i][j]].insert(i);
         }
     }
-    for (size_t i=0; i<gRecords; ++i) {
-        if (gl[i].Size() == G[i].size()) {
+    for (long i=0; i<gRecords; ++i) {
+        if ((size_t)gl[i].Size() == G[i].size()) {
             gl[i].ReverseNbrs();
             continue;
         }

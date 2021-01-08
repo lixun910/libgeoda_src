@@ -35,9 +35,9 @@ MultiJoinCount::MultiJoinCount(int num_obs, GeoDaWeight *w,
 
     std::vector<bool> undef_merge(num_obs, false);
     if (_undefs.size() > 0) {
-        for (size_t i=0; i<num_obs; ++i) {
+        for (int i=0; i<num_obs; ++i) {
             for (size_t j = 0; j < _undefs.size(); ++j) {
-                if (_undefs[j].size() >= num_obs) {
+                if ((int)_undefs[j].size() >= num_obs) {
                     break;
                 }
                 undef_merge[i] = undef_merge[i] || _undefs[j][i];
@@ -47,7 +47,7 @@ MultiJoinCount::MultiJoinCount(int num_obs, GeoDaWeight *w,
     undefs = undef_merge;
 
     zz.resize(num_obs, 1);
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         for (int v = 0; v < num_vars; v++) {
             zz[i] = zz[i] * data[v][i];  // 0 or 1
         }
@@ -82,7 +82,7 @@ void MultiJoinCount::ComputeLoalSA() {
             }
             zz[i] = data[1][i];
         }
-        for (size_t i=0; i<num_obs; i++) {
+        for (int i=0; i<num_obs; i++) {
             if (undefs[i]) {
                 lag_vec[i] = 0;
                 lisa_vec[i] = 0;
@@ -94,7 +94,7 @@ void MultiJoinCount::ComputeLoalSA() {
                     if (data[0][i] > 0) { // x_i = 1
                         int nbr_size = weights->GetNbrSize(i);
                         const std::vector<long>& nbrs = weights->GetNeighbors(i);
-                        for (size_t j=0; j<nbr_size; ++j) {
+                        for (int j=0; j<nbr_size; ++j) {
                             if (nbrs[j] != i &&  !undefs[nbrs[j]])
                                 lisa_vec[i] += zz[ nbrs[j] ];
                         }
@@ -104,7 +104,7 @@ void MultiJoinCount::ComputeLoalSA() {
         }
     } else {
         // could be both bivariate and multivariate cases
-        for (size_t i=0; i<num_obs; i++) {
+        for (int i=0; i<num_obs; i++) {
             if (undefs[i]) {
                 lag_vec[i] = 0;
                 lisa_vec[i] = 0;
@@ -113,7 +113,7 @@ void MultiJoinCount::ComputeLoalSA() {
                 if (zz[i] > 0) { // x_i.z_i = 1
                     int nbr_size = weights->GetNbrSize(i);
                     const std::vector<long> &nbrs = weights->GetNeighbors(i);
-                    for (size_t j = 0; j < nbr_size; ++j) {
+                    for (int j = 0; j < nbr_size; ++j) {
                         if (nbrs[j] != i && !undefs[nbrs[j]]) {
                             // compute the number of neighbors with
                             // x_j.z_j = 1 (zz=1) as a spatial lag
@@ -132,7 +132,7 @@ void MultiJoinCount::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed
     GeoDaSet workPermutation(num_obs);
     int max_rand = num_obs-1;
 
-    for (size_t cnt=obs_start; cnt<=obs_end; cnt++) {
+    for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         if (undefs[cnt]) {
             sig_cat_vec[cnt] = 6; // undefined cat
             continue;
@@ -151,7 +151,7 @@ void MultiJoinCount::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed
         }
 
         std::vector<double> permutedSA(permutations, 0);
-        for (size_t perm=0; perm<permutations; perm++) {
+        for (int perm=0; perm<permutations; perm++) {
             int rand=0, newRandom;
             double rng_val;
             while (rand < numNeighbors) {
@@ -210,7 +210,7 @@ MultiJoinCount::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeigh
 
 uint64_t MultiJoinCount::CountLargerSA(int cnt, const std::vector<double> &permutedSA) {
     uint64_t countLarger = 0;
-    for (size_t i=0; i<permutations; ++i) {
+    for (int i=0; i<permutations; ++i) {
         if (permutedSA[i] >= lisa_vec[cnt]) {
             countLarger += 1;
         }

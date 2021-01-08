@@ -36,7 +36,7 @@ UniJoinCount::~UniJoinCount() {
 }
 
 void UniJoinCount::ComputeLoalSA() {
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         if (undefs[i]) {
             lag_vec[i] = 0;
             lisa_vec[i] = 0;
@@ -48,7 +48,7 @@ void UniJoinCount::ComputeLoalSA() {
                 if (data[i] > 0) { // x_i = 1
                     int nbr_size = weights->GetNbrSize(i);
                     const std::vector<long>& nbrs = weights->GetNeighbors(i);
-                    for (size_t j=0; j<nbr_size; ++j) {
+                    for (int j=0; j<nbr_size; ++j) {
                         if (nbrs[j] != i &&  !undefs[nbrs[j]]) { // not including the value at the location
                             lisa_vec[i] += data[nbrs[j]];
                         }
@@ -79,7 +79,7 @@ UniJoinCount::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighbo
 
 uint64_t UniJoinCount::CountLargerSA(int cnt, const std::vector<double> &permutedSA) {
     uint64_t countLarger = 0;
-    for (size_t i=0; i<permutations; ++i) {
+    for (int i=0; i<permutations; ++i) {
         if (permutedSA[i] >= lisa_vec[cnt]) {
             countLarger += 1;
         }

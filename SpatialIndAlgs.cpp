@@ -173,7 +173,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const std::vector<gda::PointContents*>& poi
 			vector<pt_3d> pts;
 			{
 				vector<pt_lonlat> ptll(nobs);
-				for (int i=0; i<nobs; ++i) ptll[i] = pt_lonlat(points[i]->x, points[i]->y);
+				for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(points[i]->x, points[i]->y);
 				to_3d_centroids(ptll, pts);
 			}
 			fill_pt_rtree(rtree, pts);
@@ -184,7 +184,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const std::vector<gda::PointContents*>& poi
 		rtree_pt_2d_t rtree;
 		{
 			vector<pt_2d> pts(nobs);
-			for (int i=0; i<nobs; ++i) pts[i] = pt_2d(points[i]->x, points[i]->y);
+			for (size_t i=0; i<nobs; ++i) pts[i] = pt_2d(points[i]->x, points[i]->y);
 			fill_pt_rtree(rtree, pts);
 		}
 		gwt = knn_build(rtree, nn, is_inverse, power, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
@@ -580,7 +580,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
 			vector<pt_3d> pts;
 			{
 				vector<pt_lonlat> ptll(nobs);
-				for (int i=0; i<nobs; ++i) ptll[i] = pt_lonlat(x[i], y[i]);
+				for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(x[i], y[i]);
 				to_3d_centroids(ptll, pts);
 			}
 			fill_pt_rtree(rtree, pts);
@@ -590,7 +590,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
 		rtree_pt_2d_t rtree;
 		{
 			vector<pt_2d> pts(nobs);
-            for (int i=0; i<nobs; ++i) {
+            for (size_t i=0; i<nobs; ++i) {
                 pts[i] = pt_2d(x[i], y[i]);
             }
 			fill_pt_rtree(rtree, pts);
@@ -776,7 +776,7 @@ double SpatialIndAlgs::find_max_1nn_dist(const std::vector<double>& x,
 			vector<pt_3d> pts;
 			{
 				vector<pt_lonlat> ptll(nobs);
-				for (int i=0; i<nobs; ++i) ptll[i] = pt_lonlat(x[i], y[i]);
+				for (size_t i=0; i<nobs; ++i) ptll[i] = pt_lonlat(x[i], y[i]);
 				to_3d_centroids(ptll, pts);
 			}
 			fill_pt_rtree(rtree, pts);
@@ -787,7 +787,7 @@ double SpatialIndAlgs::find_max_1nn_dist(const std::vector<double>& x,
 		rtree_pt_2d_t rtree;
 		{
 			vector<pt_2d> pts(nobs);
-			for (int i=0; i<nobs; ++i) pts[i] = pt_2d(x[i], y[i]);
+			for (size_t i=0; i<nobs; ++i) pts[i] = pt_2d(x[i], y[i]);
 			fill_pt_rtree(rtree, pts);
 		}
 		get_pt_rtree_stats(rtree, min_d_1nn, max_d_1nn, mean_d_1nn, median_d_1nn);

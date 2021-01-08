@@ -27,7 +27,7 @@ GeoDaWeight* contiguity_weights(bool is_queen,
         std::vector<std::set<int> > nbr_map;
         const std::vector<gda::PointContents*>& centroids = geoda->GetCentroids();
         std::vector<double> x(num_obs), y(num_obs);
-        for (size_t i=0; i<num_obs; ++i) {
+        for (int i=0; i<num_obs; ++i) {
             x[i] = centroids[i]->x;
             y[i] = centroids[i]->y;
         }
@@ -104,7 +104,7 @@ double gda_min_distthreshold(AbstractGeoDa* geoda, bool is_arc, bool is_mile)
     const std::vector<gda::PointContents*>& centroids = geoda->GetCentroids();
 
     std::vector<double> x(num_obs), y(num_obs);
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         x[i] = centroids[i]->x;
         y[i] = centroids[i]->y;
     }
@@ -129,7 +129,7 @@ GeoDaWeight* gda_distance_weights(AbstractGeoDa* geoda, double dist_thres,
     const std::vector<gda::PointContents*>& centroids = geoda->GetCentroids();
     
     std::vector<double> x(num_obs), y(num_obs);
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         x[i] = centroids[i]->x;
         y[i] = centroids[i]->y;
     }

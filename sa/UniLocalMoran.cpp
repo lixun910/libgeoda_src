@@ -47,7 +47,7 @@ UniLocalMoran::UniLocalMoran(int num_obs,
 }
 
 void UniLocalMoran::ComputeLoalSA() {
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         if (undefs[i]) {
             lag_vec[i] = 0;
             lisa_vec[i] = 0;
@@ -106,7 +106,7 @@ void UniLocalMoran::PermLocalSA(int cnt, int perm, const std::vector<int> &permN
 uint64_t UniLocalMoran::CountLargerSA(int cnt, const std::vector<double>& permutedSA)
 {
     uint64_t countLarger = 0;
-    for (size_t i=0; i<permutations; ++i) {
+    for (int i=0; i<permutations; ++i) {
         if (permutedSA[i] >= lisa_vec[cnt]) {
             countLarger += 1;
         }
@@ -124,8 +124,8 @@ std::vector<int> UniLocalMoran::GetClusterIndicators() {
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
         if (sig_local_vec[i] > cuttoff &&
-            cluster_vec[i] != CLUSTER_UNDEFINED &&
-            cluster_vec[i] != CLUSTER_NEIGHBORLESS)
+                (const unsigned long)cluster_vec[i] != CLUSTER_UNDEFINED &&
+                (const unsigned long)cluster_vec[i] != CLUSTER_NEIGHBORLESS)
         {
             clusters[i] = CLUSTER_NOT_SIG;
         } else {

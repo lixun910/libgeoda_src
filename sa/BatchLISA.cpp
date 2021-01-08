@@ -64,7 +64,7 @@ void BatchLISA::Run()
     lag_vec.resize(num_batch);
     lisa_vec.resize(num_batch);
 
-    for (size_t i=0; i<num_batch; ++i) {
+    for (int i=0; i<num_batch; ++i) {
         sig_local_vec[i].resize(num_obs, 0);
         sig_cat_vec[i].resize(num_obs, 0);
         cluster_vec[i].resize(num_obs, 0);
@@ -73,7 +73,7 @@ void BatchLISA::Run()
     }
 
     nn_vec.resize(num_obs, 0);
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         nn_vec[i] = weights->GetNbrSize(i);
     }
 
@@ -128,7 +128,7 @@ void BatchLISA::SetUserCutoff(double val)
 double BatchLISA::GetFDR(double current_p, int idx)
 {
     // bound check
-    if (idx < 0 || idx >= sig_local_vec.size()-1)
+    if (idx < 0 || idx >= (int)sig_local_vec.size()-1)
         return 0;
 
     double fdr = 0; //False Discovery Rate
@@ -292,17 +292,17 @@ void BatchLISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_star
     //bool perm_valid = true;
     int numNeighbors;
 
-    for (size_t cnt=obs_start; cnt<=obs_end; cnt++) {
+    for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         numNeighbors = weights->GetNbrSize(cnt);
         if (numNeighbors == 0) {
-            for (size_t v=0; v < num_batch; ++v) {
+            for (int  v=0; v < num_batch; ++v) {
                 sig_cat_vec[v][cnt] = 5; // neighborless cat
             }
         } else {
             std::vector<std::vector<double> > permutedSA(num_batch);
-            for (size_t i=0; i<num_batch; ++i) permutedSA[i].resize(permutations);
+            for (int i=0; i<num_batch; ++i) permutedSA[i].resize(permutations);
 
-            for (size_t perm = 0; perm < permutations; perm++) {
+            for (int perm = 0; perm < permutations; perm++) {
                 int rand = 0, newRandom;
                 double rng_val;
                 while (rand < numNeighbors) {
@@ -327,7 +327,7 @@ void BatchLISA::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_star
 
             std::vector<uint64_t> countLarger = CountLargerSA(cnt, permutedSA);
 
-            for (size_t v=0; v < num_batch; ++v) {
+            for (int v=0; v < num_batch; ++v) {
                 double _sigLocal = (countLarger[v] + 1.0) / (permutations + 1);
 
                 // 'significance' of local sa

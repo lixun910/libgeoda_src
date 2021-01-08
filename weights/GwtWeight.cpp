@@ -48,7 +48,7 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 
 bool GwtElement::Check(long nbr_idx)
 {
-    for (size_t i=0; i<nbrs; ++i) {
+    for (long i=0; i<nbrs; ++i) {
         if (data[i].nbx == nbr_idx) return true;
     }
     return false;
@@ -57,7 +57,7 @@ bool GwtElement::Check(long nbr_idx)
 std::vector<long> GwtElement::GetNbrs()
 {
     std::vector<long> nbr_ids;
-    for (size_t i=0; i<nbrs; ++i) {
+    for (long i=0; i<nbrs; ++i) {
         nbr_ids.push_back(data[i].nbx);
     }
     return nbr_ids;
@@ -66,7 +66,7 @@ std::vector<long> GwtElement::GetNbrs()
 std::vector<double> GwtElement::GetNbrWeights()
 {
     std::vector<double> nbr_w;
-    for (size_t i=0; i<nbrs; ++i) {
+    for (long i=0; i<nbrs; ++i) {
         nbr_w.push_back(data[i].weight);
     }
     return nbr_w;
@@ -170,7 +170,7 @@ GwtWeight::Save(const char *ofname, const char *layer_name, const char *id_var_n
         out_layer_name = "\"" + out_layer_name + "\"";
     }
 
-    size_t num_obs = (int) id_vec.size();
+    int num_obs = (int) id_vec.size();
     out << "0 " << num_obs << " " << layer_name;
     out << " " << id_var_name << endl;
 
@@ -199,7 +199,7 @@ bool GwtWeight::Save(const char *ofname, const char *layer_name, const char *id_
         out_layer_name = "\"" + out_layer_name + "\"";
     }
 
-    size_t num_obs = (int) id_vec.size();
+    int num_obs = (int) id_vec.size();
     out << "0 " << num_obs << " " << layer_name;
     out << " " << id_var_name << endl;
 

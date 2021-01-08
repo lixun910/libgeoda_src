@@ -191,7 +191,7 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
 
     int num_obs = w->num_obs;
 
-    if (k < 1 || k >= num_obs)
+    if (k < 1 || (int)k >= num_obs)
         return 0;
 
     if (quantile < 0 || quantile > k)
@@ -225,7 +225,7 @@ LISA *gda_quantilelisa(GeoDaWeight *w, unsigned int k, unsigned int quantile, co
 
     std::vector<double> bin_data(num_obs, 0);
 
-    for (size_t i = 0; i < num_obs; ++i)
+    for (int i = 0; i < num_obs; ++i)
     {
         if (data[i] >= break_left && data[i] < break_right)
         {

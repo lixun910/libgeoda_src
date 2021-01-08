@@ -302,7 +302,7 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
             this->ssd = ss.ssd;
             this->ssd_reduce = ss.ssd_reduce;
             
-            for (int j=1; j<split_cands.size(); j++) {
+            for (size_t j=1; j<split_cands.size(); j++) {
                 SplitSolution& tmp_ss = split_cands[j];
                 if (tmp_ss.ssd_reduce > this->ssd_reduce) {
                     this->split_ids = tmp_ss.split_ids;
@@ -402,7 +402,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
         vector<int> cand_ids(max_id+1, -1);
         Split(orig_id, dest_id, nbr_dict, cand_ids);
         
-        for (int j=0; j<ids.size(); j++) {
+        for (size_t j=0; j<ids.size(); j++) {
             if (cand_ids[ ids[j] ] == 1) {
                 visited_ids[idx] = ids[j];
                 idx++;
@@ -413,7 +413,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
         
         if (checkControl(cand_ids, ids, 1)) {
             evaluated++;
-            for (int j=0; j<ids.size(); j++) {
+            for (size_t j=0; j<ids.size(); j++) {
                 if (cand_ids[ ids[j] ] == -1) {
                     visited_ids[idx] = ids[j];
                     idx++;
@@ -483,7 +483,7 @@ bool Tree::checkControl(vector<int>& cand_ids, vector<int>& ids, int flag)
     }
     
     double val = 0;
-    for (int j=0; j<ids.size(); j++) {
+    for (size_t j=0; j<ids.size(); j++) {
         if (cand_ids[ ids[j] ] == flag) {
             val += controls[ ids[j] ];
         }
@@ -517,15 +517,15 @@ pair<Tree*, Tree*> Tree::GetSubTrees()
     vector<Edge*> part2_edges(part2_ids.size()-1);
     
     vector<int> part_index(max_id+1, 0);
-    for (int i=0; i< part1_ids.size(); i++) {
+    for (size_t i=0; i< part1_ids.size(); i++) {
         part_index[ part1_ids[i] ] = -1;
     }
-    for (int i=0; i< part2_ids.size(); i++) {
+    for (size_t i=0; i< part2_ids.size(); i++) {
         part_index[ part2_ids[i] ] = 1;
     }
     int o_id, d_id;
     int cnt1=0, cnt2=0, cnt=0;
-    for (int i=0; i<this->edges.size(); i++) {
+    for (size_t i=0; i<this->edges.size(); i++) {
         o_id = this->edges[i]->orig->id;
         d_id = this->edges[i]->dest->id;
         
@@ -562,10 +562,10 @@ AbstractClusterFactory::~AbstractClusterFactory()
         delete ssd_utils;
     }
 
-    for (int i=0; i<edges.size(); i++) {
+    for (size_t i=0; i<edges.size(); i++) {
         delete edges[i];
     }
-    for (int i=0; i<nodes.size(); i++) {
+    for (size_t i=0; i<nodes.size(); i++) {
         delete nodes[i];
     }
 }
@@ -622,7 +622,7 @@ void AbstractClusterFactory::Partitioning(int k)
     sub_trees.push(current_tree);
 
     
-    while (!sub_trees.empty() && sub_trees.size() < k) {
+    while (!sub_trees.empty() && (int)sub_trees.size() < k) {
         Tree* tmp_tree = sub_trees.top();
         //cout << tmp_tree->ssd_reduce << endl;
         sub_trees.pop();
@@ -656,7 +656,7 @@ void AbstractClusterFactory::Partitioning(int k)
   
     cluster_ids.clear();
     
-    for (int i = 0; i< not_split_trees.size(); i++) {
+    for (size_t i = 0; i< not_split_trees.size(); i++) {
         sub_trees.push(not_split_trees[i]);
     }
     
@@ -668,7 +668,7 @@ void AbstractClusterFactory::Partitioning(int k)
         cluster_ids.push_back(tmp_tree->ordered_ids);
     }
     
-    for (int i = 0; i< not_split_trees.size(); i++) {
+    for (size_t i = 0; i< not_split_trees.size(); i++) {
         delete not_split_trees[i];
     }
 }
@@ -707,7 +707,7 @@ void Skater::Clustering()
     
     boost::unordered_map<int, bool> id_dict;
     boost::unordered_map<pair<int, int>, Edge*> edge_dict;
-    for (int i=0; i<edges.size(); i++) {
+    for (size_t i=0; i<edges.size(); i++) {
         Edge* e = edges[i];
         edge_dict[make_pair(e->orig->id, e->dest->id)] = e;
         edge_dict[make_pair(e->dest->id, e->orig->id)] = e;
@@ -719,9 +719,9 @@ void Skater::Clustering()
   
     double sum_length=0;
     
-    for (int source = 0; source < p.size(); ++source) {
+    for (size_t source = 0; source < p.size(); ++source) {
         int target = p[source];
-        if (source != target) {
+        if ((int)source != target) {
             //boost::add_edge(source, p[source], mst);
             //ordered_edges.push_back(new Edge(source, p[source]));
             pair<int,int> o_d(source, target);
@@ -737,7 +737,7 @@ void Skater::Clustering()
     
     //cout << "Skater mst sum length:" << sum_length << endl;
     
-    for (int i=0; i<ordered_edges.size(); i++) {
+    for (size_t i=0; i<ordered_edges.size(); i++) {
         int source = ordered_edges[i]->orig->id;
         int target = ordered_edges[i]->dest->id;
         
@@ -783,7 +783,7 @@ void FirstOrderSLKRedCap::Clustering()
     int cnt = 0;
     //double sum_length = 0;
     
-    for (int i=0; i<edges.size(); i++) {
+    for (size_t i=0; i<edges.size(); i++) {
         Edge* edge = edges[i];
         
         Node* orig = edge->orig;
@@ -805,7 +805,7 @@ void FirstOrderSLKRedCap::Clustering()
     //cout << "FO-SLK mst sum length:" << sum_length << endl;
     
     boost::unordered_map<int, bool> id_dict;
-    for (int i=0; i<ordered_edges.size(); i++) {
+    for (size_t i=0; i<ordered_edges.size(); i++) {
         Edge* edge = ordered_edges[i];
         Node* orig = edge->orig;
         Node* dest = edge->dest;
@@ -948,7 +948,7 @@ void FullOrderALKRedCap::Clustering()
     int num_nodes = (int)nodes.size();
     vector<Node*> ordered_nodes(num_nodes);
     
-    for (int i=0; i< this->edges.size(); i++) {
+    for (size_t i=0; i< this->edges.size(); i++) {
         Edge* edge = this->edges[i];
         Node* orig = edge->orig;
         Node* dest = edge->dest;
@@ -1005,7 +1005,7 @@ void FullOrderALKRedCap::Clustering()
         
         if (root1 != root2) {
             // merge root1 and root2
-            for (int i=0; i<this->edges.size(); i++) {
+            for (size_t i=0; i<this->edges.size(); i++) {
                 ++cnt;
                 Edge* tmp_edge = this->edges[i];
                 int tmp_o_id = ids[tmp_edge->orig->id];
@@ -1096,7 +1096,7 @@ void FullOrderALKRedCap::Clustering()
     
     boost::unordered_map<int, bool> id_dict;
 
-    for (int i=0; i<ordered_edges.size();i++) {
+    for (size_t i=0; i<ordered_edges.size();i++) {
         Edge* e = ordered_edges[i];
         Node* orig = e->orig;
         Node* dest = e->dest;
@@ -1111,7 +1111,7 @@ void FullOrderALKRedCap::Clustering()
         }
     }
     
-    for (int i=0; i<new_edges.size(); i++) {
+    for (size_t i=0; i<new_edges.size(); i++) {
         delete new_edges[i];
     }
 }
@@ -1230,7 +1230,7 @@ void FullOrderWardRedCap::Clustering()
     int num_nodes = (int)nodes.size();
     vector<Node*> ordered_nodes(num_nodes);
     
-    for (int i=0; i< this->edges.size(); i++) {
+    for (size_t i=0; i< this->edges.size(); i++) {
         Edge* edge = this->edges[i];
         Node* orig = edge->orig;
         Node* dest = edge->dest;
@@ -1287,7 +1287,7 @@ void FullOrderWardRedCap::Clustering()
         
         if (root1 != root2) {
             // merge root1 and root2
-            for (int i=0; i<this->edges.size(); i++) {
+            for (size_t i=0; i<this->edges.size(); i++) {
                 ++cnt;
                 Edge* tmp_edge = this->edges[i];
                 int tmp_o_id = ids[tmp_edge->orig->id];
@@ -1402,7 +1402,7 @@ void FullOrderWardRedCap::Clustering()
     
     boost::unordered_map<int, bool> id_dict;
 
-    for (int i=0; i<ordered_edges.size();i++) {
+    for (size_t i=0; i<ordered_edges.size();i++) {
         Edge* e = ordered_edges[i];
         Node* orig = e->orig;
         Node* dest = e->dest;
@@ -1417,7 +1417,7 @@ void FullOrderWardRedCap::Clustering()
         }
     }
     
-    for (int i=0; i<new_edges.size(); i++) {
+    for (size_t i=0; i<new_edges.size(); i++) {
         delete new_edges[i];
     }
 }

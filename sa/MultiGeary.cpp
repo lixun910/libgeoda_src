@@ -32,9 +32,9 @@ MultiGeary::MultiGeary(int num_obs, GeoDaWeight *w,
 
     std::vector<bool> undef_merge(num_obs, false);
     if (_undefs.size() > 0) {
-        for (size_t i=0; i<num_obs; ++i) {
+        for (int i=0; i<num_obs; ++i) {
             for (size_t j = 0; j < _undefs.size(); ++j) {
-                if (_undefs[j].size() >= num_obs) {
+                if ((int)_undefs[j].size() >= num_obs) {
                     break;
                 }
                 undef_merge[i] = undef_merge[i] || _undefs[j][i];
@@ -44,14 +44,14 @@ MultiGeary::MultiGeary(int num_obs, GeoDaWeight *w,
     undefs = undef_merge;
 
     num_vars = data.size();
-    for (size_t i=0; i < num_vars; ++i) {
+    for (int i=0; i < num_vars; ++i) {
         GenUtils::StandardizeData(data[i], undefs);
     }
 
     data_square.resize(num_vars);
-    for (size_t i=0; i < num_vars; ++i) {
+    for (int i=0; i < num_vars; ++i) {
         data_square[i].resize(num_obs);
-        for (size_t j = 0; j < num_obs; ++j) {
+        for (int j = 0; j < num_obs; ++j) {
             data_square[i][j] = data[i][j] * data[i][j];
         }
     }
@@ -64,7 +64,7 @@ MultiGeary::~MultiGeary() {
 }
 
 void MultiGeary::ComputeLoalSA() {
-    for (size_t i=0; i<num_obs; i++) {
+    for (int i=0; i<num_obs; i++) {
         if (undefs[i]) {
             lag_vec[i] = 0;
             lisa_vec[i] = 0;
@@ -144,7 +144,7 @@ void MultiGeary::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeig
 uint64_t MultiGeary::CountLargerSA(int cnt, const std::vector<double>& permutedSA)
 {
     double permGearySum = 0, permGearyMean = 0;
-    for (size_t i=0; i<permutations; ++i) {
+    for (int i=0; i<permutations; ++i) {
         permGearySum += permutedSA[i];
     }
     permGearyMean = permGearySum / permutations;
@@ -152,23 +152,23 @@ uint64_t MultiGeary::CountLargerSA(int cnt, const std::vector<double>& permutedS
 
     if (lisa_vec[cnt] <= permGearyMean) {
         // positive
-        for (size_t i=0; i<permutations; ++i) {
+        for (int i=0; i<permutations; ++i) {
             if (permutedSA[i] <= lisa_vec[cnt]) {
                 countLarger += 1;
             }
             // ignore neighborless & undefined
-            if (cluster_vec[cnt] < CLUSTER_UNDEFINED) {
+            if ((const unsigned long)cluster_vec[cnt] < CLUSTER_UNDEFINED) {
                 cluster_vec[cnt] = CLUSTER_POSITIVE;
             }
         }
     } else {
         // negative
-        for (size_t i=0; i<permutations; ++i) {
+        for (int i=0; i<permutations; ++i) {
             if (permutedSA[i] > lisa_vec[cnt]) {
                 countLarger += 1;
             }
         }
-        if (cluster_vec[cnt] < CLUSTER_UNDEFINED) {
+        if ((const unsigned long)cluster_vec[cnt] < CLUSTER_UNDEFINED) {
             cluster_vec[cnt] = CLUSTER_NEGATIVE;
         }
 
@@ -181,8 +181,8 @@ std::vector<int> MultiGeary::GetClusterIndicators() {
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
         if (sig_local_vec[i] > cuttoff &&
-            cluster_vec[i] != CLUSTER_UNDEFINED &&
-            cluster_vec[i] != CLUSTER_NEIGHBORLESS)
+                (const unsigned long)cluster_vec[i] != CLUSTER_UNDEFINED &&
+                (const unsigned long)cluster_vec[i] != CLUSTER_NEIGHBORLESS)
         {
             clusters[i] = CLUSTER_NOT_SIG;
         } else {

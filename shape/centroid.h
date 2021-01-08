@@ -126,10 +126,10 @@ class Orientation {
     }
 
     // detect orientation of a ring
-    static bool isCCW(const std::vector<gda::Point>& pts, int start, int end)
+    static bool isCCW(const std::vector<gda::Point>& pts, size_t start, size_t end)
     {
         // # of points without closing endpoint
-        const std::size_t nPts = end - start;
+        const size_t nPts = end - start;
 
         if (nPts < 3) return false;
 
@@ -220,7 +220,7 @@ public:
     {
         // The first element in the array represents the exterior ring.
         // Any subsequent elements represent interior rings
-        for (size_t p = 0; p < poly->num_parts; ++p) {
+        for (int p = 0; p < poly->num_parts; ++p) {
             int start = poly->parts[p];
             int end = p+1 < poly->num_parts ? poly->parts[p+1] : poly->num_points;
             if (poly->holes[p]) {
@@ -318,7 +318,7 @@ private:
     {
         size_t npts = end - start + 1;
         double lineLen = 0.0;
-        for(size_t i = start; i < end; i++) {
+        for(int i = start; i < end; i++) {
             double segmentLen = pts[i].distance(pts[i + 1]);
             if(segmentLen == 0.0) {
                 continue;
@@ -345,7 +345,7 @@ private:
             setAreaBasePoint(poly->points[start]);
         }
         bool isPositiveArea = ! Orientation::isCCW(poly->points, start, end);
-        for(size_t i = start; i < end; ++i) {
+        for(int i = start; i < end; ++i) {
             addTriangle(areaBasePt, poly->points[i], poly->points[i + 1], isPositiveArea);
         }
         addLineSegments(poly->points, start, end);

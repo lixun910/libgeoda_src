@@ -122,7 +122,7 @@ void GeoDa::Init(const std::string &layer_name,
 
     // create features
     unsigned long long wkb_offset = 0;
-    for (size_t i=0; i<num_features; ++i) {
+    for (int i=0; i<num_features; ++i) {
         LWGEOM *lwgeom = lwgeom_from_wkb(wkbs + wkb_offset, wkb_bytes_len[i], LW_PARSER_CHECK_ALL);
         wkb_offset += wkb_bytes_len[i];
 

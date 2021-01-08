@@ -44,7 +44,7 @@ undefs(_undefs)
     colors.push_back("#999999");
 
     num_batch = data.size();
-    for (size_t i=0; i<num_batch; ++i) {
+    for (int i=0; i<num_batch; ++i) {
         GenUtils::StandardizeData(data[i], undefs[i]);
     }
 
@@ -52,8 +52,8 @@ undefs(_undefs)
 }
 
 void BatchLocalMoran::ComputeLoalSA() {
-    for (size_t v=0; v<num_batch; ++v) {
-        for (size_t i = 0; i < num_obs; i++) {
+    for (int v=0; v<num_batch; ++v) {
+        for (int i = 0; i < num_obs; i++) {
             if (undefs[v][i]) {
                 lag_vec[v][i] = 0;
                 lisa_vec[v][i] = 0;
@@ -90,13 +90,13 @@ void BatchLocalMoran::ComputeLoalSA() {
 void BatchLocalMoran::PermLocalSA(int cnt, int perm, const std::vector<int> &permNeighbors,
         std::vector<std::vector<double> >& permutedSA)
 {
-    for (size_t v=0; v<num_batch; ++v) {
+    for (int v=0; v<num_batch; ++v) {
         int validNeighbors = 0;
         double permutedLag = 0;
         int numNeighbors = permNeighbors.size();
         // use permutation to compute the lag
         // compute the lag for binary weights
-        for (size_t cp = 0; cp < numNeighbors; cp++) {
+        for (int cp = 0; cp < numNeighbors; cp++) {
             int nb = permNeighbors[cp];
             if (!undefs[v][nb]) {
                 permutedLag += data[v][nb];
@@ -116,9 +116,9 @@ void BatchLocalMoran::PermLocalSA(int cnt, int perm, const std::vector<int> &per
 std::vector<uint64_t> BatchLocalMoran::CountLargerSA(int cnt, const std::vector<std::vector<double> >& permutedSA)
 {
     std::vector<uint64_t> results(num_batch);
-    for (size_t v=0; v<num_batch; ++v) {
+    for (int v=0; v<num_batch; ++v) {
         uint64_t countLarger = 0;
-        for (size_t i = 0; i < permutations; ++i) {
+        for (int i = 0; i < permutations; ++i) {
             if (permutedSA[v][i] >= lisa_vec[v][cnt]) {
                 countLarger += 1;
             }
@@ -140,8 +140,8 @@ std::vector<int> BatchLocalMoran::GetClusterIndicators(int idx)
     double cuttoff = GetSignificanceCutoff();
     for (int i=0; i<num_obs; i++) {
         if (sig_local_vec[idx][i] > cuttoff &&
-            cluster_vec[idx][i] != CLUSTER_UNDEFINED &&
-            cluster_vec[idx][i] != CLUSTER_NEIGHBORLESS)
+                (const unsigned long)cluster_vec[idx][i] != CLUSTER_UNDEFINED &&
+                (const unsigned long)cluster_vec[idx][i] != CLUSTER_NEIGHBORLESS)
         {
             clusters[i] = CLUSTER_NOT_SIG;
         } else {
