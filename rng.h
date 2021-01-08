@@ -32,13 +32,17 @@ class Xoroshiro128Random
     long long s0;
     long long s1;
 public:
-    Xoroshiro128Random(long long xor64 = 123456789) {
+    Xoroshiro128Random() {
+        SetSeed(0);
+    }
+
+    Xoroshiro128Random(long long xor64) {
         SetSeed(xor64);
     }
 
     virtual ~Xoroshiro128Random() {}
 
-    void SetSeed(long long xor64 = 123456789) {
+    void SetSeed(long long xor64) {
         // set seed
         // XorShift64* generator to seed:
         if (xor64 == 0)

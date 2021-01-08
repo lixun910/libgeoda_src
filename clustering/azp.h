@@ -109,7 +109,7 @@ public:
     AreaManager(int n, int m, GalElement* const w, double** data, DistMatrix* const dist_matrix);
 
     virtual ~AreaManager() {}
-    
+
     // Returns the distance between two areas
     double returnDistance2Area(int i, int j);
 
@@ -170,7 +170,7 @@ public:
         }
         return ss;
     }
-    
+
     virtual double GetRawValue() {
         // Calculate the value of the objective function
         double ss = 0; // e.g. sum of squares
@@ -183,7 +183,7 @@ public:
         }
         return ss;
     }
-    
+
 
     virtual void UpdateRegions() {
         // region changes, update it's
@@ -284,7 +284,7 @@ public:
         boost::unordered_map<int, bool> to_areas = regions[to_region];
         from_areas.erase(area);
         to_areas[area] = false;
-        
+
         double ss_from = getObjectiveValue(from_areas);
         double ss_to = getObjectiveValue(to_areas);
 
@@ -311,7 +311,7 @@ public:
         // use reference here to make actual change
         boost::unordered_map<int, bool>& from_areas = regions[from_region];
         boost::unordered_map<int, bool>& to_areas = regions[to_region];
-        
+
         if (from_areas.size() <=1) {
             // has to make sure each region has at least one area
             return 0;
@@ -343,11 +343,11 @@ public:
             // adding an area from a region)
             areas2Eval[areaID] = true;
         }
-        
+
         if (areas2Eval.empty()) {
             return false;
         }
-        
+
         // remove the area first
         int seedArea = areas2Eval.begin()->first;
 
@@ -370,7 +370,7 @@ public:
         // all should be removed if all connected
         return areas2Eval.empty();
     }
-    
+
 protected:
     // n: number of observations
     int n;
@@ -410,9 +410,9 @@ public:
 
     // Sets the initial seeds for clustering
     void setSeeds(std::vector<int> seeds);
-    
+
     virtual void LocalImproving()  {}
-    
+
     virtual std::vector<int> GetResults() { return std::vector<int>();}
 
     virtual double GetInitObjectiveFunction() { return 0;}
@@ -424,9 +424,9 @@ public:
 
     int GetPRegions() { return region2Area.size();}
 
-    
+
     void Copy(RegionMaker& rm);
-    
+
 protected:
     // Return the areas of a region
     //boost::unordered_map<int, bool> returnRegion2Area(int regionID);
@@ -464,7 +464,7 @@ protected:
     bool growRegion();
 
     void InitFromRegion(std::vector<int>& init_regions);
-    
+
 protected:
     double** data;
 
@@ -490,9 +490,9 @@ protected:
     std::vector<ZoneControl> controls;
 
     Xoroshiro128Random rng;
-    
+
     bool is_control_satisfied;
-    
+
 public:
     // for copy
     std::vector<int> init_regions;
@@ -512,7 +512,7 @@ public:
     // For initial regions
     // area that could be assigned to which regions
     std::map<int, std::set<int> > potentialRegions4Area;
-    
+
     // area --(assign to)--region : distance
     std::map<std::pair<int, int>, double> candidateInfo;
 
@@ -562,7 +562,7 @@ public:
 
 protected:
     std::vector<int> returnRegions();
-    
+
     void InitSolution();
 
 protected:
@@ -604,7 +604,7 @@ public:
     virtual void PhaseLocalImprovementThreaded();
 
     virtual void RunAZP(std::vector<int>& solution, long long seed, int i) = 0;
-    
+
     virtual void RunConstruction(long long seed);
 
     virtual void RunConstructionRange(int start, int end);
@@ -612,7 +612,7 @@ public:
     virtual void RunLocalImprovementRange(int start, int end);
 
     virtual void Run();
-    
+
 protected:
     long long seed;
 
@@ -625,13 +625,13 @@ protected:
     std::vector<int> init_areas;
 
     int max_iter;
-    
+
     std::map<double, std::vector<int> > candidates;
-    
+
     int largest_p;
-    
+
     double best_of;
-    
+
     std::vector<int> best_result;
 
     // threads
@@ -675,7 +675,7 @@ public:
     virtual ~MaxpSA() {}
 
     virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
-    
+
 protected:
     double temperature;
 
@@ -698,10 +698,10 @@ public:
     virtual ~MaxpTabu() {}
 
     virtual void RunAZP(std::vector<int>& solution, long long seed, int i);
-    
+
 protected:
     int tabuLength; //5
-    
+
     int convTabu;
 };
 
@@ -723,7 +723,8 @@ public:
         int n, int m, const std::vector<ZoneControl>& c, int inits=0,
         const std::vector<int>& init_regions=std::vector<int>(),
         long long seed=123456789)
-    : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed),
+    initial_objectivefunction(0),  final_objectivefunction(0)
     {
         if (inits > 0) {
             // ARiSeL
@@ -751,7 +752,7 @@ public:
     virtual ~AZP() {}
 
     virtual void LocalImproving();
-    
+
     virtual std::vector<int> GetResults() {
         return final_solution;
     }
@@ -779,13 +780,13 @@ public:
         objInfo = std::numeric_limits<double>::max();
     }
     virtual ~BasicMemory() {}
-    
+
     void updateBasicMemory(double val, const std::vector<int>& rgn) {
         // Updates BasicMemory when a solution is modified.
         objInfo = val;
         regions = rgn;
     }
-    
+
     double objInfo;
     std::vector<int> regions;
 };
@@ -816,14 +817,14 @@ public:
                 }
             }
         }
-        
+
         std::vector<int> init_sol = this->returnRegions();
         initial_objectivefunction = this->objInfo;
 
         // local search
         BasicMemory basicMemory, localBasicMemory;
         basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
-        
+
         // step a
         int k = 0;
         while (k < 3) {
@@ -832,7 +833,7 @@ public:
                 localBasicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
                 // step b: modified step 5
                 this->LocalImproving();
-                
+
                 if (this->objInfo < localBasicMemory.objInfo) {
                     improved = 1;
                 }
@@ -852,8 +853,8 @@ public:
             }
             // step d: repeat b and c
         }
-        
-        
+
+
         final_solution = basicMemory.regions;
         final_objectivefunction = basicMemory.objInfo;
     }
@@ -861,7 +862,7 @@ public:
     virtual ~AZPSA() {}
 
     virtual void LocalImproving();
-    
+
     virtual std::vector<int> GetResults() {
         return final_solution;
     }
@@ -876,9 +877,9 @@ public:
 
 protected:
     double temperature;
-    
+
     double alpha;
-    
+
     int max_iter;
 };
 
@@ -922,7 +923,7 @@ public:
                 }
             }
         }
-        
+
         if (tabuLength <= 0) {
             tabuLength = 10;
         }
@@ -953,7 +954,7 @@ public:
     virtual double GetFinalObjectiveFunction() {
         return final_objectivefunction;
     }
-    
+
     // Select neighboring solutions.
     void allCandidates();
 

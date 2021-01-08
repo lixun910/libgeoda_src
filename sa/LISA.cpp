@@ -229,9 +229,11 @@ void LISA::CalcPseudoP()
 
 #ifdef __NO_THREAD__
     CalcPseudoP_range(0, num_obs-1, last_seed_used);
+#ifdef __JSGEODA__
     if (has_cached_perm[weights->GetUID()] == false) {
         has_cached_perm[weights->GetUID()] = true;
     }
+#endif
 #else
     CalcPseudoP_threaded();
 #endif

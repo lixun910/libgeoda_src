@@ -3,6 +3,9 @@
 #include <iterator>
 #include <stack>
 
+#include "DataUtils.h"
+#include "azp.h"
+
 #ifndef __NO_THREAD__
 #ifndef __USE_PTHREAD__
 #include <boost/system/config.hpp>
@@ -20,7 +23,7 @@
         void* maxp_thread_helper_construction(void* voidArgs)
         {
             maxp_thread_args *args = (maxp_thread_args*)voidArgs;
-            args->maxp->PhaseConstructionThreaded(args->start, args->end);
+            args->maxp->RunConstructionRange(args->start, args->end);
             return 0;
         }
 
@@ -32,9 +35,6 @@
         }
 #endif
 #endif
-
-#include "DataUtils.h"
-#include "azp.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ZoneControl
@@ -64,7 +64,7 @@ bool ZoneControl::CheckRemove(int area, boost::unordered_map<int, bool>& candida
         if (comparators[i] != MORE_THAN) {
             continue;
         }
-        
+
         // get zone value for comparison
         double zone_val = 0;
         if (operations[i] == SUM) {
@@ -118,7 +118,7 @@ bool ZoneControl::CheckAdd(int area, boost::unordered_map<int, bool>& candidates
         if (comparators[i] != LESS_THAN) {
             continue;
         }
-        
+
         // get zone value for comparison
         double zone_val = 0;
         if (operations[i] == SUM) {
@@ -259,7 +259,7 @@ bool ZoneControl::CheckBound(boost::unordered_map<int, bool>& candidates)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 AreaManager::AreaManager(int _n, int _m, GalElement* const _w, double** _data, DistMatrix* const _dist_matrix)
-: n(_n), m(_m), w(_w), data(_data), dist_matrix(_dist_matrix)
+: n(_n), m(_m), w(_w), dist_matrix(_dist_matrix), data(_data)
 {
 }
 
@@ -317,8 +317,8 @@ RegionMaker::RegionMaker(int _p, GalElement* const _w,
                          const std::vector<int>& _init_regions,
                          long long seed)
 : p(_p), w(_w), data(_data), dist_matrix(_dist_matrix), n(_n), m(_m), controls(c),
-am(_n, _m, _w, _data, _dist_matrix), objInfo(-1), init_regions(_init_regions),
-rng(seed), is_control_satisfied(true)
+am(_n, _m, _w, _data, _dist_matrix),
+rng(seed), is_control_satisfied(true), init_regions(_init_regions), objInfo(-1)
 {
     if (p < 0) {
         is_control_satisfied = false;
@@ -534,24 +534,24 @@ void RegionMaker::setSeeds(std::vector<int> seeds)
         assignAreaStep1(seeds[i], c);
         c += 1;
     }
-    
+
     // grow the region if needed
     if (controls.size() > 0) {
        bool grow_flag = growRegion();
-       
+
        if (grow_flag == false) {
            // raise exception
            is_control_satisfied = false;
        }
     }
-    
+
     // find potential
     for (int i=0; i<p; ++i) {
         // check neighbors of areaID that are not been assigned yet
         // and assign neighbor to potential regions
         std::set<int> buffer_areas = getBufferingAreas(region2Area[i]);
         std::set<int>::iterator it;
-        
+
         for (it = buffer_areas.begin(); it != buffer_areas.end(); ++it) {
             int neigh = *it;
             if (assignedAreas.find(neigh) == assignedAreas.end()) {
@@ -564,10 +564,10 @@ void RegionMaker::setSeeds(std::vector<int> seeds)
 bool RegionMaker::growRegion()
 {
     bool is_valid = false;
-    
+
     std::map<int, bool> grow_flags;
     for (int i=0; i< p; ++i)  grow_flags[i] = true;
-    
+
     std::set<int>::iterator it;
     while (is_valid == false) {
         is_valid = true;
@@ -578,7 +578,7 @@ bool RegionMaker::growRegion()
             }
             // still need to grow
             is_valid = false;
-            
+
             // each time, grow just one area, to avoid dominant grow
             // if two seeds are next to each other
             bool has_assign = false;
@@ -606,8 +606,8 @@ bool RegionMaker::growRegion()
             grow_flags[i] = !satisfy;
         }
     }
-    
-    
+
+
     return true;
 }
 
@@ -673,7 +673,7 @@ void RegionMaker::constructRegions()
 
         std::vector<std::pair<int, int> > cands;
         std::map<std::pair<int, int>, double>::iterator cit;
-        
+
         // get min dist
         double min_region_distance = std::numeric_limits<double>::max();
         for (cit = candidateInfo.begin(); cit != candidateInfo.end(); ++cit) {
@@ -726,7 +726,7 @@ bool RegionMaker::assignArea(int areaID, int regionID)
             return false;
         }
     }
-    
+
     //Assign an area to a region and updates potential regions for its neighs
     this->assignAreaStep1(areaID, regionID);
 
@@ -845,9 +845,11 @@ void AZP::LocalImproving()
     //std::vector<int> rand_test1 = {57, 56, 52, 24, 16, 10, 3, 24, 51, 57, 22, 57, 46, 11, 46, 52, 50, 46, 10, 52, 24, 57, 3, 51, 7, 5, 20, 30, 28, 8, 26, 39, 43, 18, 55, 41, 36, 29, 17, 0, 56, 33, 35, 1, 23, 9, 32, 22, 2, 49, 15, 11, 48, 14, 16, 50, 34, 12, 42, 40, 31, 45, 44, 31, 30, 28, 8, 20, 40, 42, 17, 41, 18, 26, 55, 43, 39, 29, 36, 44, 31, 14, 11, 16, 2, 48, 0, 1, 15, 35, 50, 12, 23, 9, 49, 33, 32, 34, 56, 22, 24, 7, 45, 57, 10, 51, 5, 3, 46, 52};
     //int rr = 0, rr1 = 0;
     while (improve == 1) {
-        std::vector<int> regions(p);
-        for (int i=0; i<p; ++i) regions[i] = i;
-        
+        std::vector<int> regions;
+        for (int i=0; i<p; ++i) {
+            regions.push_back(i);
+        }
+
         while (regions.size() > 0) {
             // step 3
             int randomRegion = 0;
@@ -866,7 +868,7 @@ void AZP::LocalImproving()
             boost::unordered_map<int, bool>::iterator area_it;
             std::set<int>::iterator move_it;
             improve = 0;
-            
+
             while (areas.size() > 1) {
                 // step 5
                 bool nothing_can_do = true;
@@ -910,6 +912,9 @@ void AZP::LocalImproving()
                             }
                             // release lock for region[move], awake threads[move]
                         }
+                    }
+                    if (moved) {
+                        break;
                     }
                 }
                 if (nothing_can_do) {
@@ -1106,7 +1111,7 @@ void MaxpRegion::Run() {
 #ifdef __NO_THREAD__
     // construction phase: find a collection of feasible solution with largest p
     for (int iter=0; iter< max_iter; ++iter) {
-        RunConstruction(iter);
+        RunConstruction(seed+iter);
     }
     // local improvement phase:
     int i=0;
@@ -1127,13 +1132,38 @@ void MaxpRegion::Run() {
 
 void MaxpRegion::PhaseConstructionThreaded()
 {
-    int nCPUs = 6;
-    int work_chunk = n / nCPUs;
+    int nCPUs = 1;
+    int work_chunk = max_iter / nCPUs;
     if (work_chunk == 0) work_chunk = 1;
-    int quotient = n / nCPUs;
-    int remainder = n % nCPUs;
+    int quotient = max_iter / nCPUs;
+    int remainder = max_iter % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
 
+#ifdef __USE_PTHREAD__
+    pthread_t *threadPool = new pthread_t[nCPUs];
+    struct maxp_thread_args *args = new maxp_thread_args[nCPUs];
+    for (int i=0; i<tot_threads; i++) {
+        int a=0, b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
+        }
+        args[i].maxp = this;
+        args[i].start = a;
+        args[i].end = b;
+        if (pthread_create(&threadPool[i], NULL, &maxp_thread_helper_construction, &args[i])) {
+            perror("Thread create failed.");
+        }
+    }
+    for (int j = 0; j < nCPUs; j++) {
+        pthread_join(threadPool[j], NULL);
+    }
+    delete[] args;
+    delete[] threadPool;
+#else
     boost::thread_group threadPool;
     for (int i=0; i<tot_threads; i++) {
         int a=0, b=0;
@@ -1148,11 +1178,12 @@ void MaxpRegion::PhaseConstructionThreaded()
         threadPool.add_thread(worker);
     }
     threadPool.join_all();
+#endif
 }
 
 void MaxpRegion::PhaseLocalImprovementThreaded()
 {
-    int nCPUs = 6;
+    int nCPUs = 1;
     int nCandidates = candidates.size();
     int work_chunk = nCandidates / nCPUs;
     if (work_chunk == 0) work_chunk = 1;
@@ -1160,6 +1191,31 @@ void MaxpRegion::PhaseLocalImprovementThreaded()
     int remainder = nCandidates % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
 
+#ifdef __USE_PTHREAD__
+    pthread_t *threadPool = new pthread_t[nCPUs];
+    struct maxp_thread_args *args = new maxp_thread_args[nCPUs];
+    for (int i=0; i<tot_threads; i++) {
+        int a=0, b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
+        }
+        args[i].maxp = this;
+        args[i].start = a;
+        args[i].end = b;
+        if (pthread_create(&threadPool[i], NULL, &maxp_thread_helper_localimprovement, &args[i])) {
+            perror("Thread create failed.");
+        }
+    }
+    for (int j = 0; j < nCPUs; j++) {
+        pthread_join(threadPool[j], NULL);
+    }
+    delete[] args;
+    delete[] threadPool;
+#else
     boost::thread_group threadPool;
     for (int i=0; i<tot_threads; i++) {
         int a=0, b=0;
@@ -1174,6 +1230,7 @@ void MaxpRegion::PhaseLocalImprovementThreaded()
         threadPool.add_thread(worker);
     }
     threadPool.join_all();
+#endif
 }
 
 void MaxpRegion::RunConstructionRange(int start, int end)
@@ -1200,8 +1257,11 @@ void MaxpRegion::RunConstruction(long long seed)
     MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, controls, init_areas, seed);
     int tmp_p = rm_local.GetPRegions();
     double of = rm_local.GetInitObjectiveFunction();
-
+#ifndef __USE_PTHREAD__
     mutex.lock();
+#else
+    pthread_mutex_lock(&lock);
+#endif
     if (largest_p < tmp_p) {
         candidates.clear(); // new collection for largest p
         largest_p = tmp_p;
@@ -1209,7 +1269,11 @@ void MaxpRegion::RunConstruction(long long seed)
     if (largest_p == tmp_p) {
         candidates[of] = rm_local.GetResults(); // could have duplicates
     }
+#ifndef __USE_PTHREAD__
     mutex.unlock();
+#else
+    pthread_mutex_unlock(&lock);
+#endif
 }
 
 MaxpGreedy::MaxpGreedy(int _max_iter, GalElement* const _w,
@@ -1226,16 +1290,25 @@ MaxpGreedy::MaxpGreedy(int _max_iter, GalElement* const _w,
 void MaxpGreedy::RunAZP(std::vector<int>& solution, long long seed, int i)
 {
     AZP azp(largest_p, w, data, dist_matrix, n, m, controls, 0, solution, seed);
-    
+
     std::vector<int> result = azp.GetResults();
     double of = azp.GetFinalObjectiveFunction();
-    
+
+#ifndef __USE_PTHREAD__
     mutex.lock();
+#else
+    pthread_mutex_lock(&lock);
+#endif
+
     if (of < best_of) {
         best_result = result;
         best_of = of;
     }
+#ifndef __USE_PTHREAD__
     mutex.unlock();
+#else
+    pthread_mutex_unlock(&lock);
+#endif
 }
 
 MaxpSA::MaxpSA(int _max_iter, GalElement* const _w,
@@ -1254,16 +1327,24 @@ temperature(1.0), alpha(_alpha), sa_iter(_sa_iter)
 void MaxpSA::RunAZP(std::vector<int>& solution, long long seed, int i)
 {
     AZPSA azp(largest_p, w, data, dist_matrix, n, m, controls, alpha, sa_iter, 0, solution, seed);
-    
+
     std::vector<int> result = azp.GetResults();
     double of = azp.GetFinalObjectiveFunction();
-    
+
+#ifndef __USE_PTHREAD__
     mutex.lock();
+#else
+    pthread_mutex_lock(&lock);
+#endif
     if (of < best_of) {
         best_result = result;
         best_of = of;
     }
+#ifndef __USE_PTHREAD__
     mutex.unlock();
+#else
+    pthread_mutex_unlock(&lock);
+#endif
 }
 
 MaxpTabu::MaxpTabu(int _max_iter, GalElement* const _w,
@@ -1286,16 +1367,24 @@ void MaxpTabu::RunAZP(std::vector<int>& solution, long long seed, int i)
     }
 
     AZPTabu azp(largest_p, w, data, dist_matrix, n, m, controls, tabuLength, convTabu, 0, solution, seed);
-    
+
     std::vector<int> result = azp.GetResults();
     double of = azp.GetFinalObjectiveFunction();
-    
+
+#ifndef __USE_PTHREAD__
     mutex.lock();
+#else
+    pthread_mutex_lock(&lock);
+#endif
     if (of < best_of) {
         best_result = result;
         best_of = of;
     }
+#ifndef __USE_PTHREAD__
     mutex.unlock();
+#else
+    pthread_mutex_unlock(&lock);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1313,7 +1402,7 @@ void AZPSA::LocalImproving()
     REGION_AREAS region2AreaBest = this->region2Area;
     boost::unordered_map<int, int> area2RegionBest = this->area2Region;
     std::set<int>::iterator it;
-    
+
     int improve = 1;
     while (improve == 1) {
         std::vector<int> regions(p);
@@ -1419,6 +1508,9 @@ void AZPSA::LocalImproving()
                             // release lock for region[move], awake threads[move]
                         }
                     }
+                    if (moved) {
+                        break;
+                    }
                 }
                 if (nothing_can_do) {
                     break;
@@ -1452,13 +1544,13 @@ void AZPTabu::LocalImproving()
 
     boost::unordered_map<std::pair<int, int>, bool> tabuDict;
     std::vector<std::pair<int, int> > tabuList;
-    
+
     boost::unordered_map<std::pair<int, int>, double>::iterator it;
 
     // always remember the best result even it's just an interim one
     BasicMemory basicMemory;
     basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
-    
+
     int c = 1;
     double epsilon = 1e-10;
 
@@ -1479,7 +1571,7 @@ void AZPTabu::LocalImproving()
             while (!find_global && !neighSolObjs.empty()) {
                 double minObj = neighSolObjs.top();
                 neighSolObjs.pop();
-                
+
                 for (it = neighSolutions.begin(); it != neighSolutions.end(); ++it) {
                     if (it->second == minObj) {
                         // check if in tabuDict, [a, r] should not be in the tabu list
@@ -1515,7 +1607,7 @@ void AZPTabu::LocalImproving()
                 // all valid tabu move should be in neighSolutions
                 double best_tabuobj = aspireOBJ;
                 std::pair<int, int> best_tabumove;
-                
+
                 for (int j=0; j<tabuList.size(); ++j) {
                     std::pair<int, int> m = tabuList[j];
                     if (neighSolutions.find(m) != neighSolutions.end()) {
@@ -1532,7 +1624,7 @@ void AZPTabu::LocalImproving()
                         }
                     }
                 }
-                
+
                 if (aspireOBJ - best_tabuobj >= epsilon) {
                     //std::cout << move.first << "," << area2Region[move.first] << "," << move.second << "," << obj4Move << "," << best_tabumove.first << "," << area2Region[best_tabumove.first] << "," << best_tabumove.second << "," << best_tabuobj <<",";
                     obj4Move = best_tabuobj;
@@ -1564,8 +1656,8 @@ void AZPTabu::LocalImproving()
                 tabuDict.erase(pop_tabu);
                 tabuList.pop_back();
             }
-           
-            
+
+
             // implement move
             region2Area[oldRegion].erase(area);
             region2Area[region].insert(std::make_pair(area, true));
@@ -1577,9 +1669,9 @@ void AZPTabu::LocalImproving()
             //double ssd = objective_function->GetValue();
             //double raw_ssd = objective_function->GetRawValue();
             //std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << std::endl;
-            
+
             // update feasible neighboring set
-            
+
             // save interim best result
             if (minFound == 1) {
                 if (currentOBJ - obj4Move > epsilon) {
