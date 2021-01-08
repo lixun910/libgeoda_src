@@ -45,12 +45,12 @@ using namespace std;
 using namespace boost;
 
 namespace SpanningTreeClustering {
-    
+
     class Node;
     class Edge;
     class Tree;
     class AbstractClusterFactory;
-    
+
     /////////////////////////////////////////////////////////////////////////
     //
     // SSDUtils
@@ -63,13 +63,13 @@ namespace SpanningTreeClustering {
         double ssd_part2;
         double measure_reduction;
     };
-    
+
     class SSDUtils
     {
         double** raw_data;
         int row;
         int col;
-        
+
     public:
         SSDUtils(double** data, int _row, int _col) {
             raw_data = data;
@@ -77,18 +77,18 @@ namespace SpanningTreeClustering {
             col = _col;
         }
         ~SSDUtils() {}
-        
+
         double ComputeSSD(vector<int>& visited_ids, int start, int end);
         void MeasureSplit(double ssd, vector<int>& visited_ids, int split_position, Measure& result);
-        
+
     };
-    
+
     /////////////////////////////////////////////////////////////////////////
     //
     // Node
     //
     /////////////////////////////////////////////////////////////////////////
-    
+
     struct NeighborInfo
     {
         Node* p;
@@ -96,7 +96,7 @@ namespace SpanningTreeClustering {
         Node* n2;
         Edge* e1;
         Edge* e2;
-        
+
         void SetDefault(Node* parent) {
             p = parent;
             n1 = NULL;
@@ -104,7 +104,7 @@ namespace SpanningTreeClustering {
             e1 = NULL;
             e2 = NULL;
         }
-        
+
         void AddNeighbor(Node* nbr, Edge* e) {
             if (n1 == NULL) {
                 n1 = nbr;
@@ -117,22 +117,22 @@ namespace SpanningTreeClustering {
             }
         }
     };
-    
+
     class Node
     {
     public:
         Node(int id);
         ~Node() {}
-        
-        
+
+
         int id; // mapping to record id
         Node* parent;
         int rank;
-        
+
         //Cluster* container;
         //NeighborInfo nbr_info;
     };
-    
+
     class DisjoinSet
     {
         boost::unordered_map<int, Node*> map;
@@ -140,12 +140,12 @@ namespace SpanningTreeClustering {
         DisjoinSet();
         DisjoinSet(int id);
         ~DisjoinSet() {};
-        
+
         Node* MakeSet(int id);
         void Union(Node* n1, Node* n2);
         Node* FindSet(Node* node);
     };
-                   
+
     /////////////////////////////////////////////////////////////////////////
     //
     // Edge
@@ -156,12 +156,12 @@ namespace SpanningTreeClustering {
     public:
         Edge(Node* a, Node* b, double length);
         ~Edge() {}
-        
+
         Node* orig;
         Node* dest;
         double length; // legnth of the edge |a.val - b.val|
     };
-    
+
     /////////////////////////////////////////////////////////////////////////
     //
     // Tree
@@ -174,16 +174,16 @@ namespace SpanningTreeClustering {
         double ssd;
         double ssd_reduce;
     };
-    
+
     class Tree
     {
     public:
         Tree(vector<int> ordered_ids,
                    vector<Edge*> _edges,
                    AbstractClusterFactory* cluster);
-        
+
         ~Tree();
-        
+
         void Partition(int start, int end, vector<int>& ids,
                        vector<pair<int, int> >& od_array,
                        boost::unordered_map<int, vector<int> >& nbr_dict);
@@ -192,10 +192,10 @@ namespace SpanningTreeClustering {
                    vector<int>& cand_ids);
         bool checkControl(vector<int>& cand_ids, vector<int>& ids, int flag);
         pair<Tree*, Tree*> GetSubTrees();
-        
+
         double ssd_reduce;
         double ssd;
-        
+
         vector<pair<int, int> > od_array;
         AbstractClusterFactory* cluster;
         pair<Tree*, Tree*> subtrees;
@@ -205,10 +205,12 @@ namespace SpanningTreeClustering {
         vector<Edge*> edges;
         vector<int> ordered_ids;
         SSDUtils* ssd_utils;
-        
+
         double* controls;
         double control_thres;
-        
+
+        int cpu_threads;
+
         // threads
 #ifndef __NO_THREAD__
 
@@ -224,7 +226,7 @@ namespace SpanningTreeClustering {
                        boost::unordered_map<int, vector<int> >& nbr_dict);
         vector<SplitSolution> split_cands;
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // AbstractRedcap
@@ -238,7 +240,7 @@ namespace SpanningTreeClustering {
             return lhs->ssd_reduce < rhs->ssd_reduce;
         }
     };
-    
+
     typedef boost::heap::priority_queue<Tree*, boost::heap::compare<CompareTree> > PriorityQueue;
 
     class AbstractClusterFactory
@@ -253,42 +255,45 @@ namespace SpanningTreeClustering {
         double* controls;
         double control_thres;
         SSDUtils* ssd_utils;
-        
+
         //Cluster* cluster;
         DisjoinSet djset;
-        
+
         vector<Node*> nodes;
         vector<Edge*> edges;
-        
+
         vector<int> ordered_ids;
         vector<Edge*> ordered_edges;
-        
+
         vector<boost::unordered_map<int, double> > dist_dict;
-        
+
         vector<vector<int> > cluster_ids;
-        
+
+        int cpu_threads;
+
         AbstractClusterFactory(int row, int col,
                        double** distances,
                        double** data,
                        const vector<bool>& undefs,
-                       GalElement * w);
+                       GalElement * w,
+                       int cpu_threads);
         virtual ~AbstractClusterFactory();
-        
+
         virtual void Clustering()=0;
-        
+
         virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id,
                                          bool is_orig_nbr, bool is_dest_nbr,
                                          vector<int>& clst_ids,
                                          vector<int>& clst_startpos,
                                          vector<int>& clst_nodenum) { return 0;}
-        
+
         Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end){ return NULL;}
-        
+
         void init();
         void Partitioning(int k);
         vector<vector<int> >& GetRegions();
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 1 Skater
@@ -301,7 +306,7 @@ namespace SpanningTreeClustering {
     boost::no_property,         //VertexProperties
     property < edge_weight_t, double>   //EdgeProperties
     > Graph;
-    
+
     class Skater : public AbstractClusterFactory
     {
     public:
@@ -315,7 +320,7 @@ namespace SpanningTreeClustering {
         virtual ~Skater();
         virtual void Clustering();
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 1 FirstOrderSLKRedCap
@@ -330,13 +335,14 @@ namespace SpanningTreeClustering {
                             const vector<bool>& undefs,
                             GalElement * w,
                             double* controls,
-                            double control_thres);
+                            double control_thres,
+                            int cpu_threads);
         virtual ~FirstOrderSLKRedCap();
-        
+
         virtual void Clustering();
     };
-    
-    
+
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 2 FirstOrderALKRedCap
@@ -351,14 +357,15 @@ namespace SpanningTreeClustering {
                             const vector<bool>& undefs,
                             GalElement * w,
                             double* controls,
-                            double control_thres);
-        
+                            double control_thres,
+                            int cpu_threads);
+
         virtual ~FirstOrderALKRedCap();
-        
+
         virtual void Clustering();
-        
+
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 3 FirstOrderCLKRedCap
@@ -373,14 +380,15 @@ namespace SpanningTreeClustering {
                             const vector<bool>& undefs,
                             GalElement * w,
                             double* controls,
-                            double control_thres);
-        
+                            double control_thres,
+                            int cpu_threads);
+
         virtual ~FirstOrderCLKRedCap();
-        
+
         virtual void Clustering();
-        
+
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 5 FullOrderALKRedCap
@@ -396,17 +404,18 @@ namespace SpanningTreeClustering {
                            GalElement * w,
                            double* controls,
                            double control_thres,
-                           bool init=true);
-        
+                           bool init,
+                           int cpu_threads);
+
         virtual ~FullOrderALKRedCap();
-        
+
         virtual void Clustering();
-        
+
         virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
-        
+
         Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end);
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 4 FullOrderSLKRedCap
@@ -421,14 +430,15 @@ namespace SpanningTreeClustering {
                            const vector<bool>& undefs,
                            GalElement * w,
                            double* controls,
-                           double control_thres);
+                           double control_thres,
+                           int cpu_threads);
         virtual ~FullOrderSLKRedCap();
-        
+
         virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
-        
+
     };
-    
-    
+
+
     ////////////////////////////////////////////////////////////////////////////////
     //
     // 6 FullOrderCLKRedCap
@@ -443,12 +453,13 @@ namespace SpanningTreeClustering {
                            const vector<bool>& undefs,
                            GalElement * w,
                            double* controls,
-                           double control_thres);
-        
+                           double control_thres,
+                           int cpu_threads);
+
         virtual ~FullOrderCLKRedCap();
-        
+
         virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
-        
+
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -465,12 +476,13 @@ namespace SpanningTreeClustering {
                            const vector<bool>& undefs,
                            GalElement * w,
                            double* controls,
-                           double control_thres);
-        
+                           double control_thres,
+                           int cpu_threads);
+
         virtual ~FullOrderWardRedCap();
-        
+
         virtual void Clustering();
-        
+
     };
 }
 

@@ -20,9 +20,11 @@ maxp_wrapper::maxp_wrapper(GeoDaWeight *w,
                            const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                            const std::vector<int>& init_regions,
                            const std::string &distance_method,
-                           int rnd_seed)
+                           int rnd_seed,
+                           int cpu_threads)
                            : num_obs(w->num_obs), n_cols(data.size()), iterations(iterations),
-                           distance_method(distance_method), data(data), init_regions(init_regions), rnd_seed(rnd_seed)
+                           distance_method(distance_method), data(data), init_regions(init_regions), rnd_seed(rnd_seed),
+                           cpu_threads(cpu_threads)
 {
     gal = Gda::GetGalElement(w);
 
@@ -121,15 +123,16 @@ maxp_greedy_wrapper::maxp_greedy_wrapper(GeoDaWeight *w,
                                          const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                          const std::vector<int>& init_regions,
                                          const std::string &distance_method,
-                                         int rnd_seed)
-        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed)
+                                         int rnd_seed,
+                                         int cpu_threads)
+        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads)
 {
     Run();
 }
 
 MaxpRegion* maxp_greedy_wrapper::RunMaxp() {
     MaxpRegion* maxp = new MaxpGreedy(iterations, gal, input_data, dm, num_obs, n_cols, controllers,
-            init_regions,rnd_seed);
+            init_regions,rnd_seed, cpu_threads);
 
     return maxp;
 }
@@ -147,8 +150,9 @@ maxp_sa_wrapper::maxp_sa_wrapper(GeoDaWeight *w,
                                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                  const std::vector<int>& init_regions,
                                  const std::string &distance_method,
-                                 int rnd_seed)
-: maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed),
+                                 int rnd_seed,
+                                 int cpu_threads)
+: maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads),
 cooling_rate(cooling_rate), sa_maxit(sa_maxit)
 {
     Run();
@@ -156,7 +160,7 @@ cooling_rate(cooling_rate), sa_maxit(sa_maxit)
 
 MaxpRegion* maxp_sa_wrapper::RunMaxp() {
     MaxpRegion* maxp = new MaxpSA(iterations, gal, input_data, dm, num_obs, n_cols, controllers, cooling_rate, sa_maxit,
-            init_regions, rnd_seed);
+            init_regions, rnd_seed, cpu_threads);
 
     return maxp;
 }
@@ -174,8 +178,9 @@ maxp_tabu_wrapper::maxp_tabu_wrapper(GeoDaWeight *w,
                                      const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                      const std::vector<int>& init_regions,
                                      const std::string &distance_method,
-                                     int rnd_seed)
-        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed),
+                                     int rnd_seed,
+                                     int cpu_threads)
+        : maxp_wrapper(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads),
           tabu_length(tabu_length), conv_tabu(conv_tabu)
 {
     Run();
@@ -183,7 +188,7 @@ maxp_tabu_wrapper::maxp_tabu_wrapper(GeoDaWeight *w,
 
 MaxpRegion* maxp_tabu_wrapper::RunMaxp() {
     MaxpRegion* maxp = new MaxpTabu(iterations, gal, input_data, dm, num_obs, n_cols, controllers, tabu_length,
-            conv_tabu, init_regions, rnd_seed);
+            conv_tabu, init_regions, rnd_seed, cpu_threads);
 
     return maxp;
 }

@@ -15,11 +15,12 @@ public:
     redcap_wrapper(unsigned int k,
                    GeoDaWeight *w,
                    const std::vector<std::vector<double> > &data,
-                   unsigned int redcap_method = 0,
-                   const std::string &distance_method = "euclidean",
-                   const std::vector<double>& bound_vals = std::vector<double>(),
-                   double min_bound = 0,
-                   int rand_seed = 123456789);
+                   unsigned int redcap_method,
+                   const std::string &distance_method,
+                   const std::vector<double>& bound_vals,
+                   double min_bound,
+                   int rand_seed,
+                   int cpu_threads);
 
     virtual ~redcap_wrapper();
 

@@ -24,7 +24,8 @@ public:
                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                  const std::vector<int>& init_regions,
                  const std::string &distance_method,
-                 int rnd_seed);
+                 int rnd_seed,
+                 int cpu_threads);
 
     virtual ~maxp_wrapper();
 
@@ -61,6 +62,8 @@ protected:
     int rnd_seed;
 
     std::vector<std::vector<int> > cluster_ids;
+
+    int cpu_threads;
 };
 
 class maxp_greedy_wrapper : public maxp_wrapper {
@@ -72,7 +75,8 @@ public:
                         const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                         const std::vector<int>& init_regions,
                         const std::string &distance_method,
-                        int rnd_seed);
+                        int rnd_seed,
+                        int cpu_threads);
 
     virtual ~maxp_greedy_wrapper();
 
@@ -95,7 +99,8 @@ public:
                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                     const std::vector<int>& init_regions,
                     const std::string &distance_method,
-                    int rnd_seed);
+                    int rnd_seed,
+                    int cpu_threads);
 
     virtual ~maxp_sa_wrapper();
 
@@ -118,7 +123,8 @@ public:
                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                     const std::vector<int>& init_regions,
                     const std::string &distance_method,
-                    int rnd_seed);
+                    int rnd_seed,
+                    int cpu_threads);
 
     virtual ~maxp_tabu_wrapper();
 

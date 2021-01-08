@@ -76,13 +76,14 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
                                                      const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                      const std::vector<int>& init_regions,
                                                      const std::string &distance_method,
-                                                     int rnd_seed)
+                                                     int rnd_seed,
+                                                     int cpu_threads)
 {
     std::vector<std::vector<int> > result;
 
     if (w == 0) return result;
 
-    maxp_greedy_wrapper maxp(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed);
+    maxp_greedy_wrapper maxp(w, data, iterations, min_bounds, max_bounds, init_regions, distance_method, rnd_seed, cpu_threads);
 
     return maxp.GetClusters();
 }
@@ -96,14 +97,15 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
                                               const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                               const std::vector<int>& init_regions,
                                               const std::string &distance_method,
-                                              int rnd_seed)
+                                              int rnd_seed,
+                                              int cpu_threads)
 {
     std::vector<std::vector<int> > result;
 
     if (w == 0) return result;
 
     maxp_sa_wrapper maxp(w, data, iterations, cooling_rate, sa_maxit, min_bounds, max_bounds, init_regions,
-            distance_method, rnd_seed);
+            distance_method, rnd_seed, cpu_threads);
 
     return maxp.GetClusters();
 }
@@ -117,14 +119,15 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
                                                    const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                    const std::vector<int>& init_regions,
                                                    const std::string &distance_method,
-                                                   int rnd_seed)
+                                                   int rnd_seed,
+                                                   int cpu_threads)
 {
     std::vector<std::vector<int> > result;
 
     if (w == 0) return result;
 
     maxp_tabu_wrapper maxp(w, data, iterations, tabu_length, conv_tabu, min_bounds, max_bounds, init_regions,
-            distance_method, rnd_seed);
+            distance_method, rnd_seed, cpu_threads);
 
     return maxp.GetClusters();
 }
@@ -136,7 +139,8 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
-                                                int rand_seed)
+                                                int rand_seed,
+                                                int cpu_threads)
 {
     std::vector<std::vector<int> > result;
     unsigned int method = 0;
@@ -156,7 +160,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
 
     if ((int)k > w->num_obs) return result;
 
-    redcap_wrapper redcap(k, w, data, method, distance_method, bound_vals, min_bound, rand_seed);
+    redcap_wrapper redcap(k, w, data, method, distance_method, bound_vals, min_bound, rand_seed, cpu_threads);
     return redcap.GetClusters();
 }
 
@@ -166,9 +170,10 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
-                                                int rand_seed)
+                                                int rand_seed,
+                                                int cpu_threads)
 {
-    return gda_redcap(k, w, data, "firstorder-singlelinkage", distance_method, bound_vals, min_bound, rand_seed);
+    return gda_redcap(k, w, data, "firstorder-singlelinkage", distance_method, bound_vals, min_bound, rand_seed, cpu_threads);
 }
 
 

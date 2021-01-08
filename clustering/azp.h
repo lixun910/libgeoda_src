@@ -581,7 +581,8 @@ public:
                RawDistMatrix* dist_matrix,
                int n, int m, const std::vector<ZoneControl>& c,
                const std::vector<int>& init_areas,
-               long long seed);
+               long long seed,
+               int cpu_threads);
 
     virtual ~MaxpRegion() {}
 
@@ -634,6 +635,8 @@ protected:
 
     std::vector<int> best_result;
 
+    int cpu_threads;
+
     // threads
 #ifndef __NO_THREAD__
 
@@ -654,7 +657,8 @@ public:
            RawDistMatrix* dist_matrix,
            int n, int m, const std::vector<ZoneControl>& c,
            const std::vector<int>& init_regions,
-           long long seed);
+           long long seed,
+           int cpu_threads);
 
     virtual ~MaxpGreedy() {}
 
@@ -670,7 +674,8 @@ public:
                int n, int m, const std::vector<ZoneControl>& c,
                double alpha, int sa_iter,
                const std::vector<int>& init_regions,
-               long long seed);
+               long long seed,
+               int cpu_threads);
 
     virtual ~MaxpSA() {}
 
@@ -693,7 +698,8 @@ public:
              int n, int m, const std::vector<ZoneControl>& c,
              int tabu_length, int _conv_tabu,
              const std::vector<int>& init_areas,
-             long long seed);
+             long long seed,
+             int cpu_threads);
 
     virtual ~MaxpTabu() {}
 

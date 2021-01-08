@@ -18,7 +18,8 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
         const std::string &distance_method,
         const std::vector<double>& bound_vals,
         double min_bound,
-        int rand_seed)
+        int rand_seed,
+        int cpu_threads)
 {
     if (w) {
         num_obs = w->num_obs;
@@ -66,19 +67,19 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             AbstractClusterFactory* redcap = 0;
             if (redcap_method == 0) {
                 redcap = new FirstOrderSLKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                 gal, _bound_vals, min_bound);
+                                                 gal, _bound_vals, min_bound, cpu_threads);
             } else if (redcap_method == 1) {
                 redcap = new FullOrderCLKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                 gal, _bound_vals, min_bound);
+                                                 gal, _bound_vals, min_bound, cpu_threads);
             } else if (redcap_method == 2) {
                 redcap = new FullOrderALKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                gal, _bound_vals, min_bound);
+                                                gal, _bound_vals, min_bound, true, cpu_threads);
             } else if (redcap_method == 3) {
                 redcap = new FullOrderSLKRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                gal, _bound_vals, min_bound);
+                                                gal, _bound_vals, min_bound, cpu_threads);
             } else if (redcap_method == 4) {
                 redcap = new FullOrderWardRedCap(num_obs, n_cols, distances, matrix, undefs,
-                                                gal, _bound_vals, min_bound);
+                                                gal, _bound_vals, min_bound, cpu_threads);
             }
             if (redcap) {
                 redcap->Partitioning(k);

@@ -91,6 +91,7 @@ const std::vector<std::vector<int> > gda_azp_tabu(int p, GeoDaWeight *w,
  * @param init_regions
  * @param distance_method
  * @param rnd_seed
+ * @param cpu_threads
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
@@ -100,7 +101,8 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
                                                      const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                      const std::vector<int>& init_regions,
                                                      const std::string &distance_method,
-                                                     int rnd_seed);
+                                                     int rnd_seed,
+                                                     int cpu_threads);
 
 
 /**
@@ -115,6 +117,7 @@ const std::vector<std::vector<int> > gda_maxp_greedy(GeoDaWeight *w,
  * @param init_regions
  * @param distance_method
  * @param rnd_seed
+ * @param cpu_threads
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
@@ -126,7 +129,8 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
                                                  const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                  const std::vector<int>& init_regions,
                                                  const std::string &distance_method,
-                                                 int rnd_seed);
+                                                 int rnd_seed,
+                                                 int cpu_threads);
 
 /**
  *
@@ -140,6 +144,7 @@ const std::vector<std::vector<int> > gda_maxp_sa(GeoDaWeight *w,
  * @param init_regions
  * @param distance_method
  * @param rnd_seed
+ * @param cpu_threads
  * @return
  */
 const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
@@ -151,7 +156,8 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
                                                    const std::vector<std::pair<double, std::vector<double> > >& max_bounds,
                                                    const std::vector<int>& init_regions,
                                                    const std::string &distance_method,
-                                                   int rnd_seed);
+                                                   int rnd_seed,
+                                                   int cpu_threads);
 
 /**
  *
@@ -163,6 +169,7 @@ const std::vector<std::vector<int> > gda_maxp_tabu(GeoDaWeight *w,
  * @param bound_vals
  * @param min_bound
  * @param rand_seed
+ * @param cpu_threads
  * @return
  */
 const std::vector<std::vector<int> > gda_redcap(unsigned int k,
@@ -172,10 +179,11 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
-                                                int rand_seed);
+                                                int rand_seed,
+                                                int cpu_threads);
 
 /**
- * 
+ *
  * @param k
  * @param w
  * @param data
@@ -183,6 +191,7 @@ const std::vector<std::vector<int> > gda_redcap(unsigned int k,
  * @param bound_vals
  * @param min_bound
  * @param rand_seed
+ * @param cpu_threads
  * @return
  */
 const std::vector<std::vector<int> > gda_skater(unsigned int k,
@@ -191,7 +200,8 @@ const std::vector<std::vector<int> > gda_skater(unsigned int k,
                                                 const std::string &distance_method,
                                                 const std::vector<double>& bound_vals,
                                                 double min_bound,
-                                                int rand_seed);
+                                                int rand_seed,
+                                                int cpu_threads);
 
 
 /**

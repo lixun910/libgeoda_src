@@ -1099,9 +1099,9 @@ MaxpRegion::MaxpRegion(int _max_iter, GalElement* const _w,
                        RawDistMatrix* _dist_matrix,
                        int _n, int _m, const std::vector<ZoneControl>& c,
                        const std::vector<int>& init_regions,
-                       long long _seed)
+                       long long _seed, int cpu_threads)
 : RegionMaker(-1, _w, _data, _dist_matrix, _n, _m, c, std::vector<int>(), _seed),
-seed(_seed), init_areas(init_regions), max_iter(_max_iter) {
+seed(_seed), init_areas(init_regions), max_iter(_max_iter), cpu_threads(cpu_threads) {
     objective_function = 0;
     largest_p = 0;
     best_of = DBL_MAX;
@@ -1132,7 +1132,8 @@ void MaxpRegion::Run() {
 
 void MaxpRegion::PhaseConstructionThreaded()
 {
-    int nCPUs = 1;
+    int nCPUs = cpu_threads;
+    if (nCPUS <=0) nCPUS = 1;
     int work_chunk = max_iter / nCPUs;
     if (work_chunk == 0) work_chunk = 1;
     int quotient = max_iter / nCPUs;
@@ -1183,7 +1184,8 @@ void MaxpRegion::PhaseConstructionThreaded()
 
 void MaxpRegion::PhaseLocalImprovementThreaded()
 {
-    int nCPUs = 1;
+    int nCPUs = cpu_threads;
+    if (nCPUS <=0) nCPUS = 1;
     int nCandidates = candidates.size();
     int work_chunk = nCandidates / nCPUs;
     if (work_chunk == 0) work_chunk = 1;
@@ -1281,8 +1283,8 @@ MaxpGreedy::MaxpGreedy(int _max_iter, GalElement* const _w,
                RawDistMatrix* _dist_matrix,
                int _n, int _m, const std::vector<ZoneControl>& c,
                const std::vector<int>& init_regions,
-               long long seed)
-        : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed)
+               long long seed, int cpu_threads)
+        : MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed, cpu_threads)
 {
     Run();
 }
@@ -1317,8 +1319,8 @@ MaxpSA::MaxpSA(int _max_iter, GalElement* const _w,
                int _n, int _m, const std::vector<ZoneControl>& c,
                double _alpha, int _sa_iter,
                const std::vector<int>& init_regions,
-               long long seed)
-: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed),
+               long long seed, int cpu_threads)
+: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed, cpu_threads),
 temperature(1.0), alpha(_alpha), sa_iter(_sa_iter)
 {
     Run();
@@ -1353,8 +1355,8 @@ MaxpTabu::MaxpTabu(int _max_iter, GalElement* const _w,
                int _n, int _m, const std::vector<ZoneControl>& c,
                int _tabu_length, int _conv_tabu,
                const std::vector<int>& init_regions,
-               long long seed)
-: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed),
+               long long seed, int cpu_threads)
+: MaxpRegion(_max_iter, _w, _data, _dist_matrix, _n, _m, c, init_regions, seed, cpu_threads),
 tabuLength(_tabu_length), convTabu(_conv_tabu)
 {
     Run();
