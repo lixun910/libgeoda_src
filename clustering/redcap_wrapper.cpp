@@ -28,23 +28,23 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
         if (gal) {
             // get control variable
             double *_bound_vals = 0;
-            if (bound_vals.size() == num_obs) {
+            if ((int)bound_vals.size() == num_obs) {
                 _bound_vals = new double[num_obs];
-                for (size_t i = 0; i < num_obs; ++i) _bound_vals[i] = bound_vals[i];
+                for (int i = 0; i < num_obs; ++i) _bound_vals[i] = bound_vals[i];
             }
             // get distance matrix
             int n_cols = data.size();
             double** matrix = new double*[num_obs];
             int** mask = new int*[num_obs];
-            for (size_t i=0; i<num_obs; ++i) {
+            for (int i=0; i<num_obs; ++i) {
                 matrix[i] = new double[n_cols];
                 mask[i] = new int[n_cols];
-                for (size_t j=0; j<n_cols; ++j) mask[i][j] = 1.0;
+                for (int j=0; j<n_cols; ++j) mask[i][j] = 1.0;
             }
-            for (size_t i=0; i<n_cols; ++i) {
+            for (int i=0; i<n_cols; ++i) {
                 std::vector<double> vals = data[i];
                 GenUtils::StandardizeData(vals);
-                for (size_t r=0; r<num_obs; ++r) {
+                for (int r=0; r<num_obs; ++r) {
                     matrix[r][i] = vals[r];
                 }
             }
@@ -52,12 +52,12 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             if (boost::iequals(distance_method, "manhattan")) dist = 'b';
             int transpose = 0; // row wise
             double* weight = new double[n_cols];
-            for (size_t i=0; i<n_cols; ++i) weight[i] = 1.0;
+            for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
             double** ragged_distances = distancematrix(num_obs, n_cols, matrix,  mask, weight, dist, transpose);
             double** distances = DataUtils::fullRaggedMatrix(ragged_distances, num_obs, num_obs);
             if (ragged_distances) {
-                for (size_t i = 1; i < num_obs; i++) delete[] ragged_distances[i];
+                for (int i = 1; i < num_obs; i++) delete[] ragged_distances[i];
                 delete[] ragged_distances;
             }
 
@@ -88,11 +88,11 @@ redcap_wrapper::redcap_wrapper(unsigned int k,
             if (weight) delete[] weight;
             if (_bound_vals) delete[] _bound_vals;
             if (distances) {
-                for (size_t i = 1; i < num_obs; i++) delete[] distances[i];
+                for (int i = 1; i < num_obs; i++) delete[] distances[i];
                 delete[] distances;
             }
             if (matrix) {
-                for (size_t i = 0; i < num_obs; ++i) delete[] matrix[i];
+                for (int i = 0; i < num_obs; ++i) delete[] matrix[i];
                 delete[] matrix;
             }
         }

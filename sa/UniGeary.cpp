@@ -37,7 +37,7 @@ UniGeary::UniGeary(int num_obs, GeoDaWeight *w, const std::vector<double> &_data
     GenUtils::StandardizeData(data, undefs);
 
     data_square.resize(num_obs, 0);
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         data_square[i] = data[i] * data[i];
     }
 

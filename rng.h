@@ -90,7 +90,7 @@ public:
         int i=0;
         boost::unordered_map<int, bool> sample_dict;
         boost::unordered_map<int, bool>::iterator it;
-        while (sample_dict.size() < samplesize) {
+        while ((int)sample_dict.size() < samplesize) {
             int rnd = nextInt(n);
             if (sample_dict.find(rnd) == sample_dict.end()) {
                 samples[i++] = rnd;

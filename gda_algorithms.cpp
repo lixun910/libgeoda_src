@@ -10,7 +10,7 @@
 #include "gda_algorithms.h"
 
 PCAResult::PCAResult(const std::string &method)
-: method(method), thresh95(0), col_lim(0), row_lim(0) {
+:  row_lim(0), col_lim(0), method(method), thresh95(0) {
 
 }
 
@@ -98,9 +98,9 @@ std::vector<std::vector<float> >  PCAResult::getKComponents(int k) {
     std::vector<std::vector<float> > vals(k);
 
     if (row_lim > 0 && col_lim > 0) {
-        for (unsigned int j = 0; j < k; ++j) {
+        for (int j = 0; j < k; ++j) {
             vals[j].resize(row_lim);
-            for (unsigned int i = 0; i < row_lim; ++i) {
+            for (int i = 0; i < row_lim; ++i) {
                 vals[j][i] = float(scores[j + col_lim*i]);
             }
         }
@@ -203,9 +203,9 @@ PCAResult* gda_pca(const std::vector<std::vector<double> > &data, const std::str
     std::vector<int> col_size(num_pc, 0);
     std::vector<std::vector<float> > corr_matrix(ncols);
     double corr, corr_sqr;
-    for (int i=0; i<ncols; i++) {
+    for (size_t i=0; i<ncols; i++) {
         std::vector<double> col_data;
-        for (int j=0; j<nrows; j++) col_data.push_back(data[i][j]);
+        for (size_t j=0; j<nrows; j++) col_data.push_back(data[i][j]);
         corr_matrix[i].resize(num_pc);
         for (int j=0; j<num_pc; j++) {
             corr = GenUtils::Correlation(col_data, pc_data[j]);

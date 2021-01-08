@@ -136,8 +136,8 @@ vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >
     vector<vector<double> > E = K;
     
     DataUtils::eigen(K, temp, lambda, maxiter);
-    for (int i = 0; i < temp.size(); i++) {
-        for (int j = 0; j < temp[0].size(); j++) {
+    for (size_t i = 0; i < temp.size(); i++) {
+        for (size_t j = 0; j < temp[0].size(); j++) {
             temp[i][j] *= sqrt(lambda[i]);
         }
     }

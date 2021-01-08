@@ -403,8 +403,7 @@ namespace GenUtils {
         // sorted
         vector<T> copy = unordered;
         ordered.resize(index_map.size());
-        for(int i = 0; i<index_map.size();i++)
-        {
+        for(size_t i = 0; i<index_map.size();i++) {
             ordered[i] = copy[index_map[i]];
         }
     }

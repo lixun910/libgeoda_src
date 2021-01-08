@@ -359,7 +359,7 @@ public:
             processed_ids.pop();
             areas2Eval.erase(fid); // remove area from current group as processed
             const std::vector<long>& nbrs = w[fid].GetNbrs();
-            for (int i=0; i<nbrs.size(); i++ ) {
+            for (size_t i=0; i<nbrs.size(); i++ ) {
                 int nid = nbrs[i];
                 if (areas2Eval.find(nid) != areas2Eval.end()) {
                     // only processed the neighbor in current group
@@ -378,11 +378,11 @@ protected:
     // m is the dimension of the variable space
     int m;
 
-    // w defines the weights structure, who's who's neighbor
-    GalElement* w;
-
     // original row-wise data
     double** data;
+
+    // w defines the weights structure, who's who's neighbor
+    GalElement* w;
 
     // cache the cetnroids for regions, any change of the region should
     // call updateRegionCentroids()
@@ -466,7 +466,16 @@ protected:
     void InitFromRegion(std::vector<int>& init_regions);
 
 protected:
+    // p is the number of zones/regions to construct
+    int p;
+
+    // w defines the weights structure, who's who's neighbor
+    GalElement* w;
+
     double** data;
+
+    // pairwise distance between obs i and j
+    RawDistMatrix* dist_matrix;
 
     // n is the number of observations
     int n;
@@ -474,20 +483,11 @@ protected:
     // m is the dimension of the variable space
     int m;
 
-    // p is the number of zones/regions to construct
-    int p;
-
-    // w defines the weights structure, who's who's neighbor
-    GalElement* w;
-
-    // pairwise distance between obs i and j
-    RawDistMatrix* dist_matrix;
+    std::vector<ZoneControl> controls;
 
     AreaManager am;
 
     ObjectiveFunction* objective_function;
-
-    std::vector<ZoneControl> controls;
 
     Xoroshiro128Random rng;
 

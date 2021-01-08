@@ -391,7 +391,7 @@ void RegionMaker::Copy(RegionMaker& rm)
 void RegionMaker::InitFromRegion(std::vector<int>& init_regions)
 {
     // check init regions, index start from 1
-    for (int i=0; i<init_regions.size(); ++i) {
+    for (size_t i=0; i<init_regions.size(); ++i) {
         if (init_regions[i] > 0 && init_regions[i] <= p) {
             int areaID = i;
             int regionID = init_regions[i] - 1;
@@ -465,7 +465,7 @@ std::vector<int> RegionMaker::kmeansInit()
                 total = 0;
                 for (int j=0; j<n; ++j) {
                     double distancei = 0;
-                    for (int k=0; k<seeds.size(); ++k) {
+                    for (size_t k=0; k<seeds.size(); ++k) {
                         double d = dist_matrix->getDistance(j, seeds[k]);
                         if (k==0) distancei = d;
                         else if (d <  distancei) {
@@ -491,7 +491,7 @@ bool RegionMaker::IsSatisfyControls()
 {
     REGION_AREAS::iterator it;
     for (it = region2Area.begin(); it != region2Area.end(); ++it) {
-        for (int i=0;  i<controls.size(); ++i) {
+        for (size_t i=0;  i<controls.size(); ++i) {
             if (controls[i].CheckBound(it->second)  == false) {
                 return false;
             }
@@ -503,11 +503,11 @@ bool RegionMaker::IsSatisfyControls()
 void RegionMaker::setSeeds(std::vector<int> seeds)
 {
     // Sets the initial seeds for clustering
-    if (seeds.size() < p) {
+    if ((int)seeds.size() < p) {
         // pick more to fill up seeds
         std::vector<int> didx(n, true);
         // remove seeds, and neighborless observations
-        for (int i=0; i<seeds.size(); ++i) {
+        for (size_t i=0; i<seeds.size(); ++i) {
             didx[ seeds[i] ] = false;
         }
         for (int i=0; i<n; ++i) {
@@ -516,21 +516,21 @@ void RegionMaker::setSeeds(std::vector<int> seeds)
             }
         }
         std::vector<int> cands;
-        for (int i=0; i<didx.size(); ++i) {
+        for (size_t i=0; i<didx.size(); ++i) {
             if (didx[i] == true) {
                 cands.push_back(i);
             }
         }
         DataUtils::Shuffle(cands, rng);
 
-        for (int i=0; i< (p -seeds.size()); ++i) {
+        for (size_t i=0; i< (p -seeds.size()); ++i) {
             seeds.push_back(cands[i]);
         }
     }
 
     // assign each seed with a new region
     int c = 0;
-    for (int i=0; i< seeds.size(); ++i) {
+    for (size_t i=0; i< seeds.size(); ++i) {
         assignAreaStep1(seeds[i], c);
         c += 1;
     }
@@ -592,7 +592,7 @@ bool RegionMaker::growRegion()
             }
             // check if this region satisfy the low bounds
             bool satisfy = true;
-            for (int j=0; satisfy && j<controls.size(); ++j) {
+            for (size_t j=0; satisfy && j<controls.size(); ++j) {
                 if (controls[j].SatisfyLowerBound(region2Area[i])  == false) {
                     satisfy = false;
                 }
@@ -620,7 +620,7 @@ void RegionMaker::assignSeeds(int areaID, int regionID)
     // check neighbors of areaID that are not been assigned yet
     // and assign neighbor to potential regions
     const std::vector<long>& nbrs = w[areaID].GetNbrs();
-    for (int i=0; i<nbrs.size(); ++i) {
+    for (size_t i=0; i<nbrs.size(); ++i) {
         int neigh = (int)nbrs[i];
         if (assignedAreas.find(neigh) == assignedAreas.end()) {
             potentialRegions4Area[neigh].insert(regionID);
@@ -705,7 +705,7 @@ void RegionMaker::constructRegions()
                     removed_cands.push_back(cit->first);
                 }
             }
-            for (int i=0; i<removed_cands.size(); ++i) {
+            for (size_t i=0; i<removed_cands.size(); ++i) {
                 candidateInfo.erase(removed_cands[i]);
             }
         } else {
@@ -721,7 +721,7 @@ void RegionMaker::constructRegions()
 bool RegionMaker::assignArea(int areaID, int regionID)
 {
     // Check upper bounds of controls only, since we are assigning
-    for (int i=0; i<controls.size(); ++i) {
+    for (size_t i=0; i<controls.size(); ++i) {
         if (controls[i].CheckAdd(areaID, region2Area[regionID])  == false) {
             return false;
         }
@@ -733,7 +733,7 @@ bool RegionMaker::assignArea(int areaID, int regionID)
     //for neigh in self.neighsMinusAssigned:
     // assign regionID as a potential region for neigh
     const std::vector<long>& neighs = this->w[areaID].GetNbrs();
-    for (int i=0; i< neighs.size(); ++i) {
+    for (size_t i=0; i< neighs.size(); ++i) {
         int nn = (int)neighs[i];
         if (assignedAreas.find(nn) == assignedAreas.end()) {
             // for not yet assigned neighbor
@@ -757,7 +757,7 @@ std::vector<int> RegionMaker::returnRegions()
         areasId.push_back( it->first );
     }
     std::sort(areasId.begin(), areasId.end());
-    for (int i=0; i<areasId.size(); ++i) {
+    for (size_t i=0; i<areasId.size(); ++i) {
         results.push_back( area2Region[areasId[i] ]);
     }
     return results;
@@ -772,7 +772,7 @@ std::set<int> RegionMaker::getBufferingAreas(boost::unordered_map<int, bool>& ar
     for (it = areas.begin(); it != areas.end(); ++it) {
         int area = it->first;
         const std::vector<long>& nn  = w[area].GetNbrs();
-        for (int i=0; i<nn.size(); ++i) {
+        for (size_t i=0; i<nn.size(); ++i) {
             if (areas.find((int)nn[i])  == areas.end()) {
                 // neighbor not in this region, then the area is at border
                 buffering_areas.insert((int)nn[i]);
@@ -792,7 +792,7 @@ void RegionMaker::getBorderingAreas(int regionID)
         int area = it->first;
         const std::vector<long>& nn  = w[area].GetNbrs();
         areas[area] = false;  // not a border area by default
-        for (int i=0; i<nn.size(); ++i) {
+        for (size_t i=0; i<nn.size(); ++i) {
             if (areas.find((int)nn[i])  == areas.end()) {
                 // neighbor not in this region, the the area is at border
                 areas[area] = true;
@@ -808,19 +808,19 @@ std::set<int> RegionMaker::getPossibleMove(int area)
     int myRegion = area2Region[area];
 
     // Check if moving area out of myRegion satisfy controls
-    for (int i=0; i<controls.size(); ++i) {
+    for (size_t i=0; i<controls.size(); ++i) {
         if (controls[i].CheckRemove(area, region2Area[myRegion]) == false) {
             return moves;
         }
     }
 
     const std::vector<long>& nn  = w[area].GetNbrs();
-    for (int i=0; i<nn.size(); ++i) {
+    for (size_t i=0; i<nn.size(); ++i) {
         // check neighbors, which region it belongs to
         int nbrRegion = area2Region[(int)nn[i]];
         if (nbrRegion != myRegion) {
             // check if moving area to nbrRegion satisfy controls
-            for (int i=0; i<controls.size(); ++i) {
+            for (size_t i=0; i<controls.size(); ++i) {
                 if (controls[i].CheckAdd(area, region2Area[nbrRegion]) == false) {
                     return std::set<int>();
                 }
@@ -955,7 +955,7 @@ void MaxpRegionMaker::InitSolution()
     // get max-p regions
     // get starting position: either from init_areas or randomly selected
     std::set<int> start_areas;
-    for (int i=0; i<init_areas.size(); ++i) {
+    for (size_t i=0; i<init_areas.size(); ++i) {
         start_areas.insert(init_areas[i]);
     }
     std::vector<int> _candidates;
@@ -965,7 +965,7 @@ void MaxpRegionMaker::InitSolution()
         }
     }
     DataUtils::Shuffle(_candidates, rng);
-    for (int i=0; i<init_areas.size(); ++i) {
+    for (size_t i=0; i<init_areas.size(); ++i) {
         _candidates.insert(_candidates.begin(), init_areas[i]);
     }
     std::list<int> candidates;
@@ -1003,7 +1003,7 @@ void MaxpRegionMaker::InitSolution()
                 int nn = *it;
                 if (candidates_dict[nn] == false) { // not processed
                     // check upper bound if adding this area to region
-                    for (int j=0; !reach_ub && j<controls.size(); ++j) {
+                    for (size_t j=0; !reach_ub && j<controls.size(); ++j) {
                         if (controls[j].CheckAdd(nn, region)  == false) {
                             // reach upper bound, no need to grow anymore
                             reach_ub = true;
@@ -1020,7 +1020,7 @@ void MaxpRegionMaker::InitSolution()
             }
             // check if this region satisfy the low bounds
             bool satisfy = true;
-            for (int j=0; satisfy && j<controls.size(); ++j) {
+            for (size_t j=0; satisfy && j<controls.size(); ++j) {
                 if (controls[j].SatisfyLowerBound(region)  == false) {
                     satisfy = false;
                 }
@@ -1047,7 +1047,7 @@ void MaxpRegionMaker::InitSolution()
         // enclave assignment
         // find potential
         if (unassignedAreas.size() > 0) {
-            for (int i=0; i<region2Area.size(); ++i) {
+            for (size_t i=0; i<region2Area.size(); ++i) {
                 // check neighbors of areaID that are not been assigned yet
                 // and assign neighbor to potential regions
                 std::set<int> buffer_areas = getBufferingAreas(region2Area[i]);
@@ -1608,7 +1608,7 @@ void AZPTabu::LocalImproving()
                 double best_tabuobj = aspireOBJ;
                 std::pair<int, int> best_tabumove;
 
-                for (int j=0; j<tabuList.size(); ++j) {
+                for (size_t j=0; j<tabuList.size(); ++j) {
                     std::pair<int, int> m = tabuList[j];
                     if (neighSolutions.find(m) != neighSolutions.end()) {
                         // valid tabu move only exists in neighSolutions
@@ -1651,7 +1651,7 @@ void AZPTabu::LocalImproving()
             }
             tabuList.insert(tabuList.begin(), add_tabu);
             tabuDict[add_tabu] = true;
-            if (tabuList.size() > tabuLength) {
+            if ((int)tabuList.size() > tabuLength) {
                 std::pair<int, int> pop_tabu = tabuList.back();
                 tabuDict.erase(pop_tabu);
                 tabuList.pop_back();
@@ -1731,7 +1731,7 @@ void AZPTabu::updateNeighSolution(int area, int from, int to)
         }
     }
 
-    for (int i=0; i<removed_keys.size(); ++i) {
+    for (size_t i=0; i<removed_keys.size(); ++i) {
         neighSolutions.erase(removed_keys[i]);
     }
 
@@ -1742,7 +1742,7 @@ void AZPTabu::updateNeighSolution(int area, int from, int to)
     rr.push_back(from);
     rr.push_back(to);
 
-    for (int i=0; i<rr.size(); ++i) {
+    for (size_t i=0; i<rr.size(); ++i) {
         int r = rr[i];
         getBorderingAreas(r);
         boost::unordered_map<int, bool>& areas = region2Area[r];

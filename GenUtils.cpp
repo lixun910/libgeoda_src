@@ -231,7 +231,7 @@ std::string Gda::CreateUUID(int nSize)
     Xoroshiro128Random rng;
 
     std::string uid;
-    while (uid.length() < nSize) {
+    while ((int)uid.length() < nSize) {
         int iSecret = rng.nextLong() % letters.size();
         uid += letters[iSecret];
     }
@@ -319,7 +319,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
     std::vector<double> data_valid;
 
     bool has_init = false;
-    for (size_t i =0; i<num_obs; i++) {
+    for (int i =0; i<num_obs; i++) {
         int obs_idx = data[i].second;
         if (!data_undef[obs_idx]) {
             double val = data[i].first;
@@ -481,7 +481,7 @@ SampleStatistics::SampleStatistics(const std::vector<double>& data,
 	sd_with_bessel(0), sd_without_bessel(0)
 {
     std::vector<double> valid_data;
-    for (int i=0; i<data.size(); i++) {
+    for (size_t i=0; i<data.size(); i++) {
         if (undefs[i] == false)
             valid_data.push_back(data[i]);
     }
@@ -496,7 +496,7 @@ SampleStatistics::SampleStatistics(const std::vector<double>& data,
 	sd_with_bessel(0), sd_without_bessel(0)
 {
     std::vector<double> valid_data;
-    for (int i=0; i<data.size(); i++) {
+    for (size_t i=0; i<data.size(); i++) {
         if (undefs1[i] || undefs2[i])
             continue;
         valid_data.push_back(data[i]);
@@ -508,7 +508,7 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data,
                                            const std::vector<bool>& undefs)
 {
     std::vector<double> valid_data;
-    for (int i=0; i<data.size(); i++) {
+    for (size_t i=0; i<data.size(); i++) {
         if (undefs[i] == false)
             valid_data.push_back(data[i]);
     }
@@ -677,7 +677,7 @@ SimpleLinearRegression::SimpleLinearRegression(const std::vector<double>& X,
     std::vector<double> X_valid;
     std::vector<double> Y_valid;
 
-    for (int i=0; i<X.size(); i++) {
+    for (size_t i=0; i<X.size(); i++) {
         if (X_undef[i] || Y_undef[i])
             continue;
 
@@ -875,12 +875,12 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 /** only display every other tic value */
 void AxisScale::SkipEvenTics()
 {
-	for (int i=0; i<tics_str_show.size(); i++) tics_str_show[i] = (i%2 == 0);
+	for (size_t i=0; i<tics_str_show.size(); i++) tics_str_show[i] = (i%2 == 0);
 }
 
 void AxisScale::ShowAllTics()
 {
-	for (int i=0; i<tics_str_show.size(); i++) tics_str_show[i] = true;
+	for (size_t i=0; i<tics_str_show.size(); i++) tics_str_show[i] = true;
 }
 
 string AxisScale::ToString()
@@ -918,7 +918,7 @@ bool GenUtils::StrToBool(const std::string& s)
  If string length >= width, then returns original input string. */
 std::string GenUtils::Pad(const std::string& s, int width, bool pad_left)
 {
-	if (s.length() >= width) return s;
+	if ((int)s.length() >= width) return s;
 	int pad_len = width - s.length();
 	std::stringstream output;
 	if (!pad_left) output << s;
@@ -1224,7 +1224,7 @@ bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
 	if (nObs <= 1) return false;
 
     int nValid = 0;
-    for (int i=0; i<undef.size(); i++) {
+    for (size_t i=0; i<undef.size(); i++) {
         if (!undef[i])
             nValid += 1;
     }
@@ -1264,7 +1264,7 @@ bool GenUtils::StandardizeData(std::vector<double>& data, std::vector<bool>& und
     if (nObs <= 1) return false;
 
     int nValid = 0;
-    for (int i=0; i<undef.size(); i++) {
+    for (size_t i=0; i<undef.size(); i++) {
         if (!undef[i])
             nValid += 1;
     }
@@ -1494,7 +1494,7 @@ const std::vector<int> GenUtils::flat_2dclusters(int n, std::vector<std::vector<
 
     for (int i=0; i < ncluster; i++) {
         int c = i + 1;
-        for (int j=0; j<clusters[i].size(); j++) {
+        for (size_t j=0; j<clusters[i].size(); j++) {
             int idx = clusters[i][j];
             cluster_ids[idx] = c;
         }
@@ -1540,7 +1540,7 @@ void pick_rand_breaks(std::vector<int>& b, int N, boost::uniform_01<boost::mt199
     if (num_breaks > N-1) return;
 
     std::set<int> s;
-    while (s.size() != num_breaks) s.insert(1 + (N-1)*X());
+    while ((int)s.size() != num_breaks) s.insert(1 + (N-1)*X());
     int cnt=0;
     for (std::set<int>::iterator it=s.begin(); it != s.end(); it++) {
         b[cnt++] = *it;
@@ -1597,7 +1597,7 @@ std::vector<double>  GenUtils::NaturalBreaks(int num_cats, const vector<double>&
     }
 
     std::vector<std::pair<double, int> > var;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         var.push_back(std::make_pair(data[i], i));
     }
     std::sort(var.begin(), var.end(), Gda::dbl_int_pair_cmp_less);
@@ -1682,7 +1682,7 @@ std::vector<double>  GenUtils::QuantileBreaks(int num_cats, const vector<double>
     }
 
     std::vector<std::pair<double, int> > var;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         var.push_back(std::make_pair(data[i], i));
     }
     std::sort(var.begin(), var.end(), Gda::dbl_int_pair_cmp_less);
@@ -1704,7 +1704,7 @@ std::vector<double>  GenUtils::Hinge15Breaks(const vector<double>& data, vector<
     }
 
     std::vector<std::pair<double, int> > var;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         var.push_back(std::make_pair(data[i], i));
     }
     std::sort(var.begin(), var.end(), Gda::dbl_int_pair_cmp_less);
@@ -1731,7 +1731,7 @@ std::vector<double>  GenUtils::Hinge30Breaks(const vector<double>& data, vector<
     }
 
     std::vector<std::pair<double, int> > var;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         var.push_back(std::make_pair(data[i], i));
     }
     std::sort(var.begin(), var.end(), Gda::dbl_int_pair_cmp_less);
@@ -1758,7 +1758,7 @@ std::vector<double>  GenUtils::PercentileBreaks(const vector<double>& data, vect
     }
 
     std::vector<std::pair<double, int> > var;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         var.push_back(std::make_pair(data[i], i));
     }
     std::sort(var.begin(), var.end(), Gda::dbl_int_pair_cmp_less);
@@ -1783,7 +1783,7 @@ std::vector<double>  GenUtils::StddevBreaks(const vector<double>& data, vector<b
     }
 
     std::vector<std::pair<double, int> > var;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (int i=0; i<num_obs; ++i) {
         var.push_back(std::make_pair(data[i], i));
     }
     std::sort(var.begin(), var.end(), Gda::dbl_int_pair_cmp_less);

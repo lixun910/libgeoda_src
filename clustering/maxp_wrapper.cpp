@@ -36,15 +36,15 @@ void maxp_wrapper::Run() {
             // get distance matrix
             input_data = new double*[num_obs];
             int** mask = new int*[num_obs];
-            for (size_t i=0; i<num_obs; ++i) {
+            for (int i=0; i<num_obs; ++i) {
                 input_data[i] = new double[n_cols];
                 mask[i] = new int[n_cols];
-                for (size_t j=0; j<n_cols; ++j) mask[i][j] = 1.0;
+                for (int j=0; j<n_cols; ++j) mask[i][j] = 1.0;
             }
-            for (size_t i=0; i<n_cols; ++i) {
+            for (int i=0; i<n_cols; ++i) {
                 std::vector<double> vals = data[i];
                 GenUtils::StandardizeData(vals);
-                for (size_t r=0; r<num_obs; ++r) {
+                for (int r=0; r<num_obs; ++r) {
                     input_data[r][i] = vals[r];
                 }
             }
@@ -53,7 +53,7 @@ void maxp_wrapper::Run() {
             if (boost::iequals(distance_method, "manhattan")) dist = 'b';
             int transpose = 0; // row wise
             double* weight = new double[n_cols];
-            for (size_t i=0; i<n_cols; ++i) weight[i] = 1.0;
+            for (int i=0; i<n_cols; ++i) weight[i] = 1.0;
 
             double** ragged_distances = distancematrix(num_obs, n_cols, input_data,  mask, weight, dist, transpose);
             dm = new RawDistMatrix(ragged_distances);
@@ -65,7 +65,7 @@ void maxp_wrapper::Run() {
             delete maxp;
 
             std::map<int, std::vector<int> > solution;
-            for (int i=0; i<final_solution.size(); ++i) {
+            for (size_t i=0; i<final_solution.size(); ++i) {
                 solution[final_solution[i]].push_back(i);
             }
             std::map<int, std::vector<int> >::iterator it;
@@ -84,7 +84,7 @@ void maxp_wrapper::CreateController(const std::vector<std::pair<double, std::vec
                                     const std::vector<std::pair<double, std::vector<double> > >& max_bounds)
 {
     // min bounds
-    for (int i=0; i<min_bounds.size(); ++i) {
+    for (size_t i=0; i<min_bounds.size(); ++i) {
         const std::pair<double, std::vector<double> >& bound = min_bounds[i];
         double min_bound = bound.first;
         std::vector<double> bound_vals = bound.second;
@@ -94,7 +94,7 @@ void maxp_wrapper::CreateController(const std::vector<std::pair<double, std::vec
         controllers.push_back(zc);
     }
     // max bounds
-    for (int i=0; i<max_bounds.size(); ++i) {
+    for (size_t i=0; i<max_bounds.size(); ++i) {
         const std::pair<double, std::vector<double> >& bound = max_bounds[i];
         double max_bound = bound.first;
         std::vector<double> bound_vals = bound.second;
