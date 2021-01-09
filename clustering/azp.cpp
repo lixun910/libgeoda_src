@@ -1105,6 +1105,22 @@ seed(_seed), init_areas(init_regions), max_iter(_max_iter), cpu_threads(cpu_thre
     objective_function = 0;
     largest_p = 0;
     best_of = DBL_MAX;
+#ifndef __NO_THREAD__
+#ifdef __USE_PTHREAD__
+    pthread_mutex_init(&lock, 0);
+    pthread_cond_init(&wcond, 0);
+#endif
+#endif
+}
+
+MaxpRegion::~MaxpRegion()
+{
+#ifndef __NO_THREAD__
+#ifdef __USE_PTHREAD__
+    pthread_mutex_destroy(&lock);
+    pthread_cond_destroy(&wcond);
+#endif
+#endif
 }
 
 void MaxpRegion::Run() {
@@ -1123,6 +1139,13 @@ void MaxpRegion::Run() {
     }
 #else
     PhaseConstructionThreaded();
+
+    std::map<double, std::vector<int> >::iterator it;
+    candidate_keys.clear();
+    for (it = candidates.begin(); it != candidates.end(); ++it) {
+        candidate_keys.push_back(it->first);
+    }
+
     PhaseLocalImprovementThreaded();
 #endif
 
@@ -1133,7 +1156,7 @@ void MaxpRegion::Run() {
 void MaxpRegion::PhaseConstructionThreaded()
 {
     int nCPUs = cpu_threads;
-    if (nCPUS <=0) nCPUS = 1;
+    if (nCPUs <=0) nCPUs = 1;
     int work_chunk = max_iter / nCPUs;
     if (work_chunk == 0) work_chunk = 1;
     int quotient = max_iter / nCPUs;
@@ -1185,7 +1208,7 @@ void MaxpRegion::PhaseConstructionThreaded()
 void MaxpRegion::PhaseLocalImprovementThreaded()
 {
     int nCPUs = cpu_threads;
-    if (nCPUS <=0) nCPUS = 1;
+    if (nCPUs <=0) nCPUs = 1;
     int nCandidates = candidates.size();
     int work_chunk = nCandidates / nCPUs;
     if (work_chunk == 0) work_chunk = 1;
@@ -1244,12 +1267,9 @@ void MaxpRegion::RunConstructionRange(int start, int end)
 
 void MaxpRegion::RunLocalImprovementRange(int start, int end)
 {
-    std::map<double, std::vector<int> >::iterator it = candidates.begin();
-
     for (int i=start; i<=end; ++i) {
-        std::advance(it, i);
-        double initial_objectivefunction = it->first;
-        std::vector<int> solution = it->second;
+        double initial_objectivefunction = candidate_keys[i];
+        std::vector<int> solution = candidates[initial_objectivefunction];
         RunAZP(solution, seed+initial_objectivefunction, i);
     }
 }
@@ -1274,6 +1294,7 @@ void MaxpRegion::RunConstruction(long long seed)
 #ifndef __USE_PTHREAD__
     mutex.unlock();
 #else
+    //pthread_cond_signal(&wcond);
     pthread_mutex_unlock(&lock);
 #endif
 }

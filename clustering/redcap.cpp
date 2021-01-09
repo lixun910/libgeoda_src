@@ -248,7 +248,7 @@ Edge::Edge(Node* a, Node* b, double _length)
 // Tree
 //
 /////////////////////////////////////////////////////////////////////////
-Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactory* _cluster, int cpu_threads)
+Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactory* _cluster)
   : cluster(_cluster),  edges(_edges), ordered_ids(_ordered_ids), cpu_threads(_cluster->cpu_threads)
 {
     ssd_reduce = 0;
@@ -680,8 +680,8 @@ void AbstractClusterFactory::Partitioning(int k)
 // Skater
 //
 ////////////////////////////////////////////////////////////////////////////////
-Skater::Skater(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres)
-: AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w)
+Skater::Skater(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres, int cpu_threads)
+: AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w, cpu_threads)
 {
     controls = _controls;
     control_thres = _control_thres;

@@ -316,7 +316,8 @@ namespace SpanningTreeClustering {
                const vector<bool>& undefs,
                GalElement * w,
                double* controls,
-               double control_thres);
+               double control_thres,
+               int cpu_threads);
         virtual ~Skater();
         virtual void Clustering();
     };

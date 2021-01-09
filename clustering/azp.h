@@ -584,7 +584,7 @@ public:
                long long seed,
                int cpu_threads);
 
-    virtual ~MaxpRegion() {}
+    virtual ~MaxpRegion();
 
     virtual void LocalImproving() {} // not implemented in maxp since we will call AZP again
 
@@ -628,6 +628,7 @@ protected:
     int max_iter;
 
     std::map<double, std::vector<int> > candidates;
+    std::vector<double> candidate_keys;
 
     int largest_p;
 
@@ -645,6 +646,7 @@ protected:
     boost::mutex mutex;
 #else
     pthread_mutex_t lock;
+    pthread_cond_t wcond;
 #endif
 #endif
 };
